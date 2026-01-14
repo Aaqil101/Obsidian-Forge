@@ -28,7 +28,7 @@ def main():
     app.setOrganizationName(APP_NAME.replace(" ", ""))
 
     # Set application icon
-    app.setWindowIcon(get_icon("obsidian-forge.svg"))
+    app.setWindowIcon(get_icon("obsidian_forge.svg"))
 
     # Apply Tokyo Night theme stylesheet
     app.setStyleSheet(get_main_stylesheet())

@@ -167,23 +167,24 @@ class SettingsDialog(QDialog):
             pressed_icon=Icons.FOLDER_OPEN,
             text="  &Browse",
         )
+        vault_browse_btn.setProperty("Vault", True)
         vault_browse_btn.setFixedHeight(32)
         vault_browse_btn.setStyleSheet(
             f"""
-            QPushButton {{
+            QPushButton[Vault=true] {{
                 background-color: rgba(255, 255, 255, 0.04);
                 color: {THEME_TEXT_PRIMARY};
                 border-radius: 4px;
                 padding: 4px 12px;
             }}
-            QPushButton:hover {{
+            QPushButton[Vault=true]:hover {{
                 background-color: rgba(255, 255, 255, 0.08);
                 border-bottom: 2px solid {COLOR_DARK_BLUE};
             }}
-            QPushButton:pressed {{
+            QPushButton[Vault=true]:pressed {{
                 background-color: rgba(255, 255, 255, 0.12);
             }}
-            QPushButton:focus {{
+            QPushButton[Vault=true]:focus {{
                 background-color: rgba(255, 255, 255, 0.08);
                 border-bottom: 2px solid {COLOR_DARK_BLUE};
                 outline: none;

@@ -70,8 +70,12 @@ def get_main_stylesheet() -> str:
             padding: 4px;
         }}
 
+        QMenu::icon {{
+            padding-left: 8px;
+        }}
+
         QMenu::item {{
-            padding: 8px 24px 8px 12px;
+            padding: 6px 24px 6px 4px;
             border-radius: {BORDER_RADIUS_SMALL}px;
         }}
 
@@ -83,6 +87,28 @@ def get_main_stylesheet() -> str:
             height: 1px;
             background-color: {THEME_BORDER};
             margin: 4px 8px;
+        }}
+
+        /* === Custom Menu Items === */
+        #MenuItem {{
+            background-color: transparent;
+            border-radius: {BORDER_RADIUS_SMALL}px;
+            min-width: 120px;
+        }}
+
+        #MenuItem:hover {{
+            background-color: {THEME_BG_PRIMARY};
+        }}
+
+        #MenuItemText {{
+            background-color: transparent;
+            color: {THEME_TEXT_PRIMARY};
+        }}
+
+        #MenuItemShortcut {{
+            background-color: transparent;
+            color: {THEME_TEXT_SUBTLE};
+            font-size: {FONT_SIZE_SMALL}pt;
         }}
 
         /* === Labels === */
@@ -264,6 +290,11 @@ def get_main_stylesheet() -> str:
             color: {THEME_TEXT_PRIMARY};
         }}
 
+        QMessageBox QPushButton {{
+            min-width: 80px;
+            padding: 8px 20px;
+        }}
+
         /* === Info Label === */
         QLabel[InfoBox="true"] {{
             background-color: {THEME_BG_SECONDARY};
@@ -322,5 +353,55 @@ def get_main_stylesheet() -> str:
             background-color: {THEME_BG_SECONDARY};
             color: {THEME_TEXT_SECONDARY};
             border-top: 1px solid {THEME_BORDER};
+        }}
+
+        /* === Search Bar === */
+        QLineEdit[SearchBar="true"] {{
+            background-color: rgba(255, 255, 255, 0.04);
+            color: {THEME_TEXT_PRIMARY};
+            border: 1px solid {THEME_BORDER};
+            border-radius: {BORDER_RADIUS_SMALL}px;
+            padding: 8px 12px;
+            font-size: {FONT_SIZE_SMALL + 1}pt;
+        }}
+
+        QLineEdit[SearchBar="true"]:focus {{
+            background-color: rgba(255, 255, 255, 0.06);
+            border: 1px solid {COLOR_DARK_BLUE};
+        }}
+
+        /* === Section Header === */
+        QLabel[SectionHeader="true"] {{
+            color: {COLOR_LIGHT_BLUE};
+            font-size: {FONT_SIZE_SMALL + 2}pt;
+            font-weight: bold;
+            padding: 8px 0px 4px 0px;
+        }}
+
+        /* === Script Card === */
+        QFrame[ScriptCard="true"] {{
+            background-color: rgba(255, 255, 255, 0.03);
+            border: 1px solid {THEME_BORDER};
+            border-radius: {BORDER_RADIUS_SMALL}px;
+        }}
+
+        QFrame[ScriptCard="true"]:hover {{
+            background-color: rgba(122, 162, 247, 0.1);
+            border: 1px solid {COLOR_DARK_BLUE};
+        }}
+
+        /* === Card Title === */
+        QLabel[CardTitle="true"] {{
+            color: {THEME_TEXT_PRIMARY};
+            font-size: {FONT_SIZE_SMALL + 1}pt;
+            font-weight: bold;
+            background-color: transparent;
+        }}
+
+        /* === Card Subtitle === */
+        QLabel[CardSubtitle="true"] {{
+            color: {THEME_TEXT_SUBTLE};
+            font-size: {FONT_SIZE_SMALL}pt;
+            background-color: transparent;
         }}
     """
