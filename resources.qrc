@@ -2,7 +2,7 @@
 <RCC version="1.0">
     <qresource prefix="/">
         <!-- Application Icon -->
-        <file>assets/obsidian-forge.svg</file>
+        <file>assets/obsidian_forge.svg</file>
         <file>assets/message.svg</file>
         <file>assets/settings.svg</file>
     </qresource>
