@@ -1,9 +1,71 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
     <qresource prefix="/">
-        <!-- Application Icon -->
+        <!-- Application Icons -->
         <file>assets/obsidian_forge.svg</file>
-        <file>assets/message.svg</file>
+        <file>assets/obsidian.svg</file>
+        <file>assets/nodejs.svg</file>
+
+        <!-- UI Control Icons -->
         <file>assets/settings.svg</file>
+        <file>assets/message.svg</file>
+        <file>assets/close.svg</file>
+        <file>assets/minimize.svg</file>
+        <file>assets/exit.svg</file>
+        <file>assets/expand_less.svg</file>
+        <file>assets/expand_more.svg</file>
+        <file>assets/drop_down_arrow.svg</file>
+        <file>assets/size_grip.svg</file>
+
+        <!-- Checkbox Icons -->
+        <file>assets/box_checked.svg</file>
+        <file>assets/box_checked_disabled.svg</file>
+        <file>assets/box_unchecked.svg</file>
+        <file>assets/box_unchecked_disabled.svg</file>
+        <file>assets/check.svg</file>
+
+        <!-- Status Icons -->
+        <file>assets/info.svg</file>
+        <file>assets/exclamation.svg</file>
+        <file>assets/download.svg</file>
+        <file>assets/download_off.svg</file>
+        <file>assets/download_on.svg</file>
+        <file>assets/visibility_off.svg</file>
+        <file>assets/visibility_on.svg</file>
+        <file>assets/win.svg</file>
+        <file>assets/miss.svg</file>
+        <file>assets/filled_circle.svg</file>
+
+        <!-- File/Folder Icons -->
+        <file>assets/file.svg</file>
+        <file>assets/folder.svg</file>
+        <file>assets/page_closed.svg</file>
+        <file>assets/page_opened.svg</file>
+
+        <!-- Journal Entry Types -->
+        <file>assets/journal_entries.svg</file>
+        <file>assets/daily.svg</file>
+        <file>assets/weekly.svg</file>
+        <file>assets/gratitude.svg</file>
+        <file>assets/dream.svg</file>
+        <file>assets/discovery.svg</file>
+        <file>assets/open_loops.svg</file>
+        <file>assets/review.svg</file>
+        <file>assets/sleep.svg</file>
+
+        <!-- Action Icons -->
+        <file>assets/delete.svg</file>
+        <file>assets/update.svg</file>
+        <file>assets/theme.svg</file>
+        <file>assets/favorite.svg</file>
+        <file>assets/quick_launch.svg</file>
+        <file>assets/icon_preset.svg</file>
+        <file>assets/progress.svg</file>
+        <file>assets/fake.svg</file>
+        <file>assets/wiki.svg</file>
+        <file>assets/search.svg</file>
+
+        <!-- Fonts -->
+        <file>assets/fonts/OpenSans-SemiBold.ttf</file>
     </qresource>
 </RCC>
