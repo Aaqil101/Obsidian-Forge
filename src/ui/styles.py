@@ -22,6 +22,7 @@ from src.utils import (
 def get_main_stylesheet() -> str:
     """
     Get the main application stylesheet with Tokyo Night theme.
+    Enhanced with Blender-Launcher-V2 component styling patterns.
 
     Returns:
         Complete stylesheet string for QApplication
@@ -29,13 +30,7 @@ def get_main_stylesheet() -> str:
     return f"""
         /* === Main Window === */
         QMainWindow {{
-            background-color: {THEME_BG_SECONDARY};
-            color: {THEME_TEXT_PRIMARY};
-        }}
-
-        /* === Central Widget === */
-        QWidget {{
-            background-color: {THEME_BG_SECONDARY};
+            background-color: {THEME_BG_PRIMARY};
             color: {THEME_TEXT_PRIMARY};
         }}
 
@@ -55,6 +50,7 @@ def get_main_stylesheet() -> str:
 
         QMenuBar::item:selected {{
             background-color: {THEME_BG_PRIMARY};
+            color: {COLOR_LIGHT_BLUE};
         }}
 
         QMenuBar::item:pressed {{
@@ -75,12 +71,17 @@ def get_main_stylesheet() -> str:
         }}
 
         QMenu::item {{
-            padding: 6px 24px 6px 4px;
+            padding: 6px 24px 6px 10px;
             border-radius: {BORDER_RADIUS_SMALL}px;
         }}
 
         QMenu::item:selected {{
-            background-color: {THEME_BG_PRIMARY};
+            background-color: rgba(122, 162, 247, 0.2);
+            color: #FFFFFF;
+        }}
+
+        QMenu::item:disabled {{
+            color: {THEME_TEXT_SUBTLE};
         }}
 
         QMenu::separator {{
@@ -97,7 +98,7 @@ def get_main_stylesheet() -> str:
         }}
 
         #MenuItem:hover {{
-            background-color: {THEME_BG_PRIMARY};
+            background-color: rgba(122, 162, 247, 0.15);
         }}
 
         #MenuItemText {{
@@ -120,13 +121,16 @@ def get_main_stylesheet() -> str:
         /* === Tab Widget === */
         QTabWidget::pane {{
             background-color: {THEME_BG_PRIMARY};
+            border: 1px solid {THEME_BORDER};
+            border-radius: {BORDER_RADIUS_SMALL}px;
         }}
         QTabBar::tab {{
             background-color: {THEME_BG_SECONDARY};
             color: {THEME_TEXT_SECONDARY};
             padding: 8px 16px;
             margin-right: 2px;
-            font-weight: normal;
+            border-top-left-radius: {BORDER_RADIUS_SMALL}px;
+            border-top-right-radius: {BORDER_RADIUS_SMALL}px;
         }}
         QTabBar::tab:hover {{
             background-color: rgba(122, 162, 247, 0.1);
@@ -134,12 +138,13 @@ def get_main_stylesheet() -> str:
         }}
         QTabBar::tab:selected {{
             background-color: rgba(122, 162, 247, 0.2);
-            color: {THEME_TEXT_PRIMARY};
+            color: #FFFFFF;
             font-weight: bold;
         }}
+        QTabBar::tab:disabled {{
+            color: {THEME_TEXT_SUBTLE};
+        }}
         QTabBar:focus {{
-            background-color: rgba(122, 162, 247, 0.1);
-            color: {THEME_TEXT_PRIMARY};
             outline: none;
         }}
 
@@ -277,8 +282,12 @@ def get_main_stylesheet() -> str:
 
         /* === Dialog === */
         QDialog {{
-            background-color: {THEME_BG_SECONDARY};
+            background-color: {THEME_BG_PRIMARY};
             color: {THEME_TEXT_PRIMARY};
+        }}
+
+        QDialog QFrame {{
+            background-color: transparent;
         }}
 
         /* === Message Box === */
@@ -361,21 +370,13 @@ def get_main_stylesheet() -> str:
             color: {THEME_TEXT_PRIMARY};
             border: 1px solid {THEME_BORDER};
             border-radius: {BORDER_RADIUS_SMALL}px;
-            padding: 8px 12px;
-            font-size: {FONT_SIZE_SMALL + 1}pt;
+            padding: 6px 8px 6px 0px;
+            font-size: {FONT_SIZE_SMALL}pt;
         }}
 
         QLineEdit[SearchBar="true"]:focus {{
             background-color: rgba(255, 255, 255, 0.06);
             border: 1px solid {COLOR_DARK_BLUE};
-        }}
-
-        /* === Section Header === */
-        QLabel[SectionHeader="true"] {{
-            color: {COLOR_LIGHT_BLUE};
-            font-size: {FONT_SIZE_SMALL + 2}pt;
-            font-weight: bold;
-            padding: 8px 0px 4px 0px;
         }}
 
         /* === Script Card === */
@@ -388,6 +389,29 @@ def get_main_stylesheet() -> str:
         QFrame[ScriptCard="true"]:hover {{
             background-color: rgba(122, 162, 247, 0.1);
             border: 1px solid {COLOR_DARK_BLUE};
+        }}
+
+        /* === Script Row (Button Cards) === */
+        QWidget[ScriptRow="true"] {{
+            background-color: rgba(25, 30, 40, 0.6);
+            border: 1px solid rgba(50, 60, 75, 0.6);
+            border-radius: {BORDER_RADIUS_SMALL}px;
+        }}
+
+        QWidget[ScriptRow="true"]:hover {{
+            background-color: rgba(35, 42, 55, 0.8);
+            border: 1px solid rgba(80, 95, 115, 0.8);
+        }}
+
+        QWidget[ScriptRow="true"]:disabled {{
+            background-color: rgba(20, 25, 35, 0.4);
+            border: 1px solid rgba(40, 45, 55, 0.5);
+            opacity: 0.5;
+        }}
+
+        QWidget[ScriptRow="true"] QLabel {{
+            background: transparent;
+            color: {THEME_TEXT_PRIMARY};
         }}
 
         /* === Card Title === */
@@ -404,4 +428,279 @@ def get_main_stylesheet() -> str:
             font-size: {FONT_SIZE_SMALL}pt;
             background-color: transparent;
         }}
-    """
+
+        /* === Primary Button === */
+        QPushButton[PrimaryButton="true"] {{
+            background-color: {COLOR_DARK_BLUE};
+            color: #FFFFFF;
+            border: 1px solid {COLOR_DARK_BLUE};
+        }}
+
+        QPushButton[PrimaryButton="true"]:hover {{
+            background-color: {COLOR_LIGHT_BLUE};
+            border: 1px solid {COLOR_LIGHT_BLUE};
+        }}
+
+        QPushButton[PrimaryButton="true"]:pressed {{
+            background-color: #4a6cb8;
+        }}
+
+        /* === Secondary Button === */
+        QPushButton[SecondaryButton="true"] {{
+            background-color: rgba(255, 255, 255, 0.06);
+            color: {THEME_TEXT_PRIMARY};
+            border: 1px solid {THEME_BORDER};
+        }}
+
+        QPushButton[SecondaryButton="true"]:hover {{
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #FFFFFF;
+            border: 1px solid rgba(122, 162, 247, 0.5);
+        }}
+
+        QPushButton[SecondaryButton="true"]:pressed {{
+            background-color: rgba(255, 255, 255, 0.08);
+        }}
+
+        /* === Danger/Cancel Button === */
+        QPushButton[CancelButton="true"] {{
+            background-color: rgba(247, 118, 142, 0.15);
+            color: #f7768e;
+            border: 1px solid rgba(247, 118, 142, 0.3);
+        }}
+
+        QPushButton[CancelButton="true"]:hover {{
+            background-color: rgba(247, 118, 142, 0.25);
+            color: #FFFFFF;
+            border: 1px solid #f7768e;
+        }}
+
+        QPushButton[CancelButton="true"]:pressed {{
+            background-color: rgba(247, 118, 142, 0.35);
+        }}
+
+        /* === Popup Button === */
+        QPushButton[Popup="true"] {{
+            background-color: rgba(255, 255, 255, 0.08);
+            color: {THEME_TEXT_PRIMARY};
+            border: 1px solid {THEME_BORDER};
+            padding: 8px 20px;
+            min-width: 80px;
+        }}
+
+        QPushButton[Popup="true"]:hover {{
+            background-color: rgba(122, 162, 247, 0.2);
+            color: #FFFFFF;
+            border: 1px solid {COLOR_LIGHT_BLUE};
+        }}
+
+        /* === Tool Button === */
+        QToolButton {{
+            background-color: transparent;
+            border: none;
+            border-radius: {BORDER_RADIUS_SMALL}px;
+            padding: 4px;
+        }}
+
+        QToolButton:hover {{
+            background-color: rgba(122, 162, 247, 0.15);
+        }}
+
+        QToolButton:pressed {{
+            background-color: rgba(122, 162, 247, 0.25);
+        }}
+
+        /* === Combo Box === */
+        QComboBox {{
+            background-color: rgba(255, 255, 255, 0.04);
+            color: {THEME_TEXT_PRIMARY};
+            border: 1px solid {THEME_BORDER};
+            border-radius: {BORDER_RADIUS_SMALL}px;
+            padding: 6px 10px;
+            min-width: 100px;
+        }}
+
+        QComboBox:hover {{
+            background-color: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(122, 162, 247, 0.5);
+        }}
+
+        QComboBox:focus {{
+            background-color: #222;
+            border: 1px solid {COLOR_DARK_BLUE};
+        }}
+
+        QComboBox::drop-down {{
+            border: none;
+            padding-right: 8px;
+        }}
+
+        QComboBox::down-arrow {{
+            image: none;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 5px solid {THEME_TEXT_PRIMARY};
+            margin-right: 5px;
+        }}
+
+        QComboBox QAbstractItemView {{
+            background-color: {THEME_BG_SECONDARY};
+            color: {THEME_TEXT_PRIMARY};
+            border: 1px solid {THEME_BORDER};
+            border-radius: {BORDER_RADIUS_SMALL}px;
+            selection-background-color: rgba(122, 162, 247, 0.3);
+            selection-color: #FFFFFF;
+            padding: 4px;
+        }}
+
+        QComboBox QAbstractItemView::item {{
+            padding: 6px 10px;
+            border-radius: {BORDER_RADIUS_SMALL - 2}px;
+        }}
+
+        QComboBox QAbstractItemView::item:hover {{
+            background-color: rgba(122, 162, 247, 0.15);
+        }}
+
+        /* === Spin Box === */
+        QSpinBox, QDoubleSpinBox {{
+            background-color: rgba(255, 255, 255, 0.04);
+            color: {THEME_TEXT_PRIMARY};
+            border: 1px solid {THEME_BORDER};
+            border-radius: {BORDER_RADIUS_SMALL}px;
+            padding: 6px 10px;
+        }}
+
+        QSpinBox:hover, QDoubleSpinBox:hover {{
+            background-color: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(122, 162, 247, 0.5);
+        }}
+
+        QSpinBox:focus, QDoubleSpinBox:focus {{
+            background-color: #222;
+            border: 1px solid {COLOR_DARK_BLUE};
+        }}
+
+        QSpinBox::up-button, QDoubleSpinBox::up-button {{
+            background-color: transparent;
+            border: none;
+            border-left: 1px solid {THEME_BORDER};
+            border-radius: 0;
+            width: 20px;
+        }}
+
+        QSpinBox::up-button:hover, QDoubleSpinBox::up-button:hover {{
+            background-color: rgba(122, 162, 247, 0.15);
+        }}
+
+        QSpinBox::down-button, QDoubleSpinBox::down-button {{
+            background-color: transparent;
+            border: none;
+            border-left: 1px solid {THEME_BORDER};
+            border-radius: 0;
+            width: 20px;
+        }}
+
+        QSpinBox::down-button:hover, QDoubleSpinBox::down-button:hover {{
+            background-color: rgba(122, 162, 247, 0.15);
+        }}
+
+        /* === Check Box === */
+        QCheckBox {{
+            color: {THEME_TEXT_PRIMARY};
+            spacing: 8px;
+        }}
+
+        QCheckBox::indicator {{
+            width: 18px;
+            height: 18px;
+            border: 2px solid {THEME_BORDER};
+            border-radius: {BORDER_RADIUS_SMALL - 2}px;
+            background-color: rgba(255, 255, 255, 0.04);
+        }}
+
+        QCheckBox::indicator:hover {{
+            border: 2px solid rgba(122, 162, 247, 0.5);
+            background-color: rgba(255, 255, 255, 0.06);
+        }}
+
+        QCheckBox::indicator:checked {{
+            background-color: {COLOR_DARK_BLUE};
+            border: 2px solid {COLOR_DARK_BLUE};
+        }}
+
+        QCheckBox::indicator:checked:hover {{
+            background-color: {COLOR_LIGHT_BLUE};
+            border: 2px solid {COLOR_LIGHT_BLUE};
+        }}
+
+        QCheckBox::indicator:disabled {{
+            background-color: rgba(255, 255, 255, 0.02);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }}
+
+        /* === Radio Button === */
+        QRadioButton {{
+            color: {THEME_TEXT_PRIMARY};
+            spacing: 8px;
+        }}
+
+        QRadioButton::indicator {{
+            width: 18px;
+            height: 18px;
+            border: 2px solid {THEME_BORDER};
+            border-radius: 9px;
+            background-color: rgba(255, 255, 255, 0.04);
+        }}
+
+        QRadioButton::indicator:hover {{
+            border: 2px solid rgba(122, 162, 247, 0.5);
+            background-color: rgba(255, 255, 255, 0.06);
+        }}
+
+        QRadioButton::indicator:checked {{
+            background-color: {COLOR_DARK_BLUE};
+            border: 2px solid {COLOR_DARK_BLUE};
+        }}
+
+        QRadioButton::indicator:checked:hover {{
+            background-color: {COLOR_LIGHT_BLUE};
+            border: 2px solid {COLOR_LIGHT_BLUE};
+        }}
+
+        /* === Progress Bar === */
+        QProgressBar {{
+            background-color: rgba(255, 255, 255, 0.04);
+            border: 1px solid {THEME_BORDER};
+            border-radius: {BORDER_RADIUS_SMALL}px;
+            text-align: center;
+            color: {THEME_TEXT_PRIMARY};
+            height: 20px;
+        }}
+
+        QProgressBar::chunk {{
+            background-color: {COLOR_DARK_BLUE};
+            border-radius: {BORDER_RADIUS_SMALL - 1}px;
+        }}
+
+        /* === Slider === */
+        QSlider::groove:horizontal {{
+            background-color: rgba(255, 255, 255, 0.04);
+            border: 1px solid {THEME_BORDER};
+            height: 6px;
+            border-radius: 3px;
+        }}
+
+        QSlider::handle:horizontal {{
+            background-color: {COLOR_LIGHT_BLUE};
+            border: 2px solid {COLOR_DARK_BLUE};
+            width: 16px;
+            margin: -6px 0;
+            border-radius: 8px;
+        }}
+
+        QSlider::handle:horizontal:hover {{
+            background-color: #FFFFFF;
+            border: 2px solid {COLOR_LIGHT_BLUE};
+        }}
+        """

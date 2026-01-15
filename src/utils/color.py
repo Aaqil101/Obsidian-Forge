@@ -6,8 +6,8 @@ Based on GitUI's Tokyo Night theme.
 # ══════════════════════════════════════════════════════════════════
 # THEME - TOKYO NIGHT
 # ══════════════════════════════════════════════════════════════════
-THEME_BG_PRIMARY = "#1a1b26"
-THEME_BG_SECONDARY = "#24283b"
+THEME_BG_PRIMARY = "#232323"
+THEME_BG_SECONDARY = "#282828"
 THEME_TEXT_PRIMARY = "#c0caf5"
 THEME_TEXT_SECONDARY = "#9aa4d1"
 THEME_TEXT_SUBTLE = "#a9b1d6"

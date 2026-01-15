@@ -22,6 +22,7 @@ AUTHOR = "Aaqil"
 DAILY_SCRIPTS_PATH = "98 - Organize/Scripts/Add to Daily Note"
 WEEKLY_SCRIPTS_PATH = "98 - Organize/Scripts/Add to Weekly Note"
 UTILS_SCRIPTS_PATH = "98 - Organize/Scripts/Utils"
+TIME_PATH = "Time.md"
 
 # ══════════════════════════════════════════════════════════════════
 # FONT SETTINGS
@@ -94,6 +95,10 @@ class Config:
             "nodejs_path": "node",  # Default to 'node' in PATH
             "theme": "tokyo-night",
             "enable_animations": True,
+            "custom_daily_scripts_path": "",
+            "custom_weekly_scripts_path": "",
+            "custom_utils_scripts_path": "",
+            "custom_time_path": "",
         }
 
     def save_settings(self) -> bool:
@@ -137,23 +142,113 @@ class Config:
         """Set animation enable setting."""
         self.settings["enable_animations"] = enabled
 
+    @property
+    def custom_daily_scripts_path(self) -> str:
+        """Get custom daily scripts path."""
+        return self.settings.get("custom_daily_scripts_path", "")
+
+    @custom_daily_scripts_path.setter
+    def custom_daily_scripts_path(self, path: str) -> None:
+        """Set custom daily scripts path."""
+        self.settings["custom_daily_scripts_path"] = path
+
+    @property
+    def custom_weekly_scripts_path(self) -> str:
+        """Get custom weekly scripts path."""
+        return self.settings.get("custom_weekly_scripts_path", "")
+
+    @custom_weekly_scripts_path.setter
+    def custom_weekly_scripts_path(self, path: str) -> None:
+        """Set custom weekly scripts path."""
+        self.settings["custom_weekly_scripts_path"] = path
+
+    @property
+    def custom_utils_scripts_path(self) -> str:
+        """Get custom utils scripts path."""
+        return self.settings.get("custom_utils_scripts_path", "")
+
+    @custom_utils_scripts_path.setter
+    def custom_utils_scripts_path(self, path: str) -> None:
+        """Set custom utils scripts path."""
+        self.settings["custom_utils_scripts_path"] = path
+
+    @property
+    def custom_time_path(self) -> str:
+        """Get custom time path."""
+        return self.settings.get("custom_time_path", "")
+
+    @custom_time_path.setter
+    def custom_time_path(self, path: str) -> None:
+        """Set custom time path."""
+        self.settings["custom_time_path"] = path
+
     def get_daily_scripts_path(self) -> Optional[Path]:
         """Get full path to daily scripts directory."""
         if not self.vault_path:
             return None
+        # Use custom path if set, otherwise use default
+        if self.custom_daily_scripts_path:
+            return Path(self.vault_path) / self.custom_daily_scripts_path
         return Path(self.vault_path) / DAILY_SCRIPTS_PATH
 
     def get_weekly_scripts_path(self) -> Optional[Path]:
         """Get full path to weekly scripts directory."""
         if not self.vault_path:
             return None
+        # Use custom path if set, otherwise use default
+        if self.custom_weekly_scripts_path:
+            return Path(self.vault_path) / self.custom_weekly_scripts_path
         return Path(self.vault_path) / WEEKLY_SCRIPTS_PATH
 
     def get_utils_scripts_path(self) -> Optional[Path]:
         """Get full path to utils scripts directory."""
         if not self.vault_path:
             return None
+        # Use custom path if set, otherwise use default
+        if self.custom_utils_scripts_path:
+            return Path(self.vault_path) / self.custom_utils_scripts_path
         return Path(self.vault_path) / UTILS_SCRIPTS_PATH
+
+    def get_time_path(self) -> Optional[Path]:
+        """Get full path to time file."""
+        if not self.vault_path:
+            return None
+        # Use custom path if set, otherwise use default
+        if self.custom_time_path:
+            return Path(self.vault_path) / self.custom_time_path
+        return Path(self.vault_path) / TIME_PATH
+
+    def scan_vault_folders(self, vault_path: str = None) -> list[str]:
+        """Scan vault for all folders, excluding .obsidian and .space directories.
+
+        Args:
+            vault_path: Path to scan. If None, uses configured vault_path.
+
+        Returns:
+            List of relative folder paths from vault root.
+        """
+        if vault_path is None:
+            vault_path = self.vault_path
+
+        if not vault_path or not os.path.exists(vault_path):
+            return []
+
+        folders = []
+        vault_root = Path(vault_path)
+
+        # Walk through directory tree
+        for root, dirs, files in os.walk(vault_path):
+            # Filter out excluded directories
+            dirs[:] = [d for d in dirs if d not in ['.obsidian', '.space']]
+
+            # Get relative path from vault root
+            rel_path = Path(root).relative_to(vault_root)
+
+            # Skip the root itself
+            if str(rel_path) != '.':
+                folders.append(str(rel_path))
+
+        return sorted(folders)
 
     def is_configured(self) -> bool:
         """Check if all required settings are configured."""

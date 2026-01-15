@@ -8,7 +8,7 @@ from pathlib import Path
 
 # ----- PySide6 Modules-----
 from PySide6.QtCore import QSize, Qt, QThread, Signal
-from PySide6.QtGui import QKeySequence, QShortcut
+from PySide6.QtGui import QFont, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QDialog,
     QFrame,
@@ -58,11 +58,13 @@ from src.core import (
 # ----- UI Modules-----
 from src.ui import components
 from src.ui.about_dialog import AboutDialog
+from src.ui.popup_window import PopupIcon, PopupWindow
 from src.ui.settings_dialog import SettingsDialog
 from src.ui.sleep_dialog import SleepInputDialog
+from src.ui.widgets import ScriptRow, SettingsGroup
 
 # ----- Utils Modules-----
-from src.utils import Icons, get_icon
+from src.utils import THEME_TEXT_PRIMARY, Icons, get_icon
 
 
 class ScriptThread(QThread):
@@ -234,13 +236,13 @@ class MainWindow(QMainWindow):
         search_shortcut.activated.connect(lambda: self.search_input.setFocus())
 
     def setup_ui(self) -> None:
-        """Setup the user interface."""
+        """Setup the user interface with Blender-Launcher-inspired design."""
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
 
         main_layout = QVBoxLayout()
-        main_layout.setContentsMargins(PADDING, PADDING, PADDING, PADDING)
-        main_layout.setSpacing(SPACING)
+        main_layout.setContentsMargins(8, 8, 8, 8)
+        main_layout.setSpacing(SPACING_SMALL)
 
         # Search bar at top
         search_container = QWidget()
@@ -248,146 +250,118 @@ class MainWindow(QMainWindow):
         search_layout.setContentsMargins(0, 0, 0, 0)
         search_layout.setSpacing(SPACING_SMALL)
 
-        search_icon = QLabel(Icons.SEARCH)
-        search_icon.setStyleSheet("color: #565f89; font-size: 14px;")
-        search_layout.addWidget(search_icon)
-
         self.search_input = QLineEdit()
+        self.search_input.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
         self.search_input.setPlaceholderText("Search scripts... (Ctrl+F)")
         self.search_input.setProperty("SearchBar", True)
         self.search_input.textChanged.connect(self.filter_scripts)
+
+        # Add search icon to the line edit with theme color
+        self.search_input.addAction(
+            get_icon("search.svg", THEME_TEXT_PRIMARY),
+            QLineEdit.ActionPosition.LeadingPosition,
+        )
+
+        # Reduce left margin to bring icon closer
+        self.search_input.setTextMargins(0, 0, 0, 0)
+
         search_layout.addWidget(self.search_input)
 
         main_layout.addWidget(search_container)
 
-        # Scroll area for cards
+        # Scroll area for script sections
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
         scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         scroll_area.setFrameShape(QFrame.Shape.NoFrame)
 
-        # Container for all cards
-        self.cards_container = QWidget()
-        self.cards_layout = QVBoxLayout(self.cards_container)
-        self.cards_layout.setContentsMargins(0, 0, 0, 0)
-        self.cards_layout.setSpacing(SPACING)
+        # Container for all sections
+        self.sections_container = QWidget()
+        self.sections_layout = QVBoxLayout(self.sections_container)
+        self.sections_layout.setContentsMargins(0, 0, 0, 0)
+        self.sections_layout.setSpacing(0)  # No spacing - cards have their own margin
 
-        # Store all script cards for filtering
-        self.all_cards = []
+        # Store all script rows for filtering
+        self.all_script_rows = []
 
         # Daily Notes Section
-        self.create_section("Daily Notes", "daily.svg", "daily")
+        self.create_collapsible_section("Daily Notes", "daily")
 
         # Weekly Notes Section
-        self.create_section("Weekly Notes", "weekly.svg", "weekly")
+        self.create_collapsible_section("Weekly Notes", "weekly")
 
         # Add stretch at the end
-        self.cards_layout.addStretch()
+        self.sections_layout.addStretch()
 
-        scroll_area.setWidget(self.cards_container)
+        scroll_area.setWidget(self.sections_container)
         main_layout.addWidget(scroll_area)
 
         central_widget.setLayout(main_layout)
 
-    def create_section(self, title: str, icon_name: str, script_type: str) -> None:
-        """Create a section with header and script cards."""
-        # Section header with SVG icon
-        header_widget = QWidget()
-        header_layout = QHBoxLayout(header_widget)
-        header_layout.setContentsMargins(0, 0, 0, 0)
-        header_layout.setSpacing(8)
+    def create_collapsible_section(self, title: str, script_type: str) -> None:
+        """Create a collapsible section with script cards in a grid layout."""
+        # Create collapsible settings group
+        section_group = SettingsGroup(title, parent=self.sections_container)
 
-        icon_label = QLabel()
-        icon_label.setPixmap(get_icon(icon_name).pixmap(QSize(20, 20)))
-        icon_label.setStyleSheet("background: transparent;")
-        header_layout.addWidget(icon_label)
+        # Create container for script cards with grid layout
+        cards_widget = QWidget()
+        cards_widget.setStyleSheet("background: transparent;")
+        cards_layout = QGridLayout(cards_widget)
+        cards_layout.setContentsMargins(6, 6, 6, 6)
+        cards_layout.setSpacing(SPACING_SMALL)
 
-        title_label = QLabel(title)
-        title_label.setProperty("SectionHeader", True)
-        header_layout.addWidget(title_label)
-        header_layout.addStretch()
-
-        self.cards_layout.addWidget(header_widget)
-
-        # Grid for cards
-        grid_widget = QWidget()
-        grid_layout = QGridLayout(grid_widget)
-        grid_layout.setContentsMargins(0, 0, 0, 0)
-        grid_layout.setSpacing(SPACING_SMALL)
-
+        # Get scripts and create cards in grid (5 columns)
         scripts = self.executor.get_available_scripts(script_type)
-        for idx, script in enumerate(scripts):
-            card = self.create_script_card(script, script_type)
-            row = idx // 3  # 3 cards per row
-            col = idx % 3
-            grid_layout.addWidget(card, row, col)
-            self.all_cards.append((card, script["name"].lower(), script_type))
+        columns = 5
+        for index, script in enumerate(scripts):
+            row: int = index // columns
+            col: int = index % columns
 
-        self.cards_layout.addWidget(grid_widget)
+            script_row = ScriptRow(
+                name=script["name"],
+                icon_name=script["icon"],
+                description=f"Execute {script['name']} script",
+                script_type=script_type,
+                parent=cards_widget,
+            )
+            # Connect to run script
+            script_row.execute_clicked.connect(
+                lambda s=script: self.run_script(s["name"], s["path"])
+            )
+            cards_layout.addWidget(script_row, row, col)
 
-    def create_script_card(self, script: dict, script_type: str) -> QFrame:
-        """Create a compact card for a script."""
-        card = QFrame()
-        card.setProperty("ScriptCard", True)
-        card.setCursor(Qt.CursorShape.PointingHandCursor)
-        card.setFixedHeight(60)
+            # Store for filtering
+            self.all_script_rows.append(
+                (script_row, script["name"].lower(), script_type)
+            )
 
-        layout = QVBoxLayout(card)
-        layout.setContentsMargins(
-            PADDING_SMALL, PADDING_SMALL, PADDING_SMALL, PADDING_SMALL
-        )
-        layout.setSpacing(2)
+        # Set the content widget
+        section_group.setWidget(cards_widget)
 
-        # Icon and name row
-        name_row = QHBoxLayout()
-        name_row.setSpacing(SPACING_SMALL)
-
-        icon_label = QLabel()
-        icon_label.setPixmap(get_icon(script["icon"]).pixmap(QSize(16, 16)))
-        icon_label.setStyleSheet("background: transparent;")
-        name_row.addWidget(icon_label)
-
-        name_label = QLabel(script["name"])
-        name_label.setProperty("CardTitle", True)
-        name_row.addWidget(name_label)
-        name_row.addStretch()
-
-        layout.addLayout(name_row)
-
-        # Script type indicator
-        type_label = QLabel(script_type.capitalize())
-        type_label.setProperty("CardSubtitle", True)
-        layout.addWidget(type_label)
-
-        # Store script data for click handling
-        card.script_name = script["name"]
-        card.script_path = script["path"]
-
-        # Make card clickable
-        card.mousePressEvent = lambda event, s=script: self.run_script(
-            s["name"], s["path"]
-        )
-
-        return card
+        # Add to main layout
+        self.sections_layout.addWidget(section_group)
 
     def filter_scripts(self, text: str) -> None:
-        """Filter script cards based on search text."""
-        search_text = text.lower().strip()
-        for card, name, script_type in self.all_cards:
+        """Filter script rows based on search text."""
+        search_text: str = text.lower().strip()
+        for script_row, name, script_type in self.all_script_rows:
             if search_text == "" or search_text in name or search_text in script_type:
-                card.setVisible(True)
+                script_row.setVisible(True)
             else:
-                card.setVisible(False)
+                script_row.setVisible(False)
 
     def run_script(self, script_name: str, script_path: str) -> None:
         """Run a script after getting user input."""
         if not self.config.is_configured():
-            QMessageBox.warning(
-                self,
-                "Configuration Required",
-                "Please configure the application settings first.",
+            popup = PopupWindow(
+                message="Please configure the application settings first.",
+                title="Configuration Required",
+                icon=PopupIcon.WARNING,
+                info_popup=True,
+                parent=self,
             )
-            self.show_settings()
+            popup.accepted.connect(self.show_settings)
+            popup.exec()
             return
 
         # Check if this is the sleep script - it needs special handling
@@ -401,13 +375,8 @@ class MainWindow(QMainWindow):
         dialog.setMinimumSize(550, 400)
 
         layout = QVBoxLayout()
-        layout.setContentsMargins(
-            PADDING_LARGE,
-            PADDING_LARGE,
-            PADDING_LARGE,
-            PADDING_LARGE,
-        )
-        layout.setSpacing(SPACING_LARGE)
+        layout.setContentsMargins(6, 6, 6, 6)
+        layout.setSpacing(8)
 
         # Instruction label
         if "daily" in script_path.lower():
@@ -468,11 +437,14 @@ class MainWindow(QMainWindow):
     def _execute_sleep_script(self, script_path: str, sleep_data) -> None:
         """Execute the sleep script in a background thread."""
         if self.script_thread and self.script_thread.isRunning():
-            QMessageBox.warning(
-                self,
-                "Script Running",
-                "A script is already running. Please wait for it to complete.",
+            popup = PopupWindow(
+                message="A script is already running. Please wait for it to complete.",
+                title="Script Running",
+                icon=PopupIcon.WARNING,
+                info_popup=True,
+                parent=self,
             )
+            popup.exec()
             return
 
         # Disable UI
@@ -489,11 +461,14 @@ class MainWindow(QMainWindow):
     def execute_script(self, script_path: str, user_input: str) -> None:
         """Execute a script in a background thread."""
         if self.script_thread and self.script_thread.isRunning():
-            QMessageBox.warning(
-                self,
-                "Script Running",
-                "A script is already running. Please wait for it to complete.",
+            popup = PopupWindow(
+                message="A script is already running. Please wait for it to complete.",
+                title="Script Running",
+                icon=PopupIcon.WARNING,
+                info_popup=True,
+                parent=self,
             )
+            popup.exec()
             return
 
         # Disable UI
@@ -512,17 +487,23 @@ class MainWindow(QMainWindow):
         self.statusBar().clearMessage()
 
         if result["success"]:
-            QMessageBox.information(
-                self,
-                f"{Icons.CHECK}  Success",
-                result["output"] or "Script executed successfully!",
+            popup = PopupWindow(
+                message=result["output"] or "Script executed successfully!",
+                title="Success",
+                icon=PopupIcon.SUCCESS,
+                info_popup=True,
+                parent=self,
             )
+            popup.exec()
         else:
-            QMessageBox.critical(
-                self,
-                f"{Icons.CROSS}  Error",
-                f"Script execution failed:\n\n{result['error']}",
+            popup = PopupWindow(
+                message=f"Script execution failed:\n\n{result['error']}",
+                title="Error",
+                icon=PopupIcon.ERROR,
+                info_popup=True,
+                parent=self,
             )
+            popup.exec()
 
     def show_settings(self) -> None:
         """Show the settings dialog."""
@@ -533,19 +514,19 @@ class MainWindow(QMainWindow):
 
     def refresh_ui(self) -> None:
         """Refresh the UI after settings change."""
-        # Clear existing cards
-        self.all_cards.clear()
+        # Clear existing script rows
+        self.all_script_rows.clear()
 
-        # Clear the cards layout
-        while self.cards_layout.count() > 0:
-            item = self.cards_layout.takeAt(0)
+        # Clear the sections layout
+        while self.sections_layout.count() > 0:
+            item = self.sections_layout.takeAt(0)
             if item.widget():
                 item.widget().deleteLater()
 
         # Recreate sections
-        self.create_section("Daily Notes", "daily.svg", "daily")
-        self.create_section("Weekly Notes", "weekly.svg", "weekly")
-        self.cards_layout.addStretch()
+        self.create_collapsible_section("Daily Notes", "daily")
+        self.create_collapsible_section("Weekly Notes", "weekly")
+        self.sections_layout.addStretch()
 
     def show_about(self) -> None:
         """Show the about dialog."""

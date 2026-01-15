@@ -16,6 +16,7 @@ from src.core.config import APP_NAME
 # ----- UI Modules-----
 from src.ui.main_window import MainWindow
 from src.ui.styles import get_main_stylesheet
+from src.ui.widgets import ScriptRow, SettingsGroup
 
 # ----- Utils Modules-----
 from src.utils import get_icon
@@ -30,8 +31,9 @@ def main():
     # Set application icon
     app.setWindowIcon(get_icon("obsidian_forge.svg"))
 
-    # Apply Tokyo Night theme stylesheet
-    app.setStyleSheet(get_main_stylesheet())
+    # Apply Tokyo Night theme stylesheet - combine base + widget styles
+    combined_stylesheet: str = get_main_stylesheet() + SettingsGroup.get_stylesheet()
+    app.setStyleSheet(combined_stylesheet)
 
     window = MainWindow()
     window.show()

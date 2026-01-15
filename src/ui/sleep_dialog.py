@@ -8,11 +8,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont, QKeySequence
+from PySide6.QtGui import QKeySequence
 from PySide6.QtWidgets import (
     QButtonGroup,
-    QCheckBox,
     QComboBox,
     QDialog,
     QGroupBox,
@@ -26,18 +24,17 @@ from PySide6.QtWidgets import (
 )
 
 from src.core.config import (
-    FONT_FAMILY,
     FONT_SIZE_SMALL,
-    FONT_SIZE_TEXT,
     PADDING,
     PADDING_LARGE,
     SPACING,
     SPACING_LARGE,
     SPACING_SMALL,
+    TIME_PATH,
     Config,
 )
 from src.ui import components
-from src.utils import Icons, THEME_TEXT_SECONDARY
+from src.utils import THEME_TEXT_SECONDARY, Icons
 
 
 @dataclass
@@ -78,20 +75,20 @@ class SleepInputDialog(QDialog):
 
     def _load_time_entries(self) -> None:
         """Load and parse time entries from Time.md in the vault."""
-        time_file_path = Path(self.config.vault_path) / "Time.md"
+        time_file_path: Optional[Path] = self.config.get_time_path()
 
-        if not time_file_path.exists():
+        if not time_file_path or not time_file_path.exists():
             return
 
         try:
-            content = time_file_path.read_text(encoding="utf-8")
-            lines = content.split("\n")
+            content: str = time_file_path.read_text(encoding="utf-8")
+            lines: list[str] = content.split("\n")
 
             # Parse lines matching: [[YYYY-MM-DD]]: times or [YYYY-MM-DD]: times
             pattern = re.compile(r"\[\[?(\d{4}-\d{2}-\d{2})\]?\]?:\s*(.+)")
 
             for line in lines:
-                line = line.strip()
+                line: str = line.strip()
                 if not line:
                     continue
 
@@ -117,7 +114,9 @@ class SleepInputDialog(QDialog):
     def _setup_ui(self) -> None:
         """Setup the dialog UI."""
         layout = QVBoxLayout()
-        layout.setContentsMargins(PADDING_LARGE, PADDING_LARGE, PADDING_LARGE, PADDING_LARGE)
+        layout.setContentsMargins(
+            PADDING_LARGE, PADDING_LARGE, PADDING_LARGE, PADDING_LARGE
+        )
         layout.setSpacing(SPACING_LARGE)
 
         # === Time Selection Section ===
@@ -129,7 +128,9 @@ class SleepInputDialog(QDialog):
         if self.time_entries:
             # Show dropdown with entries from Time.md
             info_label = QLabel("Select from Time.md or enter custom time:")
-            info_label.setStyleSheet(f"color: {THEME_TEXT_SECONDARY}; font-size: {FONT_SIZE_SMALL}px;")
+            info_label.setStyleSheet(
+                f"color: {THEME_TEXT_SECONDARY}; font-size: {FONT_SIZE_SMALL}px;"
+            )
             time_layout.addWidget(info_label)
 
             self.time_combo = QComboBox()
@@ -149,7 +150,9 @@ class SleepInputDialog(QDialog):
             custom_label = QLabel(
                 "Format: @YYYY-MM-DD or @MM-DD or @DD HH:MM AM/PM - HH:MM AM/PM"
             )
-            custom_label.setStyleSheet(f"color: {THEME_TEXT_SECONDARY}; font-size: {FONT_SIZE_SMALL}px;")
+            custom_label.setStyleSheet(
+                f"color: {THEME_TEXT_SECONDARY}; font-size: {FONT_SIZE_SMALL}px;"
+            )
             custom_layout.addWidget(custom_label)
 
             self.custom_time_input = QLineEdit()
@@ -165,7 +168,9 @@ class SleepInputDialog(QDialog):
                 "Format: @YYYY-MM-DD or @MM-DD or @DD HH:MM AM/PM - HH:MM AM/PM"
             )
             info_label.setWordWrap(True)
-            info_label.setStyleSheet(f"color: {THEME_TEXT_SECONDARY}; font-size: {FONT_SIZE_SMALL}px;")
+            info_label.setStyleSheet(
+                f"color: {THEME_TEXT_SECONDARY}; font-size: {FONT_SIZE_SMALL}px;"
+            )
             time_layout.addWidget(info_label)
 
             self.time_combo = None
@@ -226,7 +231,9 @@ class SleepInputDialog(QDialog):
         dream_input_layout.setSpacing(SPACING_SMALL)
 
         dream_input_label = QLabel("Describe your dreams (one per line):")
-        dream_input_label.setStyleSheet(f"color: {THEME_TEXT_SECONDARY}; font-size: {FONT_SIZE_SMALL}px;")
+        dream_input_label.setStyleSheet(
+            f"color: {THEME_TEXT_SECONDARY}; font-size: {FONT_SIZE_SMALL}px;"
+        )
         dream_input_layout.addWidget(dream_input_label)
 
         self.dream_text_edit = QTextEdit()
@@ -293,14 +300,20 @@ class SleepInputDialog(QDialog):
             if data is None:
                 # No selection made
                 from PySide6.QtWidgets import QMessageBox
-                QMessageBox.warning(self, "Missing Input", "Please select a time entry.")
+
+                QMessageBox.warning(
+                    self, "Missing Input", "Please select a time entry."
+                )
                 return
             elif data == "CUSTOM":
                 # Using custom input
                 custom_text = self.custom_time_input.text().strip()
                 if not custom_text:
                     from PySide6.QtWidgets import QMessageBox
-                    QMessageBox.warning(self, "Missing Input", "Please enter a custom time.")
+
+                    QMessageBox.warning(
+                        self, "Missing Input", "Please enter a custom time."
+                    )
                     return
                 sleep_wake_times = custom_text
             else:
@@ -312,7 +325,10 @@ class SleepInputDialog(QDialog):
             custom_text = self.custom_time_input.text().strip()
             if not custom_text:
                 from PySide6.QtWidgets import QMessageBox
-                QMessageBox.warning(self, "Missing Input", "Please enter sleep and wake times.")
+
+                QMessageBox.warning(
+                    self, "Missing Input", "Please enter sleep and wake times."
+                )
                 return
             sleep_wake_times = custom_text
 
