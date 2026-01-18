@@ -5,11 +5,6 @@
 class Icons:
     """Nerd Font icon constants for the GitPull application."""
 
-    SHIELD_LOCK: str = "\U000f099d"  # 󰦝
-    EXIT: str = "\udb82\ude48"  # 󰩈
-    CALENDAR_DAY: str = "\uef37"  # 
-    CALENDAR_WEEK: str = "\uef38"  # 
-    NODE_JS: str = "\udb80\udf99"  # 󰎙
     VALIDATE_NORMAL: str = "\udb80\udd2d"  # 󰄭
     VALIDATE_HOVER: str = "\U000f012c"  # 󰄬
     VALIDATE_PRESSED: str = "\udb83\ude1e"  # 󰸞
@@ -48,7 +43,6 @@ class Icons:
     WINDOW: str = "\uf2d0"  # 
     PALETTE: str = "\udb83\ude0c"  # 󰸌
     ADVANCED: str = "\uf085"  # 
-    EXCLUDE: str = "\ueae5"  # 
     TIMER: str = "\udb84\udfab"  # 󱎫
     PERFORMANCE: str = "\uf0e4"  # 
     FONT: str = "\uf031"  # 
@@ -70,7 +64,3 @@ class Icons:
     MANUAL_OUTLINE: str = "\udb86\udc2e"  # 󱠮
     MANUAL_PRESSED: str = "\ueefd"  # 
     USER: str = "\uf007"  # 
-    CHEVRON_DOWN: str = "\uf078"  # 
-    CHEVRON_UP: str = "\uf077"  # 
-    CHEVRON_LEFT: str = "\uf053"  # 
-    CHEVRON_RIGHT: str = "\uf054"  # 
