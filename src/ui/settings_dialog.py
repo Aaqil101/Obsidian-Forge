@@ -179,7 +179,9 @@ class SettingsDialog(QDialog):
 
         # Node.js icon
         nodejs_icon_label = QLabel()
-        nodejs_icon_label.setPixmap(get_icon("nodejs.svg").pixmap(QSize(20, 20)))
+        nodejs_icon_label.setPixmap(
+            get_icon("nodejs.svg", color=f"{COLOR_ORANGE}").pixmap(QSize(20, 20))
+        )
         nodejs_icon_label.setFixedSize(20, 20)
         nodejs_path_layout.addWidget(nodejs_icon_label)
 
@@ -468,7 +470,9 @@ class SettingsDialog(QDialog):
                 if not should_exclude:
                     current_check = ""
                     for part in path_parts[:-1]:
-                        current_check = f"{current_check}/{part}" if current_check else part
+                        current_check = (
+                            f"{current_check}/{part}" if current_check else part
+                        )
                         if current_check in excluded:
                             should_exclude = True
                             break

@@ -435,9 +435,9 @@ class ExcludedDirsManager(QDialog):
 
                 # Check if folder is inside vault
                 try:
-                    relative_path = folder_path.relative_to(vault_root)
+                    relative_path: Path = folder_path.relative_to(vault_root)
                     # Convert to forward slashes for consistency
-                    path_str = str(relative_path).replace("\\", "/")
+                    path_str: str = str(relative_path).replace("\\", "/")
                 except ValueError:
                     # Folder is outside vault
                     outside_vault_count += 1
