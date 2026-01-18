@@ -8,7 +8,6 @@
 
         <!-- UI Control Icons -->
         <file>assets/settings.svg</file>
-        <file>assets/message.svg</file>
         <file>assets/close.svg</file>
         <file>assets/minimize.svg</file>
         <file>assets/exit.svg</file>
@@ -18,10 +17,8 @@
         <file>assets/size_grip.svg</file>
 
         <!-- Checkbox Icons -->
-        <file>assets/box_checked.svg</file>
-        <file>assets/box_checked_disabled.svg</file>
-        <file>assets/box_unchecked.svg</file>
-        <file>assets/box_unchecked_disabled.svg</file>
+        <file>assets/square_check.svg</file>
+        <file>assets/square_check_filled.svg</file>
         <file>assets/check.svg</file>
 
         <!-- Status Icons -->
