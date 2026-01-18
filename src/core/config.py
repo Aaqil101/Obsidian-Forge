@@ -6,6 +6,7 @@ Handles settings for vault path, Node.js path, and Tokyo Night theme configurati
 # ----- Built-In Modules-----
 import json
 import os
+import subprocess
 from pathlib import Path
 from typing import Optional
 
@@ -15,6 +16,7 @@ from typing import Optional
 APP_NAME = "Obsidian Forge"
 APP_VERSION = "1.0.0"
 AUTHOR = "Aaqil"
+WEBSITE_URL = "https://github.com/Aaqil101/Obsidian-Forge"
 
 # ══════════════════════════════════════════════════════════════════
 # VAULT PATHS
@@ -60,8 +62,8 @@ class Config:
     """Configuration manager for application settings."""
 
     def __init__(self) -> None:
-        # Get username and sanitize it for use in filename
-        username: str = (
+        # Get username and sanitize it
+        self.username: str = (
             os.getlogin().replace(" ", "_").replace("\\", "_").replace("/", "_")
         )
 
@@ -73,40 +75,76 @@ class Config:
             # Fallback to user home if APPDATA is not set
             self.config_dir = Path.home() / ".obsidian-forge"
 
-        # Config file named by username
-        self.config_file: Path = self.config_dir / f"{username.lower()}.config.json"
-        self.settings = self._load_settings()
+        # Single shared config file
+        self.config_file: Path = self.config_dir / "settings.json"
+        self.all_settings = self._load_all_settings()
+        self.settings = self.all_settings["users"].get(
+            self.username, self._default_settings()
+        )
 
-    def _load_settings(self) -> dict:
-        """Load settings from config file or return defaults."""
+        # Ensure current user exists in settings
+        if self.username not in self.all_settings["users"]:
+            self.all_settings["users"][self.username] = self.settings
+            self.save_settings()
+
+    def _load_all_settings(self) -> dict:
+        """Load all settings from shared config file."""
         if self.config_file.exists():
             try:
                 with open(self.config_file, "r", encoding="utf-8") as f:
-                    return json.load(f)
+                    data = json.load(f)
+                    # Ensure structure exists
+                    if "users" not in data:
+                        return self._create_new_config_structure()
+                    if "version" not in data:
+                        data["version"] = "1.0"
+                    return data
             except Exception as e:
                 print(f"Error loading config: {e}")
-                return self._default_settings()
-        return self._default_settings()
+                return self._create_new_config_structure()
+        return self._create_new_config_structure()
+
+    def _create_new_config_structure(self) -> dict:
+        """Create new config structure with version and users."""
+        return {"version": "1.0", "users": {}}
 
     def _default_settings(self) -> dict:
         """Return default settings."""
         return {
             "vault_path": "",
             "nodejs_path": "node",  # Default to 'node' in PATH
-            "theme": "tokyo-night",
             "enable_animations": True,
             "custom_daily_scripts_path": "",
             "custom_weekly_scripts_path": "",
             "custom_utils_scripts_path": "",
             "custom_time_path": "",
+            "excluded_directories": [".obsidian", ".space", ".trash"],
         }
 
-    def save_settings(self) -> bool:
-        """Save current settings to config file."""
+    def _increment_version(self) -> None:
+        """Increment the version number."""
         try:
+            current = self.all_settings.get("version", "1.0")
+            major, minor = current.split(".")
+            minor = str(int(minor) + 1)
+            self.all_settings["version"] = f"{major}.{minor}"
+        except Exception:
+            # If version parsing fails, just increment a counter
+            self.all_settings["version"] = "1.0"
+
+    def save_settings(self) -> bool:
+        """Save current settings to shared config file."""
+        try:
+            # Update current user's settings in the all_settings structure
+            self.all_settings["users"][self.username] = self.settings
+
+            # Increment version on each save
+            self._increment_version()
+
+            # Save to file
             self.config_dir.mkdir(parents=True, exist_ok=True)
             with open(self.config_file, "w", encoding="utf-8") as f:
-                json.dump(self.settings, f, indent=4)
+                json.dump(self.all_settings, f, indent=2)
             return True
         except Exception as e:
             print(f"Error saving config: {e}")
@@ -131,16 +169,6 @@ class Config:
     def nodejs_path(self, path: str) -> None:
         """Set Node.js path."""
         self.settings["nodejs_path"] = path
-
-    @property
-    def enable_animations(self) -> bool:
-        """Get animation enable setting."""
-        return self.settings.get("enable_animations", True)
-
-    @enable_animations.setter
-    def enable_animations(self, enabled: bool) -> None:
-        """Set animation enable setting."""
-        self.settings["enable_animations"] = enabled
 
     @property
     def custom_daily_scripts_path(self) -> str:
@@ -182,6 +210,18 @@ class Config:
         """Set custom time path."""
         self.settings["custom_time_path"] = path
 
+    @property
+    def excluded_directories(self) -> list[str]:
+        """Get excluded directories list."""
+        return self.settings.get(
+            "excluded_directories", [".obsidian", ".space", ".trash"]
+        )
+
+    @excluded_directories.setter
+    def excluded_directories(self, directories: list[str]) -> None:
+        """Set excluded directories list."""
+        self.settings["excluded_directories"] = directories
+
     def get_daily_scripts_path(self) -> Optional[Path]:
         """Get full path to daily scripts directory."""
         if not self.vault_path:
@@ -219,7 +259,7 @@ class Config:
         return Path(self.vault_path) / TIME_PATH
 
     def scan_vault_folders(self, vault_path: str = None) -> list[str]:
-        """Scan vault for all folders, excluding .obsidian and .space directories.
+        """Scan vault for all folders, excluding configured directories.
 
         Args:
             vault_path: Path to scan. If None, uses configured vault_path.
@@ -235,18 +275,31 @@ class Config:
 
         folders = []
         vault_root = Path(vault_path)
+        excluded: list[str] = self.excluded_directories
 
         # Walk through directory tree
         for root, dirs, files in os.walk(vault_path):
-            # Filter out excluded directories
-            dirs[:] = [d for d in dirs if d not in ['.obsidian', '.space']]
-
             # Get relative path from vault root
-            rel_path = Path(root).relative_to(vault_root)
+            rel_path: Path = Path(root).relative_to(vault_root)
+            current_path: str = str(rel_path).replace("\\", "/")
+
+            # Filter out excluded directories (both by name and by full path)
+            filtered_dirs = []
+            for d in dirs:
+                # Check both directory name and full relative path
+                dir_rel_path: str = (
+                    f"{current_path}/{d}" if current_path != "." else d
+                ).replace("\\", "/")
+
+                # Exclude if matches directory name OR full relative path
+                if d not in excluded and dir_rel_path not in excluded:
+                    filtered_dirs.append(d)
+
+            dirs[:] = filtered_dirs
 
             # Skip the root itself
-            if str(rel_path) != '.':
-                folders.append(str(rel_path))
+            if str(rel_path) != ".":
+                folders.append(str(rel_path).replace("\\", "/"))
 
         return sorted(folders)
 
@@ -281,9 +334,6 @@ class Config:
                 errors.append(
                     f"Utils scripts directory not found: {UTILS_SCRIPTS_PATH}"
                 )
-
-        # Check Node.js
-        import subprocess
 
         try:
             subprocess.run(
