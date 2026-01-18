@@ -23,12 +23,14 @@ from src.utils.color import (
     THEME_TEXT_SECONDARY,
     THEME_TEXT_SUBTLE,
 )
+from src.utils.hover_button import HoverIconButton
 from src.utils.icons import Icons
 from src.utils.resources import get_icon
 
 __all__: list[str] = [
     "Icons",
     "get_icon",
+    "HoverIconButton",
     "COLOR_COMPLETE",
     "COLOR_CYAN",
     "COLOR_DARK_BLUE",
