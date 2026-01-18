@@ -1,0 +1,120 @@
+# ----- Utils Modules-----
+from src.utils import (
+    COLOR_DARK_BLUE,
+    COLOR_LIGHT_BLUE,
+    COLOR_ORANGE,
+    THEME_BORDER,
+    THEME_TEXT_PRIMARY,
+)
+
+
+def qss() -> str:
+    return f"""
+    /* === Browse Button === */
+    QPushButton[BrowseButton="true"] {{
+        background-color: rgba(255, 255, 255, 0.04);
+        color: {THEME_TEXT_PRIMARY};
+        border-radius: 4px;
+        padding: 4px 12px;
+    }}
+    QPushButton[BrowseButton="true"]:hover {{
+        background-color: rgba(255, 255, 255, 0.08);
+        border-bottom: 2px solid {COLOR_DARK_BLUE};
+    }}
+    QPushButton[BrowseButton="true"]:pressed {{
+        background-color: rgba(255, 255, 255, 0.12);
+    }}
+    QPushButton[BrowseButton="true"]:focus {{
+        background-color: rgba(255, 255, 255, 0.08);
+        border-bottom: 2px solid {COLOR_DARK_BLUE};
+        outline: none;
+    }}
+
+    /* === Validate Button === */
+    QPushButton[ValidateButton="true"] {{
+        background-color: rgba(255, 158, 100, 0.08);
+        color: {COLOR_ORANGE};
+        border-radius: 4px;
+        padding: 4px 12px;
+    }}
+    QPushButton[ValidateButton="true"]:hover {{
+        background-color: rgba(255, 158, 100, 0.12);
+        border-bottom: 2px solid {COLOR_ORANGE};
+    }}
+    QPushButton[ValidateButton="true"]:pressed {{
+        background-color: rgba(255, 158, 100, 0.16);
+    }}
+    QPushButton[ValidateButton="true"]:focus {{
+        background-color: rgba(255, 158, 100, 0.12);
+        border-bottom: 2px solid {COLOR_ORANGE};
+        outline: none;
+    }}
+
+    /* === Save Button === */
+    QPushButton[SaveButton="true"] {{
+        background-color: rgba(158, 206, 106, 0.2);
+        color: #9ece6a;
+        border-radius: 4px;
+        padding: 6px 16px;
+    }}
+    QPushButton[SaveButton="true"]:hover {{
+        background-color: rgba(158, 206, 106, 0.3);
+        border-bottom: 2px solid #9ece6a;
+    }}
+    QPushButton[SaveButton="true"]:pressed {{
+        background-color: rgba(158, 206, 106, 0.4);
+    }}
+    QPushButton[SaveButton="true"]:focus {{
+        background-color: rgba(158, 206, 106, 0.3);
+        border-bottom: 2px solid #9ece6a;
+        outline: none;
+    }}
+
+    /* === Cancel Button === */
+    QPushButton[CancelButton="true"] {{
+        background-color: rgba(255, 255, 255, 0.04);
+        color: {THEME_TEXT_PRIMARY};
+        border-radius: 4px;
+        padding: 6px 16px;
+    }}
+    QPushButton[CancelButton="true"]:hover {{
+        background-color: rgba(255, 255, 255, 0.08);
+        border-bottom: 2px solid {COLOR_DARK_BLUE};
+    }}
+    QPushButton[CancelButton="true"]:pressed {{
+        background-color: rgba(255, 255, 255, 0.12);
+    }}
+    QPushButton[CancelButton="true"]:focus {{
+        background-color: rgba(255, 255, 255, 0.08);
+        border-bottom: 2px solid {COLOR_DARK_BLUE};
+        outline: none;
+    }}
+
+    /* === Popup Button === */
+    QPushButton[Popup="true"] {{
+        background-color: rgba(255, 255, 255, 0.08);
+        color: {THEME_TEXT_PRIMARY};
+        border: 1px solid {THEME_BORDER};
+        padding: 8px 20px;
+        min-width: 80px;
+    }}
+    QPushButton[Popup="true"]:hover {{
+        background-color: rgba(122, 162, 247, 0.2);
+        color: #FFFFFF;
+        border: 1px solid {COLOR_LIGHT_BLUE};
+    }}
+
+    /* === Collapse Button === */
+    QPushButton[CollapseButton="true"] {{
+        background-color: transparent;
+        border: none;
+        border-radius: 4px;
+        padding: 2px;
+    }}
+    QPushButton[CollapseButton="true"]:hover {{
+        background-color: rgba(122, 162, 247, 0.15);
+    }}
+    QPushButton[CollapseButton="true"]:pressed {{
+        background-color: rgba(122, 162, 247, 0.25);
+    }}
+    """

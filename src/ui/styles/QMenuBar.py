@@ -1,0 +1,38 @@
+# ----- Core Modules-----
+from src.core import BORDER_RADIUS_SMALL
+
+# ----- Utils Modules-----
+from src.utils import (
+    COLOR_LIGHT_BLUE,
+    THEME_BG_PRIMARY,
+    THEME_BG_SECONDARY,
+    THEME_BORDER,
+    THEME_TEXT_PRIMARY,
+)
+
+
+def qss() -> str:
+    return f"""
+    /* === Menu Bar === */
+    QMenuBar {{
+        background-color: {THEME_BG_SECONDARY};
+        color: {THEME_TEXT_PRIMARY};
+        border-bottom: 1px solid {THEME_BORDER};
+        padding: 4px;
+    }}
+
+    QMenuBar::item {{
+        background-color: transparent;
+        padding: 6px 12px;
+        border-radius: {BORDER_RADIUS_SMALL}px;
+    }}
+
+    QMenuBar::item:selected {{
+        background-color: {THEME_BG_PRIMARY};
+        color: {COLOR_LIGHT_BLUE};
+    }}
+
+    QMenuBar::item:pressed {{
+        background-color: {THEME_BG_SECONDARY};
+    }}
+    """

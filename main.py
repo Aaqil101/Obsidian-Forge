@@ -14,12 +14,14 @@ from PySide6.QtWidgets import QApplication
 from src.core.config import APP_NAME
 
 # ----- UI Modules-----
-from src.ui.main_window import MainWindow
-from src.ui.styles import get_main_stylesheet
-from src.ui.widgets import ScriptRow, SettingsGroup
+from src.ui import MainWindow, build_stylesheet
 
 # ----- Utils Modules-----
 from src.utils import get_icon
+
+# ----- Resources-----
+# Import Qt compiled resources (needed for :/assets/ paths in stylesheets)
+import src.resources_rc  # noqa: F401
 
 
 def main():
@@ -31,9 +33,8 @@ def main():
     # Set application icon
     app.setWindowIcon(get_icon("obsidian_forge.svg"))
 
-    # Apply Tokyo Night theme stylesheet - combine base + widget styles
-    combined_stylesheet: str = get_main_stylesheet() + SettingsGroup.get_stylesheet()
-    app.setStyleSheet(combined_stylesheet)
+    # Apply stylesheet
+    app.setStyleSheet(build_stylesheet())
 
     window = MainWindow()
     window.show()
