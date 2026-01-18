@@ -9,21 +9,37 @@ import sys
 from pathlib import Path
 
 # ----- PySide6 Modules-----
-from PySide6.QtCore import QByteArray, Qt
+from PySide6.QtCore import QByteArray, QFile, QIODevice, Qt
 from PySide6.QtGui import QIcon, QPainter, QPixmap
 from PySide6.QtSvg import QSvgRenderer
 
+# ----- Resources-----
+try:
+    import src.resources_rc  # noqa: F401
 
-def get_resource_path(relative_path: str) -> Path:
+    USE_QT_RESOURCES = True
+except ImportError:
+    USE_QT_RESOURCES = False
+
+
+def get_resource_path(relative_path: str) -> str:
     """
-    Get absolute path to resource, works for dev and for PyInstaller.
+    Get path to resource, preferring Qt resources when available.
 
     Args:
         relative_path: Relative path to resource (e.g., 'assets/icon.png')
 
     Returns:
-        Absolute Path to resource
+        Path to resource (Qt resource path or file path)
     """
+    # If Qt resources are available, use them
+    if USE_QT_RESOURCES:
+        qt_path: str = f":/{relative_path}"
+        # Check if resource exists in Qt resource system
+        if QFile.exists(qt_path):
+            return qt_path
+
+    # Fallback to file-based resources
     try:
         # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = Path(sys._MEIPASS)
@@ -32,7 +48,7 @@ def get_resource_path(relative_path: str) -> Path:
         # Get the project root (two levels up from this file)
         base_path: Path = Path(__file__).parent.parent.parent
 
-    return base_path / relative_path
+    return str(base_path / relative_path)
 
 
 def get_icon(icon_name: str, color: str = None) -> QIcon:
@@ -46,19 +62,59 @@ def get_icon(icon_name: str, color: str = None) -> QIcon:
     Returns:
         QIcon object
     """
-    icon_path: Path = get_resource_path(f"assets/{icon_name}")
+    icon_path: str = get_resource_path(f"assets/{icon_name}")
 
     # If color is specified and it's an SVG, recolor it
     if color and icon_name.lower().endswith(".svg"):
         try:
-            with open(icon_path, "r", encoding="utf-8") as f:
-                svg_content = f.read()
+            # Read SVG content from Qt resource or file
+            if icon_path.startswith(":/"):
+                # Read from Qt resource
+                file = QFile(icon_path)
+                if file.open(
+                    QIODevice.OpenModeFlag.ReadOnly | QIODevice.OpenModeFlag.Text
+                ):
+                    svg_content = bytes(file.readAll()).decode("utf-8")
+                    file.close()
+                else:
+                    raise Exception(f"Could not open Qt resource: {icon_path}")
+            else:
+                # Read from file system
+                with open(icon_path, "r", encoding="utf-8") as f:
+                    svg_content = f.read()
 
-            # Replace stroke color in SVG
+            # Replace CSS-based fill colors in style tags
+            svg_content = re.sub(
+                r'\.st\d+\s*\{[^}]*fill\s*:\s*[^;]+;',
+                lambda m: re.sub(r'fill\s*:\s*[^;]+', f'fill:{color}', m.group(0)),
+                svg_content
+            )
+
+            # Replace CSS-based stroke colors in style tags
+            svg_content = re.sub(
+                r'\.st\d+\s*\{[^}]*stroke\s*:\s*[^;]+;',
+                lambda m: re.sub(r'stroke\s*:\s*[^;]+', f'stroke:{color}', m.group(0)),
+                svg_content
+            )
+
+            # Replace inline stroke attributes
             svg_content = re.sub(r'stroke="[^"]*"', f'stroke="{color}"', svg_content)
-            # Replace fill color in SVG (if any)
+
+            # Replace inline fill attributes (but not "none")
             svg_content = re.sub(
                 r'fill="(?!none)[^"]*"', f'fill="{color}"', svg_content
+            )
+
+            # Handle SVGs with path elements that don't have fill/stroke attributes
+            # Add fill to path elements that have classes but no explicit fill
+            svg_content = re.sub(
+                r'(<path[^>]*class="[^"]*"[^>]*?)(/?>)',
+                lambda m: (
+                    m.group(1) + f' fill="{color}"' + m.group(2)
+                    if "fill=" not in m.group(1)
+                    else m.group(0)
+                ),
+                svg_content,
             )
 
             # Create icon from modified SVG
@@ -77,7 +133,7 @@ def get_icon(icon_name: str, color: str = None) -> QIcon:
             print(f"Warning: Could not recolor SVG icon {icon_name}: {e}")
 
     # Default icon loading
-    icon = QIcon(str(icon_path))
+    icon = QIcon(icon_path)
     if icon.isNull():
         print(f"Warning: Icon not found: {icon_path}")
     return icon
@@ -93,8 +149,8 @@ def get_pixmap(image_name: str) -> QPixmap:
     Returns:
         QPixmap object
     """
-    image_path: Path = get_resource_path(f"assets/{image_name}")
-    pixmap = QPixmap(str(image_path))
+    image_path: str = get_resource_path(f"assets/{image_name}")
+    pixmap = QPixmap(image_path)
     if pixmap.isNull():
         print(f"Warning: Pixmap not found: {image_path}")
     return pixmap
