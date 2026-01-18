@@ -7,7 +7,7 @@ Styled with Tokyo Night theme following GitUI's design patterns.
 from pathlib import Path
 
 # ----- PySide6 Modules-----
-from PySide6.QtCore import QEvent, QSize, Qt
+from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QCursor, QFont, QKeySequence
 from PySide6.QtWidgets import (
     QComboBox,
@@ -18,7 +18,6 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QMessageBox,
-    QPushButton,
     QScrollArea,
     QVBoxLayout,
     QWidget,
@@ -39,98 +38,7 @@ from src.core.config import (
 from src.ui.widgets import SettingsGroup
 
 # ----- Utils Modules-----
-from src.utils import (
-    COLOR_DARK_BLUE,
-    COLOR_ORANGE,
-    THEME_BG_PRIMARY,
-    THEME_TEXT_PRIMARY,
-    Icons,
-    get_icon,
-)
-
-
-class HoverIconButton(QPushButton):
-    """QPushButton subclass that changes icon on hover and press states.
-
-    This button displays different icons based on user interaction:
-    - Normal state: Shows normal_icon
-    - Hover state: Shows hover_icon
-    - Pressed state: Shows pressed_icon (if provided, otherwise uses hover_icon)
-
-    Args:
-        normal_icon: Icon to display in normal state
-        hover_icon: Icon to display on hover
-        pressed_icon: Optional icon to display when pressed (defaults to hover_icon)
-        text: Button text (default: empty string)
-        parent: Parent widget (default: None)
-    """
-
-    def __init__(
-        self,
-        normal_icon: str,
-        hover_icon: str,
-        pressed_icon: str = "",
-        text: str = "",
-        parent: QWidget | None = None,
-    ) -> None:
-        super().__init__(text, parent)
-        self.normal_icon: str = normal_icon
-        self.hover_icon: str = hover_icon
-        self.pressed_icon: str = pressed_icon if pressed_icon else hover_icon
-        self._is_hovered = False
-        self._is_pressed = False
-
-        # Set initial text with normal icon
-        self._update_text()
-
-        # Connect pressed/released signals for click state tracking
-        self.pressed.connect(self._on_pressed)
-        self.released.connect(self._on_released)
-
-    def _update_text(self) -> None:
-        """Update button text based on current state."""
-        # Extract text without icon (text after " " if present)
-        text_parts: list[str] = self.text().split(" ", 1)
-        label_text: str = text_parts[1] if len(text_parts) > 1 else text_parts[0]
-
-        # Determine which icon to show
-        if self._is_pressed:
-            icon: str = self.pressed_icon
-        elif self._is_hovered:
-            icon: str = self.hover_icon
-        else:
-            icon: str = self.normal_icon
-
-        # Set text with icon (only if we have label text)
-        if label_text and not label_text.startswith(
-            (self.normal_icon, self.hover_icon, self.pressed_icon)
-        ):
-            self.setText(f"{icon} {label_text}")
-        else:
-            self.setText(icon)
-
-    def enterEvent(self, event: QEvent) -> None:
-        """Handle mouse enter event."""
-        self._is_hovered = True
-        self._update_text()
-        super().enterEvent(event)
-
-    def leaveEvent(self, event: QEvent) -> None:
-        """Handle mouse leave event."""
-        self._is_hovered = False
-        self._is_pressed = False  # Reset pressed state when leaving
-        self._update_text()
-        super().leaveEvent(event)
-
-    def _on_pressed(self) -> None:
-        """Handle button pressed signal."""
-        self._is_pressed = True
-        self._update_text()
-
-    def _on_released(self) -> None:
-        """Handle button released signal."""
-        self._is_pressed = False
-        self._update_text()
+from src.utils import COLOR_ORANGE, THEME_TEXT_PRIMARY, HoverIconButton, Icons, get_icon
 
 
 class SettingsDialog(QDialog):
@@ -141,7 +49,7 @@ class SettingsDialog(QDialog):
         self.config: Config = config
         self.setWindowTitle(f"Settings - {APP_NAME}")
         self.setMinimumWidth(700)
-        self.setMinimumHeight(500)
+        self.setMinimumHeight(600)
 
         # Store comboboxes for path selection
         self.daily_path_combo: QComboBox = None
@@ -204,30 +112,7 @@ class SettingsDialog(QDialog):
             pressed_icon=Icons.FOLDER_OPEN,
             text="  &Browse",
         )
-        vault_browse_btn.setProperty("Vault", True)
-        vault_browse_btn.setFixedHeight(32)
-        vault_browse_btn.setStyleSheet(
-            f"""
-            QPushButton[Vault=true] {{
-                background-color: rgba(255, 255, 255, 0.04);
-                color: {THEME_TEXT_PRIMARY};
-                border-radius: 4px;
-                padding: 4px 12px;
-            }}
-            QPushButton[Vault=true]:hover {{
-                background-color: rgba(255, 255, 255, 0.08);
-                border-bottom: 2px solid {COLOR_DARK_BLUE};
-            }}
-            QPushButton[Vault=true]:pressed {{
-                background-color: rgba(255, 255, 255, 0.12);
-            }}
-            QPushButton[Vault=true]:focus {{
-                background-color: rgba(255, 255, 255, 0.08);
-                border-bottom: 2px solid {COLOR_DARK_BLUE};
-                outline: none;
-            }}
-            """
-        )
+        vault_browse_btn.setProperty("BrowseButton", True)
         vault_browse_btn.setFixedHeight(32)
         vault_browse_btn.clicked.connect(self.browse_vault_path)
         vault_path_layout.addWidget(vault_browse_btn)
@@ -310,28 +195,7 @@ class SettingsDialog(QDialog):
             pressed_icon=Icons.FOLDER_OPEN,
             text="  B&rowse",
         )
-        nodejs_browse_btn.setStyleSheet(
-            f"""
-            QPushButton {{
-                background-color: rgba(255, 255, 255, 0.04);
-                color: {THEME_TEXT_PRIMARY};
-                border-radius: 4px;
-                padding: 4px 12px;
-            }}
-            QPushButton:hover {{
-                background-color: rgba(255, 255, 255, 0.08);
-                border-bottom: 2px solid {COLOR_DARK_BLUE};
-            }}
-            QPushButton:pressed {{
-                background-color: rgba(255, 255, 255, 0.12);
-            }}
-            QPushButton:focus {{
-                background-color: rgba(255, 255, 255, 0.08);
-                border-bottom: 2px solid {COLOR_DARK_BLUE};
-                outline: none;
-            }}
-            """
-        )
+        nodejs_browse_btn.setProperty("BrowseButton", True)
         nodejs_browse_btn.setFixedHeight(32)
         nodejs_browse_btn.clicked.connect(self.browse_nodejs_path)
         nodejs_path_layout.addWidget(nodejs_browse_btn)
@@ -344,8 +208,7 @@ class SettingsDialog(QDialog):
             "Otherwise, specify the full path to node.exe"
         )
         nodejs_info.setProperty("InfoLabel", True)
-        nodejs_info_font = QFont(FONT_FAMILY, FONT_SIZE_TEXT - 1)
-        nodejs_info.setFont(nodejs_info_font)
+        nodejs_info.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT - 1))
         nodejs_info.setStyleSheet(
             "color: rgba(192, 202, 245, 0.6); padding-left: 28px;"
         )
@@ -353,6 +216,66 @@ class SettingsDialog(QDialog):
 
         nodejs_section.setWidget(nodejs_content)
         sections_layout.addWidget(nodejs_section)
+
+        # === Scan Settings Section ===
+        scan_section = SettingsGroup("Scan Settings", parent=sections_container)
+
+        scan_content = QWidget()
+        scan_content_layout = QVBoxLayout(scan_content)
+        scan_content_layout.setContentsMargins(8, 8, 8, 8)
+        scan_content_layout.setSpacing(SPACING)
+
+        # Excluded directories row
+        excluded_dirs_row = QWidget()
+        excluded_dirs_layout = QHBoxLayout(excluded_dirs_row)
+        excluded_dirs_layout.setContentsMargins(0, 0, 0, 0)
+        excluded_dirs_layout.setSpacing(SPACING_SMALL)
+
+        # Icon label using SVG
+        icon_label = QLabel()
+        icon_label.setPixmap(
+            get_icon("exclude.svg", color=f"{COLOR_ORANGE}").pixmap(QSize(20, 20))
+        )
+        icon_label.setFixedSize(20, 20)
+        excluded_dirs_layout.addWidget(icon_label)
+
+        # Description label
+        desc_label = QLabel("Excluded Directories")
+        desc_label.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
+        desc_label.setStyleSheet(f"color: {THEME_TEXT_PRIMARY};")
+        excluded_dirs_layout.addWidget(desc_label)
+
+        excluded_dirs_layout.addStretch()
+
+        # Manage button
+        manage_excluded_btn = HoverIconButton(
+            normal_icon=Icons.SETTINGS,
+            hover_icon=Icons.COG,
+            pressed_icon=Icons.ADVANCED,
+            text="&Manage",
+        )
+        manage_excluded_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
+        manage_excluded_btn.setProperty("BrowseButton", True)
+        manage_excluded_btn.setFixedHeight(32)
+        manage_excluded_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        manage_excluded_btn.clicked.connect(self.open_excluded_dirs_manager)
+        excluded_dirs_layout.addWidget(manage_excluded_btn)
+
+        scan_content_layout.addWidget(excluded_dirs_row)
+
+        # Info label
+        excluded_dirs_info = QLabel(
+            "Manage directory names to exclude from vault scans.\n"
+            "These directories will be hidden from folder searches and file scans."
+        )
+        excluded_dirs_info.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT - 1))
+        excluded_dirs_info.setStyleSheet(
+            "color: rgba(192, 202, 245, 0.6); padding-left: 28px;"
+        )
+        scan_content_layout.addWidget(excluded_dirs_info)
+
+        scan_section.setWidget(scan_content)
+        sections_layout.addWidget(scan_section)
 
         sections_layout.addStretch()
 
@@ -371,30 +294,9 @@ class SettingsDialog(QDialog):
             text="&Validate",
         )
         validate_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
+        validate_btn.setProperty("ValidateButton", True)
         validate_btn.setFixedHeight(36)
         validate_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        validate_btn.setStyleSheet(
-            f"""
-            QPushButton {{
-                background-color: rgba(255, 158, 100, 0.08);
-                color: {COLOR_ORANGE};
-                border-radius: 4px;
-                padding: 4px 12px;
-            }}
-            QPushButton:hover {{
-                background-color: rgba(255, 158, 100, 0.12);
-                border-bottom: 2px solid {COLOR_ORANGE};
-            }}
-            QPushButton:pressed {{
-                background-color: rgba(255, 158, 100, 0.16);
-            }}
-            QPushButton:focus {{
-                background-color: rgba(255, 158, 100, 0.12);
-                border-bottom: 2px solid {COLOR_ORANGE};
-                outline: none;
-            }}
-            """
-        )
         validate_btn.setShortcut(QKeySequence("Ctrl+T"))
         validate_btn.clicked.connect(self.validate_settings)
         button_layout.addWidget(validate_btn)
@@ -407,30 +309,9 @@ class SettingsDialog(QDialog):
             text="&Save",
         )
         save_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
+        save_btn.setProperty("SaveButton", True)
         save_btn.setFixedHeight(36)
         save_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        save_btn.setStyleSheet(
-            f"""
-            QPushButton {{
-                background-color: rgba(158, 206, 106, 0.2);
-                color: #9ece6a;
-                border-radius: 4px;
-                padding: 6px 16px;
-            }}
-            QPushButton:hover {{
-                background-color: rgba(158, 206, 106, 0.3);
-                border-bottom: 2px solid #9ece6a;
-            }}
-            QPushButton:pressed {{
-                background-color: rgba(158, 206, 106, 0.4);
-            }}
-            QPushButton:focus {{
-                background-color: rgba(158, 206, 106, 0.3);
-                border-bottom: 2px solid #9ece6a;
-                outline: none;
-            }}
-            """
-        )
         save_btn.setDefault(True)
         save_btn.setShortcut(QKeySequence("Ctrl+Return"))
         save_btn.clicked.connect(self.save_settings)
@@ -441,31 +322,10 @@ class SettingsDialog(QDialog):
             normal_icon=Icons.CANCEL_OUTLINE, hover_icon=Icons.CANCEL, text="&Cancel"
         )
         cancel_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
+        cancel_btn.setProperty("CancelButton", True)
         cancel_btn.setShortcut(QKeySequence("Esc"))
         cancel_btn.setFixedHeight(36)
         cancel_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        cancel_btn.setStyleSheet(
-            f"""
-            QPushButton {{
-                background-color: rgba(255, 255, 255, 0.04);
-                color: {THEME_TEXT_PRIMARY};
-                border-radius: 4px;
-                padding: 6px 16px;
-            }}
-            QPushButton:hover {{
-                background-color: rgba(255, 255, 255, 0.08);
-                border-bottom: 2px solid {COLOR_DARK_BLUE};
-            }}
-            QPushButton:pressed {{
-                background-color: rgba(255, 255, 255, 0.12);
-            }}
-            QPushButton:focus {{
-                background-color: rgba(255, 255, 255, 0.08);
-                border-bottom: 2px solid {COLOR_DARK_BLUE};
-                outline: none;
-            }}
-            """
-        )
         cancel_btn.clicked.connect(self.reject)
         button_layout.addWidget(cancel_btn)
 
@@ -508,56 +368,6 @@ class SettingsDialog(QDialog):
         combo.setMaximumHeight(26)
         combo.addItem("(Default)")
         combo.setEnabled(False)
-
-        # Style with custom expand icons
-        combo.setStyleSheet(
-            f"""
-            QComboBox {{
-                background-color: rgba(255, 255, 255, 0.04);
-                color: {THEME_TEXT_PRIMARY};
-                border: 1px solid rgba(255, 255, 255, 0.08);
-                border-radius: 3px;
-                padding: 2px 8px 2px 8px;
-                padding-right: 24px;
-            }}
-            QComboBox:hover {{
-                background-color: rgba(255, 255, 255, 0.06);
-                border: 1px solid rgba(255, 255, 255, 0.12);
-            }}
-            QComboBox:disabled {{
-                background-color: rgba(255, 255, 255, 0.02);
-                color: rgba(192, 202, 245, 0.4);
-                border: 1px solid rgba(255, 255, 255, 0.04);
-            }}
-            QComboBox::drop-down {{
-                subcontrol-origin: padding;
-                subcontrol-position: top right;
-                width: 20px;
-                border: none;
-                background: transparent;
-            }}
-            QComboBox::down-arrow {{
-                image: url(assets/expand_more.svg);
-                width: 14px;
-                height: 14px;
-            }}
-            QComboBox::down-arrow:on {{
-                image: url(assets/expand_less.svg);
-            }}
-            QComboBox::down-arrow:disabled {{
-                opacity: 0.4;
-            }}
-            QComboBox QAbstractItemView {{
-                background-color: {THEME_BG_PRIMARY};
-                color: {THEME_TEXT_PRIMARY};
-                selection-background-color: rgba(125, 207, 255, 0.2);
-                selection-color: {THEME_TEXT_PRIMARY};
-                border: 1px solid rgba(255, 255, 255, 0.12);
-                outline: none;
-                padding: 2px;
-            }}
-            """
-        )
 
         layout.addWidget(combo, 1)
 
@@ -630,23 +440,43 @@ class SettingsDialog(QDialog):
 
     def _auto_scan_vault(self, vault_path: str) -> None:
         """Silently scan the vault and populate dropdowns without showing messages."""
-        # Scan vault folders
+        # Scan vault folders (already filters excluded directories)
         folders: list[str] = self.config.scan_vault_folders(vault_path)
 
         # Get markdown files for the time path
         vault_root = Path(vault_path)
         files = []
+        excluded: list[str] = self.config.excluded_directories
 
-        # Recursively find all .md files, excluding .obsidian and .space
+        # Recursively find all .md files, excluding configured directories
         for md_file in vault_root.rglob("*.md"):
-            # Skip files in excluded directories
-            if any(part in [".obsidian", ".space"] for part in md_file.parts):
-                continue
-
             # Get relative path from vault root
             try:
                 rel_path: Path = md_file.relative_to(vault_root)
-                files.append(str(rel_path))
+                rel_path_str: str = str(rel_path).replace("\\", "/")
+
+                # Skip files in excluded directories (check both folder names and full paths)
+                should_exclude = False
+                path_parts = rel_path.parts
+
+                for part in path_parts[:-1]:  # Check all parts except the filename
+                    if part in excluded:
+                        should_exclude = True
+                        break
+
+                # Also check if any parent path matches excluded full paths
+                if not should_exclude:
+                    current_check = ""
+                    for part in path_parts[:-1]:
+                        current_check = f"{current_check}/{part}" if current_check else part
+                        if current_check in excluded:
+                            should_exclude = True
+                            break
+
+                if should_exclude:
+                    continue
+
+                files.append(rel_path_str)
             except ValueError:
                 continue
 
@@ -666,6 +496,13 @@ class SettingsDialog(QDialog):
         )
         if path:
             self.nodejs_path_input.setText(path)
+
+    def open_excluded_dirs_manager(self) -> None:
+        """Open the excluded directories manager window."""
+        from src.ui.excluded_dirs_manager import ExcludedDirsManager
+
+        manager = ExcludedDirsManager(self.config, self)
+        manager.exec()
 
     def _populate_combobox(self, combo: QComboBox, items: list[str]) -> None:
         """Populate a combobox with items while preserving current selection."""

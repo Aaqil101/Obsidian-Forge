@@ -3,9 +3,10 @@ Collapsible settings group widget for Obsidian Forge.
 Adapted from Blender-Launcher-V2 design patterns.
 """
 
-# ----- PySide6 Modules -----
+# ----- Built-In Modules-----
 from typing import List
 
+# ----- PySide6 Modules -----
 from PySide6.QtCore import QSize, Signal, Slot
 from PySide6.QtGui import QFont, QFontDatabase
 from PySide6.QtWidgets import (
@@ -19,10 +20,10 @@ from PySide6.QtWidgets import (
 )
 
 # ----- Core Modules -----
-from src.core import BORDER_RADIUS_SMALL, FONT_SIZE_HEADER, FONT_SIZE_SMALL
+from src.core import FONT_SIZE_HEADER
 
 # ----- Utils Modules -----
-from src.utils import COLOR_LIGHT_BLUE, THEME_BG_SECONDARY, THEME_BORDER, get_icon
+from src.utils import get_icon
 
 
 class SettingsGroup(QFrame):
@@ -37,47 +38,9 @@ class SettingsGroup(QFrame):
     collapsed = Signal(bool)
     checked = Signal(bool)
 
-    @staticmethod
-    def get_stylesheet() -> str:
-        """Get the stylesheet for SettingsGroup widgets."""
-        return f"""
-            /* === Settings Group (Collapsible Section) === */
-            QFrame[SettingsGroup="true"] {{
-                background-color: {THEME_BG_SECONDARY};
-                border: 1px solid {THEME_BORDER};
-                border-radius: {BORDER_RADIUS_SMALL}px;
-                padding: 8px;
-                margin-bottom: 8px;
-            }}
-
-            /* === Collapse Button === */
-            QPushButton[CollapseButton="true"] {{
-                background-color: transparent;
-                border: none;
-                border-radius: {BORDER_RADIUS_SMALL - 2}px;
-                padding: 2px;
-            }}
-
-            QPushButton[CollapseButton="true"]:hover {{
-                background-color: rgba(122, 162, 247, 0.15);
-            }}
-
-            QPushButton[CollapseButton="true"]:pressed {{
-                background-color: rgba(122, 162, 247, 0.25);
-            }}
-
-            /* === Section Header === */
-            QLabel[SectionHeader="true"] {{
-                color: {COLOR_LIGHT_BLUE};
-                font-size: {FONT_SIZE_SMALL}pt;
-                font-weight: bold;
-                padding: 2px 4px 2px 4px;
-            }}
-        """
-
     def __init__(
         self, label: str, *, checkable: bool = False, parent: QWidget | None = None
-    ):
+    ) -> None:
         """
         Create a collapsible settings group.
 
@@ -98,8 +61,8 @@ class SettingsGroup(QFrame):
         self.collapse_button = QPushButton(self)
         self.collapse_button.setProperty("CollapseButton", True)
         self.collapse_button.setFixedSize(18, 18)
-        self.collapse_button.setIcon(get_icon("expand_less.svg"))
-        self.collapse_button.setIconSize(QSize(16, 16))
+        self.collapse_button.setIcon(get_icon("expand_less.svg", color="#7aa2f7"))
+        self.collapse_button.setIconSize(QSize(10, 10))
         self.collapse_button.clicked.connect(self.toggle)
         self._layout.addWidget(self.collapse_button, 0, 0, 1, 1)
 
@@ -176,7 +139,7 @@ class SettingsGroup(QFrame):
             return
 
         self._widget.hide()
-        self.collapse_button.setIcon(get_icon("expand_more.svg"))
+        self.collapse_button.setIcon(get_icon("expand_more.svg", color="#7aa2f7"))
         self._collapsed = True
         self.collapsed.emit(True)
 
@@ -190,7 +153,7 @@ class SettingsGroup(QFrame):
             return
 
         self._widget.show()
-        self.collapse_button.setIcon(get_icon("expand_less.svg"))
+        self.collapse_button.setIcon(get_icon("expand_less.svg", color="#7aa2f7"))
         self._collapsed = False
         self.collapsed.emit(False)
 

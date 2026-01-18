@@ -63,9 +63,10 @@ class PopupWindow(QDialog):
         title: str = "Info",
         info_popup: bool = False,
         icon: PopupIcon = PopupIcon.INFO,
+        icon_color: str = "#FFFFFF",
         buttons: list[str] | None = None,
         parent: QWidget | None = None,
-    ):
+    ) -> None:
         """
         Create a popup dialog.
 
@@ -74,22 +75,24 @@ class PopupWindow(QDialog):
             title: The title of the popup window (default: "Info")
             info_popup: If True, only shows OK button (default: False)
             icon: Icon to display (use PopupIcon enum)
+            icon_color: Change the icon color
             buttons: Optional list of button labels. If not provided:
-                    - info_popup=True: Shows only OK
-                    - info_popup=False: Shows OK and Cancel
+                - info_popup=True: Shows only OK
+                - info_popup=False: Shows OK and Cancel
             parent: Parent widget (optional)
         """
         super().__init__(parent)
 
-        self.title = title
-        self.message = message
-        self.info_popup = info_popup
+        self.title: str = title
+        self.message: str = message
+        self.info_popup: bool = info_popup
+        self.icon_color: str = icon_color
         self.buttons = buttons
 
         # Configure dialog
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setWindowTitle(self.title)
-        self.setMinimumSize(300, 150)
+        self.setMinimumSize(250, 100)
 
         # Remove minimize and maximize buttons
         self.setWindowFlags(
@@ -105,22 +108,22 @@ class PopupWindow(QDialog):
     def _setup_ui(self, icon: PopupIcon) -> None:
         """Setup the popup UI."""
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(
-            PADDING_SMALL, PADDING_SMALL, PADDING_SMALL, PADDING_SMALL
-        )
-        main_layout.setSpacing(SPACING_SMALL)
+        main_layout.setContentsMargins(12, 10, 12, 10)
+        main_layout.setSpacing(6)
 
         # Icon and message layout
         content_layout = QHBoxLayout()
-        content_layout.setContentsMargins(4, 4, 6, 0)
-        content_layout.setSpacing(SPACING_SMALL)
+        content_layout.setContentsMargins(2, 2, 2, 0)
+        content_layout.setSpacing(8)
 
         # Icon
         if icon != PopupIcon.NONE:
             icon_label = QLabel()
             icon_label.setScaledContents(True)
-            icon_label.setFixedSize(24, 24)
-            icon_label.setPixmap(get_icon(icon.value).pixmap(24, 24))
+            icon_label.setFixedSize(20, 20)
+            icon_label.setPixmap(
+                get_icon(icon.value, color=self.icon_color).pixmap(20, 20)
+            )
             content_layout.addWidget(icon_label)
 
         # Wrap message text manually (similar to Blender-Launcher approach)
@@ -129,7 +132,7 @@ class PopupWindow(QDialog):
             if not line.strip():
                 wrapped_lines.append("")
             else:
-                wrapped = textwrap.wrap(line, width=70)
+                wrapped: list[str] = textwrap.wrap(line, width=50)
                 wrapped_lines.extend(wrapped)
         wrapped_message = "\n".join(wrapped_lines)
 
@@ -138,7 +141,7 @@ class PopupWindow(QDialog):
         content_layout.addWidget(message_label)
 
         main_layout.addLayout(content_layout)
-        main_layout.addSpacing(8)
+        main_layout.addSpacing(4)
 
         # Add buttons
         self._add_buttons(main_layout)
@@ -158,7 +161,7 @@ class PopupWindow(QDialog):
             return
 
         button_layout = QHBoxLayout()
-        button_layout.setSpacing(SPACING_SMALL)
+        button_layout.setSpacing(6)
 
         if len(self.buttons) > 2:
             # Multiple custom buttons - emit custom_signal
@@ -183,7 +186,7 @@ class PopupWindow(QDialog):
     def _add_info_button(self, layout: QVBoxLayout) -> None:
         """Add single OK button for info popup."""
         button_layout = QHBoxLayout()
-        button_layout.setSpacing(SPACING_SMALL)
+        button_layout.setSpacing(6)
         button_layout.addStretch()
 
         ok_button = self._create_button("OK", self._accept, primary=True)
@@ -194,7 +197,7 @@ class PopupWindow(QDialog):
     def _add_default_buttons(self, layout: QVBoxLayout) -> None:
         """Add default OK and Cancel buttons."""
         button_layout = QHBoxLayout()
-        button_layout.setSpacing(SPACING_SMALL)
+        button_layout.setSpacing(6)
         button_layout.addStretch()
 
         ok_button = self._create_button("OK", self._accept, primary=True)

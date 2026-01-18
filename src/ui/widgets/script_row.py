@@ -16,10 +16,37 @@ from PySide6.QtWidgets import (
 )
 
 # ----- Core Modules -----
-from src.core import BORDER_RADIUS_LARGE
+from src.core import (
+    ANIMATION_DURATION,
+    APP_NAME,
+    APP_VERSION,
+    AUTHOR,
+    BORDER_RADIUS,
+    BORDER_RADIUS_LARGE,
+    BORDER_RADIUS_SMALL,
+    DAILY_SCRIPTS_PATH,
+    FONT_FAMILY,
+    FONT_SIZE_HEADER,
+    FONT_SIZE_LABEL,
+    FONT_SIZE_SMALL,
+    FONT_SIZE_TEXT,
+    FONT_SIZE_TITLE,
+    HOVER_DURATION,
+    PADDING,
+    PADDING_LARGE,
+    PADDING_SMALL,
+    SPACING,
+    SPACING_LARGE,
+    SPACING_SMALL,
+    TIME_PATH,
+    UTILS_SCRIPTS_PATH,
+    WEEKLY_SCRIPTS_PATH,
+    WINDOW_MIN_HEIGHT,
+    WINDOW_MIN_WIDTH,
+)
 
 # ----- Utils Modules -----
-from src.utils import THEME_BG_SECONDARY, THEME_BORDER, get_icon
+from src.utils import THEME_BG_SECONDARY, THEME_BORDER, THEME_TEXT_PRIMARY, get_icon
 
 
 class ScriptRow(QFrame):
@@ -60,14 +87,15 @@ class ScriptRow(QFrame):
             f"""
             /* === Script Row (Button-like Card) === */
             QFrame {{
-                background-color: {THEME_BG_SECONDARY};
-                border: 2px solid {THEME_BORDER};
-                border-radius: {BORDER_RADIUS_LARGE}px;
+                background-color: rgba(83, 144, 247, 0.2);
+                color: white;
+                border-radius: {BORDER_RADIUS}px;
             }}
 
             QFrame:hover {{
-                background-color: rgba(122, 162, 247, 0.15);
-                border: 2px solid rgba(122, 162, 247, 0.8);
+                background-color: rgba(83, 144, 247, 0.3);
+                border-bottom: 2px solid rgb(83, 144, 247);
+                border-left: 2px solid rgb(83, 144, 247);
             }}
 
             QLabel {{
@@ -136,9 +164,10 @@ class ScriptRow(QFrame):
             self.setStyleSheet(
                 f"""
                 QFrame {{
-                    background-color: rgba(122, 162, 247, 0.25);
-                    border: 2px solid rgba(122, 162, 247, 1.0);
-                    border-radius: {BORDER_RADIUS_LARGE}px;
+                    background-color: rgba(83, 144, 247, 0.3);
+                    border-bottom: 2px solid rgb(83, 144, 247);
+                    border-left: 2px solid rgb(83, 144, 247);
+                    border-radius: {BORDER_RADIUS}px;
                 }}
                 QLabel {{
                     background: transparent;
@@ -156,13 +185,15 @@ class ScriptRow(QFrame):
             self.setStyleSheet(
                 f"""
                 QFrame {{
-                    background-color: {THEME_BG_SECONDARY};
-                    border: 2px solid {THEME_BORDER};
-                    border-radius: {BORDER_RADIUS_LARGE}px;
+                    background-color: rgba(83, 144, 247, 0.2);
+                    color: white;
+                    border-radius: {BORDER_RADIUS}px;
                 }}
+
                 QFrame:hover {{
-                    background-color: rgba(122, 162, 247, 0.15);
-                    border: 2px solid rgba(122, 162, 247, 0.8);
+                    background-color: rgba(83, 144, 247, 0.3);
+                    border-bottom: 2px solid rgb(83, 144, 247);
+                    border-left: 2px solid rgb(83, 144, 247);
                 }}
                 QLabel {{
                     background: transparent;

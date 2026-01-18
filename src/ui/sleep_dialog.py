@@ -3,11 +3,13 @@ Sleep input dialog for collecting all sleep-related inputs upfront.
 This dialog pre-collects all the data needed by the add-daily-sleep.js script.
 """
 
+# ----- Built-In Modules-----
 import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
+# ----- PySide6 Modules-----
 from PySide6.QtGui import QKeySequence
 from PySide6.QtWidgets import (
     QButtonGroup,
@@ -23,18 +25,22 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from src.core.config import (
+# ----- Core Modules-----
+from src.core import (
     FONT_SIZE_SMALL,
     PADDING,
     PADDING_LARGE,
     SPACING,
     SPACING_LARGE,
     SPACING_SMALL,
-    TIME_PATH,
     Config,
 )
+
+# ----- UI Modules-----
 from src.ui import components
-from src.utils import THEME_TEXT_SECONDARY, Icons
+
+# ----- Utils Modules-----
+from src.utils import THEME_BG_PRIMARY, THEME_TEXT_PRIMARY, THEME_TEXT_SECONDARY, Icons
 
 
 @dataclass
@@ -59,7 +65,14 @@ class SleepInputData:
 class SleepInputDialog(QDialog):
     """Dialog for collecting all sleep-related inputs."""
 
-    QUALITY_OPTIONS = ["Excellent", "Good", "Fair", "Poor", "Restless", "Skip"]
+    QUALITY_OPTIONS: list[str] = [
+        "Excellent",
+        "Good",
+        "Fair",
+        "Poor",
+        "Restless",
+        "Skip",
+    ]
 
     def __init__(self, config: Config, parent=None) -> None:
         super().__init__(parent)
@@ -69,6 +82,55 @@ class SleepInputDialog(QDialog):
 
         self.setWindowTitle("Add Sleep Entry")
         self.setMinimumSize(500, 550)
+
+        self.setStyleSheet(
+            f"""
+                QComboBox {{
+                    background-color: rgba(255, 255, 255, 0.04);
+                    color: {THEME_TEXT_PRIMARY};
+                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    border-radius: 3px;
+                    padding: 2px 8px 2px 8px;
+                    padding-right: 24px;
+                }}
+                QComboBox:hover {{
+                    background-color: rgba(255, 255, 255, 0.06);
+                    border: 1px solid rgba(255, 255, 255, 0.12);
+                }}
+                QComboBox:focus {{
+                    background-color: rgba(255, 255, 255, 0.06);
+                    border: 1px solid rgba(255, 255, 255, 0.12);
+                }}
+                QComboBox::drop-down {{
+                    subcontrol-origin: padding;
+                    subcontrol-position: top right;
+                    width: 20px;
+                    border: none;
+                    background: transparent;
+                }}
+                QComboBox::down-arrow {{
+                    image: url(assets/white_expand_more.svg);
+                    width: 10px;
+                    height: 10px;
+                    border: none;
+                }}
+                QComboBox::down-arrow:on {{
+                    image: url(assets/white_expand_less.svg);
+                }}
+                QComboBox::down-arrow:disabled {{
+                    opacity: 0.4;
+                }}
+                QComboBox QAbstractItemView {{
+                    background-color: {THEME_BG_PRIMARY};
+                    color: {THEME_TEXT_PRIMARY};
+                    selection-background-color: rgba(125, 207, 255, 0.2);
+                    selection-color: {THEME_TEXT_PRIMARY};
+                    border: 1px solid rgba(255, 255, 255, 0.12);
+                    outline: none;
+                    padding: 2px;
+                }}
+            """
+        )
 
         self._load_time_entries()
         self._setup_ui()

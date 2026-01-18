@@ -32,6 +32,7 @@ from src.core import (
     PADDING_LARGE,
     SPACING,
     SPACING_LARGE,
+    WEBSITE_URL,
 )
 
 # ----- Utils Modules-----
@@ -53,12 +54,12 @@ from src.utils import (
 class GlowingLine(QFrame):
     """A horizontal line with a glowing gradient effect."""
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setFixedHeight(2)
         self.setStyleSheet("background: transparent;")
 
-    def paintEvent(self, event):
+    def paintEvent(self, event) -> None:
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
@@ -77,7 +78,7 @@ class GlowingLine(QFrame):
 class FeatureItem(QWidget):
     """A single feature item with icon and text."""
 
-    def __init__(self, icon_name: str, text: str, parent=None):
+    def __init__(self, icon_name: str, text: str, parent=None) -> None:
         super().__init__(parent)
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 4, 0, 4)
@@ -103,16 +104,16 @@ class FeatureItem(QWidget):
 class AboutDialog(QDialog):
     """A stylish about dialog for Obsidian Forge."""
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setWindowTitle(f"About {APP_NAME}")
-        self.setFixedSize(420, 480)
+        self.setFixedSize(420, 520)
         self.setWindowFlags(Qt.WindowType.Dialog | Qt.WindowType.FramelessWindowHint)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
         self.setup_ui()
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         """Setup the dialog UI."""
         # Main layout
         main_layout = QVBoxLayout(self)
@@ -292,11 +293,27 @@ class AboutDialog(QDialog):
 
         container_layout.addWidget(author_widget)
 
+        # Website section
+        website_label = QLabel(
+            f'<a href="{WEBSITE_URL}" style="color: {COLOR_LIGHT_BLUE}; text-decoration: none;">{WEBSITE_URL}</a>'
+        )
+        website_label.setOpenExternalLinks(True)
+        website_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        website_label.setStyleSheet(
+            f"""
+            color: {COLOR_LIGHT_BLUE};
+            font-size: {FONT_SIZE_SMALL}pt;
+            background: transparent;
+            """
+        )
+        website_label.setCursor(Qt.CursorShape.PointingHandCursor)
+        container_layout.addWidget(website_label)
+
         # Spacer
         container_layout.addStretch()
 
         # Close button
-        close_btn = QPushButton(f"{Icons.CHECK}  Close")
+        close_btn = QPushButton(f"{Icons.CROSS}  Close")
         close_btn.setObjectName("AboutCloseButton")
         close_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         close_btn.setStyleSheet(
@@ -328,21 +345,7 @@ class AboutDialog(QDialog):
 
         main_layout.addWidget(container)
 
-    def mousePressEvent(self, event):
-        """Allow dragging the dialog."""
-        if event.button() == Qt.MouseButton.LeftButton:
-            self._drag_pos = (
-                event.globalPosition().toPoint() - self.frameGeometry().topLeft()
-            )
-            event.accept()
-
-    def mouseMoveEvent(self, event):
-        """Handle dialog dragging."""
-        if event.buttons() == Qt.MouseButton.LeftButton and hasattr(self, "_drag_pos"):
-            self.move(event.globalPosition().toPoint() - self._drag_pos)
-            event.accept()
-
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event) -> None:
         """Handle key press events."""
         if event.key() == Qt.Key.Key_Escape:
             self.accept()
