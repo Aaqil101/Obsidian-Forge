@@ -27,7 +27,7 @@ from PySide6.QtWidgets import (
 from src.core.config import FONT_FAMILY, FONT_SIZE_HEADER, FONT_SIZE_TEXT, Config
 
 # ----- UI Component Imports -----
-from src.ui.popup_window import PopupIcon, PopupWindow
+from src.ui import PopupIcon, PopupWindow
 
 # ----- Utils Modules -----
 from src.utils import (
@@ -377,6 +377,65 @@ class ExcludedDirsManager(QDialog):
             item = QListWidgetItem(dir_name)
             self.list_widget.addItem(item)
 
+    def _style_file_dialog(self, dialog: QFileDialog) -> None:
+        """Apply custom styling and icons to the file dialog.
+
+        Args:
+            dialog: QFileDialog instance to style
+        """
+        # Customize toolbar buttons with SVG icons
+        # Find and style the navigation buttons
+        for tool_button in dialog.findChildren(QWidget):
+            # Style the toolbar buttons
+            if isinstance(tool_button, QWidget):
+                button_name = tool_button.objectName()
+
+                # Back button
+                if "backButton" in button_name or "Back" in button_name:
+                    icon = get_icon("navigate_back.svg", color="#7aa2f7")
+                    if hasattr(tool_button, "setIcon"):
+                        tool_button.setIcon(icon)
+                        tool_button.setToolTip("Back")
+
+                # Forward button
+                elif "forwardButton" in button_name or "Forward" in button_name:
+                    icon = get_icon("navigate_forward.svg", color="#7aa2f7")
+                    if hasattr(tool_button, "setIcon"):
+                        tool_button.setIcon(icon)
+                        tool_button.setToolTip("Forward")
+
+                # Parent Directory / Up button
+                elif (
+                    "toParentButton" in button_name
+                    or "Parent" in button_name
+                    or "Up" in button_name
+                ):
+                    icon = get_icon("up_arrow.svg", color="#7aa2f7")
+                    if hasattr(tool_button, "setIcon"):
+                        tool_button.setIcon(icon)
+                        tool_button.setToolTip("Parent Directory")
+
+                # New Folder button
+                elif "newFolderButton" in button_name or "NewFolder" in button_name:
+                    icon = get_icon("folder_add.svg", color="#9ece6a")
+                    if hasattr(tool_button, "setIcon"):
+                        tool_button.setIcon(icon)
+                        tool_button.setToolTip("New Folder")
+
+                # List Mode button
+                elif "listModeButton" in button_name or "List" in button_name:
+                    icon = get_icon("list_view.svg", color="#7aa2f7")
+                    if hasattr(tool_button, "setIcon"):
+                        tool_button.setIcon(icon)
+                        tool_button.setToolTip("List View")
+
+                # Detail Mode button
+                elif "detailModeButton" in button_name or "Detail" in button_name:
+                    icon = get_icon("grid_view.svg", color="#7aa2f7")
+                    if hasattr(tool_button, "setIcon"):
+                        tool_button.setIcon(icon)
+                        tool_button.setToolTip("Detail View")
+
     def _on_browse_clicked(self) -> None:
         """Handle Browse button click - select folders from file system."""
 
@@ -399,6 +458,11 @@ class ExcludedDirsManager(QDialog):
         dialog.setFileMode(QFileDialog.FileMode.Directory)
         dialog.setOption(QFileDialog.Option.DontUseNativeDialog, True)
         dialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
+
+        dialog.setStyleSheet()
+
+        # Apply Tokyo Night styling to match application theme
+        self._style_file_dialog(dialog)
 
         # Set initial directory to vault path
         dialog.setDirectory(str(self.config.vault_path))
@@ -539,8 +603,8 @@ class ExcludedDirsManager(QDialog):
             )
             popup.show()
 
-            # Auto-close popup after 1 second, then close the manager window
-            QTimer.singleShot(1000, lambda: (popup.accept(), self.accept()))
+            # Auto-close popup after 500 millisecond, then close the manager window
+            QTimer.singleShot(500, lambda: (popup.accept(), self.accept()))
         else:
             popup = PopupWindow(
                 message="Failed to save excluded directories. Please try again.",
