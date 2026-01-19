@@ -91,10 +91,10 @@ class FileDialogDemo:
                         tool_button.setIcon(icon)
                         tool_button.setToolTip("Detail View")
 
-    def show_multi_folder_dialog(self):
+    def show_multi_folder_dialog(self) -> None:
         """Show a multi-folder selection dialog."""
         dialog = QFileDialog()
-        dialog.setFixedSize(900, 600)
+        dialog.setMinimumSize(900, 600)
         dialog.setWindowTitle("Select Multiple Folders")
         dialog.setFileMode(QFileDialog.FileMode.Directory)
         dialog.setOption(QFileDialog.Option.DontUseNativeDialog, True)

@@ -10,6 +10,10 @@ import sys
 # ----- PySide6 Modules-----
 from PySide6.QtWidgets import QApplication
 
+# ----- Resources-----
+# Import Qt compiled resources (needed for :/assets/ paths in stylesheets)
+import src.resources_rc  # noqa: F401
+
 # ----- Core Modules-----
 from src.core.config import APP_NAME
 
@@ -18,10 +22,6 @@ from src.ui import MainWindow, build_stylesheet
 
 # ----- Utils Modules-----
 from src.utils import get_icon
-
-# ----- Resources-----
-# Import Qt compiled resources (needed for :/assets/ paths in stylesheets)
-import src.resources_rc  # noqa: F401
 
 
 def main():

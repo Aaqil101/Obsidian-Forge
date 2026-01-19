@@ -55,15 +55,15 @@ def qss() -> str:
         border: none;
     }}
     QComboBox QAbstractItemView::item:hover {{
-        background-color: {THEME_BG_PRIMARY};
+        background-color: rgba(83, 144, 247, 0.25);
         color: {THEME_TEXT_PRIMARY};
     }}
     QComboBox QAbstractItemView::item:selected {{
-        background-color: {COLOR_DARK_BLUE};
+        background-color: rgba(83, 144, 247, 0.25);
         color: {THEME_TEXT_PRIMARY};
     }}
     QComboBox QAbstractItemView::item:selected:hover {{
-        background-color: rgb(83, 144, 247);
+        background-color: rgba(83, 144, 247, 0.25);
         border: none;
     }}
     """
