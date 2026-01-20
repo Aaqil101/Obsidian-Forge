@@ -1,5 +1,4 @@
-"""
-Script card widget - entire card is clickable to execute scripts.
+"""Script card widget - entire card is clickable to execute scripts.
 Inspired by Blender-Launcher-V2 design.
 """
 
@@ -16,37 +15,10 @@ from PySide6.QtWidgets import (
 )
 
 # ----- Core Modules -----
-from src.core import (
-    ANIMATION_DURATION,
-    APP_NAME,
-    APP_VERSION,
-    AUTHOR,
-    BORDER_RADIUS,
-    BORDER_RADIUS_LARGE,
-    BORDER_RADIUS_SMALL,
-    DAILY_SCRIPTS_PATH,
-    FONT_FAMILY,
-    FONT_SIZE_HEADER,
-    FONT_SIZE_LABEL,
-    FONT_SIZE_SMALL,
-    FONT_SIZE_TEXT,
-    FONT_SIZE_TITLE,
-    HOVER_DURATION,
-    PADDING,
-    PADDING_LARGE,
-    PADDING_SMALL,
-    SPACING,
-    SPACING_LARGE,
-    SPACING_SMALL,
-    TIME_PATH,
-    UTILS_SCRIPTS_PATH,
-    WEEKLY_SCRIPTS_PATH,
-    WINDOW_MIN_HEIGHT,
-    WINDOW_MIN_WIDTH,
-)
+from src.core import BORDER_RADIUS
 
 # ----- Utils Modules -----
-from src.utils import THEME_BG_SECONDARY, THEME_BORDER, THEME_TEXT_PRIMARY, get_icon
+from src.utils import get_icon
 
 
 class ScriptRow(QFrame):

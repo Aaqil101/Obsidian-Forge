@@ -57,9 +57,9 @@ class FileDialog:
         dialog.setMinimumSize(900, 600)
         dialog.setWindowTitle(self.title)
         dialog.setOptions(
-            QFileDialog.DontUseNativeDialog
-            | QFileDialog.HideNameFilterDetails
-            | QFileDialog.DontUseCustomDirectoryIcons
+            QFileDialog.Option.DontUseNativeDialog
+            | QFileDialog.Option.HideNameFilterDetails
+            | QFileDialog.Option.DontUseCustomDirectoryIcons
         )
 
         if self.directory:
@@ -74,6 +74,52 @@ class FileDialog:
             /* === Main Dialog === */
             QFileDialog {{
                 background-color: {THEME_BG_PRIMARY};
+                color: {THEME_TEXT_PRIMARY};
+            }}
+
+            /* === Tree View === */
+            QTreeView {{
+                background-color: #282828;
+                color: {THEME_TEXT_PRIMARY};
+                border: 1px solid #444444;
+                outline: 0;
+            }}
+            QTreeView::item {{
+                color: {THEME_TEXT_PRIMARY};
+                padding: 0px 2px;
+                min-height: 14px;
+            }}
+            QTreeView::item:hover {{
+                color: {THEME_TEXT_PRIMARY};
+                background-color: #4F4F4F;
+            }}
+            QTreeView::item:selected {{
+                color: {THEME_TEXT_PRIMARY};
+                background-color: #3B5689;
+            }}
+            QTreeView::item:selected:!active {{
+                color: {THEME_TEXT_PRIMARY};
+            }}
+
+            /* === List View === */
+            QListView {{
+                background-color: #282828;
+                color: {THEME_TEXT_PRIMARY};
+                border: 1px solid #444444;
+                outline: 0;
+            }}
+            QListView::item {{
+                color: {THEME_TEXT_PRIMARY};
+                padding: 0px 2px;
+                height: 28px;
+            }}
+            QListView::item:hover {{
+                background-color: #4F4F4F;
+            }}
+            QListView::item:selected {{
+                background-color: #3B5689;
+            }}
+            QListView::item:selected:!active {{
                 color: {THEME_TEXT_PRIMARY};
             }}
 
@@ -107,52 +153,6 @@ class FileDialog:
                 border: none;
                 height: 1px;
                 margin: 0px 4px 0px 4px;
-            }}
-
-            /* === Tree View === */
-            QTreeView {{
-                background-color: #282828;
-                color: {THEME_TEXT_PRIMARY};
-                border: 2px solid #444444;
-                outline: 0;
-            }}
-            QTreeView::item {{
-                color: {THEME_TEXT_PRIMARY};
-                padding: 0px 2px;
-                min-height: 14px;
-            }}
-            QTreeView::item:hover {{
-                color: {THEME_TEXT_PRIMARY};
-                background-color: #4F4F4F;
-            }}
-            QTreeView::item:selected {{
-                color: {THEME_TEXT_PRIMARY};
-                background-color: #3B5689;
-            }}
-            QTreeView::item:selected:!active {{
-                color: {THEME_TEXT_PRIMARY};
-            }}
-
-            /* === List View === */
-            QListView {{
-                background-color: #282828;
-                color: {THEME_TEXT_PRIMARY};
-                border: 2px solid #444444;
-                outline: 0;
-            }}
-            QListView::item {{
-                color: {THEME_TEXT_PRIMARY};
-                padding: 0px 2px;
-                height: 28px;
-            }}
-            QListView::item:hover {{
-                background-color: #4F4F4F;
-            }}
-            QListView::item:selected {{
-                background-color: #3B5689;
-            }}
-            QListView::item:selected:!active {{
-                color: {THEME_TEXT_PRIMARY};
             }}
 
             /* === Header View === */

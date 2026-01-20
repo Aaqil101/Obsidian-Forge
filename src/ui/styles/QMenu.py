@@ -14,34 +14,33 @@ def qss() -> str:
     return f"""
     /* === Menu === */
     QMenu {{
-        background-color: {THEME_BG_SECONDARY};
+        background-color: #1F1F1F;
         color: {THEME_TEXT_PRIMARY};
-        border: 1px solid {THEME_BORDER};
-        border-radius: {BORDER_RADIUS}px;
-        padding: 4px;
+        border: 1px solid #323232;
+        border-radius: 0px;
+        padding: 0px;
     }}
-
-    QMenu::icon {{
-        padding-left: 8px;
-    }}
-
     QMenu::item {{
-        padding: 6px 24px 6px 10px;
-        border-radius: {BORDER_RADIUS_SMALL}px;
+        color: {THEME_TEXT_PRIMARY};
+        border-radius: 0px;
+        padding: 2px 8px;
+        min-height: 16px;
     }}
-
-    QMenu::item:selected {{
-        background-color: rgba(122, 162, 247, 0.2);
-        color: #FFFFFF;
+    QMenu::item::selected {{
+        color: {THEME_TEXT_PRIMARY};
+        background-color: #5076B2;
+        border-radius: 0px;
     }}
-
+    QMenu::icon {{
+        margin: 3px;
+    }}
     QMenu::item:disabled {{
-        color: {THEME_TEXT_SUBTLE};
+        color: #828282;
     }}
-
     QMenu::separator {{
+        background-color: #616161;
+        border: none;
         height: 1px;
-        background-color: {THEME_BORDER};
-        margin: 4px 8px;
+        margin: 0px 4px 0px 4px;
     }}
     """

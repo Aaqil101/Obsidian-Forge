@@ -17,7 +17,6 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QMainWindow,
-    QMessageBox,
     QScrollArea,
     QTextEdit,
     QToolButton,
@@ -28,27 +27,12 @@ from PySide6.QtWidgets import (
 
 # ----- Core Modules-----
 from src.core import (
-    ANIMATION_DURATION,
     APP_NAME,
-    BORDER_RADIUS,
-    BORDER_RADIUS_LARGE,
     BORDER_RADIUS_SMALL,
-    DAILY_SCRIPTS_PATH,
     FONT_FAMILY,
-    FONT_SIZE_HEADER,
-    FONT_SIZE_LABEL,
     FONT_SIZE_SMALL,
     FONT_SIZE_TEXT,
-    FONT_SIZE_TITLE,
-    HOVER_DURATION,
-    PADDING,
-    PADDING_LARGE,
-    PADDING_SMALL,
-    SPACING,
-    SPACING_LARGE,
     SPACING_SMALL,
-    UTILS_SCRIPTS_PATH,
-    WEEKLY_SCRIPTS_PATH,
     WINDOW_MIN_HEIGHT,
     WINDOW_MIN_WIDTH,
     Config,
@@ -64,7 +48,7 @@ from src.ui.sleep_dialog import SleepInputDialog
 from src.ui.widgets import ScriptRow, SettingsGroup
 
 # ----- Utils Modules-----
-from src.utils import THEME_TEXT_PRIMARY, Icons, get_icon
+from src.utils import THEME_TEXT_PRIMARY, THEME_TEXT_SUBTLE, Icons, get_icon
 
 
 class ScriptThread(QThread):
@@ -141,6 +125,19 @@ class MainWindow(QMainWindow):
         """Create a custom menu item widget with icon and text."""
         widget = QWidget()
         widget.setObjectName("MenuItem")
+        widget.setStyleSheet(
+            f"""
+            #MenuItem {{
+                background-color: transparent;
+            }}
+
+            #MenuItem:hover {{
+                background-color: rgba(83, 144, 247, 0.5);
+                color: {THEME_TEXT_PRIMARY};
+                border-radius: 0px;
+            }}
+            """
+        )
         layout = QHBoxLayout(widget)
         layout.setContentsMargins(8, 6, 8, 6)
         layout.setSpacing(8)
@@ -153,7 +150,6 @@ class MainWindow(QMainWindow):
 
         # Text
         text_label = QLabel(text)
-        text_label.setObjectName("MenuItemText")
         layout.addWidget(text_label)
 
         # Spacer
@@ -162,7 +158,6 @@ class MainWindow(QMainWindow):
         # Shortcut
         if shortcut:
             shortcut_label = QLabel(shortcut)
-            shortcut_label.setObjectName("MenuItemShortcut")
             layout.addWidget(shortcut_label)
 
         return widget
