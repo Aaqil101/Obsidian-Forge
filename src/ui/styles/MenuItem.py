@@ -28,4 +28,4 @@ def qss() -> str:
         color: {THEME_TEXT_SUBTLE};
         font-size: {FONT_SIZE_SMALL}pt;
     }}
-        """
+    """

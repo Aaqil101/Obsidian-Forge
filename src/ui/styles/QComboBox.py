@@ -9,8 +9,7 @@ def qss() -> str:
         color: {THEME_TEXT_PRIMARY};
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 3px;
-        padding: 2px 8px 2px 8px;
-        padding-right: 24px;
+        padding: 1px 1px 1px 3px;
     }}
     QComboBox:hover {{
         background-color: rgba(255, 255, 255, 0.06);
@@ -51,7 +50,8 @@ def qss() -> str:
     QComboBox QAbstractItemView::item {{
         background-color: {THEME_BG_PRIMARY};
         color: {THEME_TEXT_PRIMARY};
-        min-height: 24px;
+        height: 20px;
+        padding: 2px 4px;
         border: none;
     }}
     QComboBox QAbstractItemView::item:hover {{

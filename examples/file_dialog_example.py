@@ -11,142 +11,132 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # ----- PySide6 Modules-----
-from PySide6.QtWidgets import (
-    QAbstractItemView,
-    QApplication,
-    QFileDialog,
-    QListView,
-    QTreeView,
-    QWidget,
-)
+from PySide6.QtWidgets import QApplication, QPushButton, QVBoxLayout, QWidget
 
 # ----- UI Modules-----
-from src.ui.styles import QFileDialog as QFileDialogStyle
+from src.ui import (
+    FileDialog,
+    open_file_dialog,
+    save_file_dialog,
+    select_directory_dialog,
+)
 
-# ----- Utils Modules-----
-from src.utils import get_icon
 
-
-class FileDialogDemo:
+class FileDialogDemo(QWidget):
     """Demo window showing various file dialog configurations."""
 
     def __init__(self) -> None:
-        # Multi folder selection
-        self.show_multi_folder_dialog()
+        super().__init__()
+        self.setWindowTitle("File Dialog Examples")
+        self.setMinimumSize(400, 300)
 
-    def style_file_dialog(self, dialog: QFileDialog) -> None:
-        """Apply custom styling and icons to the file dialog.
+        layout = QVBoxLayout()
 
-        Args:
-            dialog: QFileDialog instance to style
-        """
-        # Customize toolbar buttons with SVG icons
-        for tool_button in dialog.findChildren(QWidget):
-            if isinstance(tool_button, QWidget):
-                button_name: str = tool_button.objectName()
+        # Example 1: Simple file open dialog (convenience function)
+        btn1 = QPushButton("Open Single File (Quick)")
+        btn1.clicked.connect(self.example_open_file_quick)
+        layout.addWidget(btn1)
 
-                # Back button
-                if "backButton" in button_name or "Back" in button_name:
-                    icon = get_icon("navigate_back.svg", color="#7aa2f7")
-                    if hasattr(tool_button, "setIcon"):
-                        tool_button.setIcon(icon)
-                        tool_button.setToolTip("Back")
+        # Example 2: Multiple file selection (convenience function)
+        btn2 = QPushButton("Open Multiple Files (Quick)")
+        btn2.clicked.connect(self.example_open_files_quick)
+        layout.addWidget(btn2)
 
-                # Forward button
-                elif "forwardButton" in button_name or "Forward" in button_name:
-                    icon = get_icon("navigate_forward.svg", color="#7aa2f7")
-                    if hasattr(tool_button, "setIcon"):
-                        tool_button.setIcon(icon)
-                        tool_button.setToolTip("Forward")
+        # Example 3: Save file dialog (convenience function)
+        btn3 = QPushButton("Save File (Quick)")
+        btn3.clicked.connect(self.example_save_file_quick)
+        layout.addWidget(btn3)
 
-                # Parent Directory / Up button
-                elif (
-                    "toParentButton" in button_name
-                    or "Parent" in button_name
-                    or "Up" in button_name
-                ):
-                    icon = get_icon("up_arrow.svg", color="#7aa2f7")
-                    if hasattr(tool_button, "setIcon"):
-                        tool_button.setIcon(icon)
-                        tool_button.setToolTip("Parent Directory")
+        # Example 4: Directory selection (convenience function)
+        btn4 = QPushButton("Select Directory (Quick)")
+        btn4.clicked.connect(self.example_select_directory_quick)
+        layout.addWidget(btn4)
 
-                # New Folder button
-                elif "newFolderButton" in button_name or "NewFolder" in button_name:
-                    icon = get_icon("folder_add.svg", color="#9ece6a")
-                    if hasattr(tool_button, "setIcon"):
-                        tool_button.setIcon(icon)
-                        tool_button.setToolTip("New Folder")
+        # Example 5: Multiple directory selection (convenience function)
+        btn5 = QPushButton("Select Multiple Directories (Quick)")
+        btn5.clicked.connect(self.example_select_directories_quick)
+        layout.addWidget(btn5)
 
-                # List Mode button
-                elif "listModeButton" in button_name or "List" in button_name:
-                    icon = get_icon("list_view.svg", color="#7aa2f7")
-                    if hasattr(tool_button, "setIcon"):
-                        tool_button.setIcon(icon)
-                        tool_button.setToolTip("List View")
+        # Example 6: Using FileDialog class with custom configuration
+        btn6 = QPushButton("Open File (Class Instance)")
+        btn6.clicked.connect(self.example_file_dialog_class)
+        layout.addWidget(btn6)
 
-                # Detail Mode button
-                elif "detailModeButton" in button_name or "Detail" in button_name:
-                    icon = get_icon("grid_view.svg", color="#7aa2f7")
-                    if hasattr(tool_button, "setIcon"):
-                        tool_button.setIcon(icon)
-                        tool_button.setToolTip("Detail View")
+        self.setLayout(layout)
 
-    def show_multi_folder_dialog(self) -> None:
-        """Show a multi-folder selection dialog."""
-        dialog = QFileDialog()
-        dialog.setMinimumSize(900, 600)
-        dialog.setWindowTitle("Select Multiple Folders")
-        dialog.setFileMode(QFileDialog.FileMode.Directory)
-        dialog.setOption(QFileDialog.Option.DontUseNativeDialog, True)
-        dialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
+    def example_open_file_quick(self) -> None:
+        """Example: Open single file using convenience function."""
+        files = open_file_dialog(
+            parent=self,
+            title="Select a Python File",
+            file_filter="Python Files (*.py);;All Files (*.*)",
+        )
+        if files:
+            print(f"Selected file: {files[0]}")
 
-        # Apply custom styling
-        self.style_file_dialog(dialog)
+    def example_open_files_quick(self) -> None:
+        """Example: Open multiple files using convenience function."""
+        files = open_file_dialog(
+            parent=self,
+            title="Select Multiple Files",
+            file_filter="All Files (*.*)",
+            multi_select=True,
+        )
+        if files:
+            print(f"Selected {len(files)} file(s):")
+            for file in files:
+                print(f"  - {file}")
 
-        # Enable multi-selection
-        list_view = dialog.findChild(QListView, "listView")
-        if list_view:
-            list_view.setSelectionMode(
-                QAbstractItemView.SelectionMode.ExtendedSelection
-            )
+    def example_save_file_quick(self) -> None:
+        """Example: Save file using convenience function."""
+        file_path = save_file_dialog(
+            parent=self,
+            title="Save Configuration",
+            file_filter="JSON Files (*.json);;All Files (*.*)",
+            default_name="config.json",
+        )
+        if file_path:
+            print(f"Save to: {file_path}")
 
-        tree_view = dialog.findChild(QTreeView)
-        if tree_view:
-            tree_view.setSelectionMode(
-                QAbstractItemView.SelectionMode.ExtendedSelection
-            )
-            # Ensure the Name column is properly sized to show full text
-            tree_view.setColumnWidth(0, 300)  # Name column - wider width
-            tree_view.setWordWrap(True)
+    def example_select_directory_quick(self) -> None:
+        """Example: Select directory using convenience function."""
+        directories = select_directory_dialog(
+            parent=self,
+            title="Select Project Directory",
+        )
+        if directories:
+            print(f"Selected directory: {directories[0]}")
 
-            # Configure header
-            header = tree_view.header()
-            if header:
-                header.setStretchLastSection(False)
-                header.setSectionResizeMode(0, header.ResizeMode.Interactive)
+    def example_select_directories_quick(self) -> None:
+        """Example: Select multiple directories using convenience function."""
+        directories = select_directory_dialog(
+            parent=self,
+            title="Select Multiple Directories",
+            multi_select=True,
+        )
+        if directories:
+            print(f"Selected {len(directories)} director(ies):")
+            for directory in directories:
+                print(f"  - {directory}")
 
-        # Connect accepted signal to quit the application
-        dialog.accepted.connect(lambda: self.on_dialog_accepted(dialog))
-        dialog.rejected.connect(QApplication.quit)
+    def example_file_dialog_class(self) -> None:
+        """Example: Using FileDialog class for more control."""
+        dialog = FileDialog(
+            parent=self,
+            title="Select Image File",
+            file_filter="Images (*.png *.jpg *.jpeg *.bmp);;All Files (*.*)",
+        )
 
-        dialog.show()
-
-    def on_dialog_accepted(self, dialog) -> None:
-        """Handle dialog acceptance."""
-        selected = dialog.selectedFiles()
-        if selected:
-            print(f"Selected {len(selected)} folder(s):")
-            for folder in selected:
-                print(f"  - {folder}")
-        QApplication.quit()
+        # Use the dialog instance
+        files = dialog.open_file()
+        if files:
+            print(f"Selected image: {files[0]}")
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
-    # Apply Tokyo Night theme
-    app.setStyleSheet(QFileDialogStyle.qss())
-
     demo = FileDialogDemo()
+    demo.show()
 
     sys.exit(app.exec())
