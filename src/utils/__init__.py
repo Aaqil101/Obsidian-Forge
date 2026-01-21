@@ -22,6 +22,7 @@ from src.utils.color import (
     THEME_TEXT_PRIMARY,
     THEME_TEXT_SECONDARY,
     THEME_TEXT_SUBTLE,
+    AccentTheme,
 )
 from src.utils.hover_button import HoverIconButton
 from src.utils.icons import Icons
@@ -52,4 +53,5 @@ __all__: list[str] = [
     "THEME_TEXT_PRIMARY",
     "THEME_TEXT_SECONDARY",
     "THEME_TEXT_SUBTLE",
+    "AccentTheme",
 ]

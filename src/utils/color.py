@@ -3,6 +3,9 @@ Tokyo Night color palette for Obsidian Forge.
 Based on GitUI's Tokyo Night theme.
 """
 
+# ----- Built-In Modules -----
+import random
+
 # ══════════════════════════════════════════════════════════════════
 # THEME - TOKYO NIGHT
 # ══════════════════════════════════════════════════════════════════
@@ -31,3 +34,74 @@ COLOR_PENDING = "#e0af68"
 COLOR_QUEUED = "#7aa2f7"
 COLOR_SCANNING = "#7dcfff"
 COLOR_COMPLETE = "#9ece6a"
+
+
+# ══════════════════════════════════════════════════════════════════
+# ACCENT THEME - Dynamic Color Variations
+# ══════════════════════════════════════════════════════════════════
+class AccentTheme:
+    """Accent color theme provider with background and border variations.
+
+    Provides a shared random accent color theme that's consistent across the entire app.
+    The theme is chosen once on first access and reused throughout the session.
+    """
+
+    BLUE: dict[str, str] = {
+        "main_background": "rgba(83, 144, 247, 0.2)",
+        "hover_background": "rgba(83, 144, 247, 0.3)",
+        "pressed_background": "rgba(83, 144, 247, 0.4)",
+        "border": "rgb(83, 144, 247)",
+    }
+    BROWN: dict[str, str] = {
+        "main_background": "rgba(255, 166, 75, 0.2)",
+        "hover_background": "rgba(255, 166, 75, 0.3)",
+        "pressed_background": "rgba(255, 166, 75, 0.4)",
+        "border": "rgb(255, 166, 75)",
+    }
+    RED: dict[str, str] = {
+        "main_background": "rgba(225, 80, 69, 0.2)",
+        "hover_background": "rgba(225, 80, 69, 0.3)",
+        "pressed_background": "rgba(225, 80, 69, 0.4)",
+        "border": "rgb(225, 80, 69)",
+    }
+    PURPLE: dict[str, str] = {
+        "main_background": "rgba(153, 116, 248, 0.2)",
+        "hover_background": "rgba(153, 116, 248, 0.3)",
+        "pressed_background": "rgba(153, 116, 248, 0.4)",
+        "border": "rgb(153, 116, 248)",
+    }
+    GREEN: dict[str, str] = {
+        "main_background": "rgba(89, 143, 76, 0.2)",
+        "hover_background": "rgba(89, 143, 76, 0.3)",
+        "pressed_background": "rgba(89, 143, 76, 0.4)",
+        "border": "rgb(89, 143, 76)",
+    }
+    GRAY: dict[str, str] = {
+        "main_background": "rgba(151, 151, 151, 0.2)",
+        "hover_background": "rgba(151, 151, 151, 0.3)",
+        "pressed_background": "rgba(151, 151, 151, 0.4)",
+        "border": "rgb(151, 151, 151)",
+    }
+
+    # Shared instance - initialized once on first access
+    _shared_theme: dict[str, str] | None = None
+
+    @staticmethod
+    def get() -> dict[str, str]:
+        """Get the app's accent color theme.
+
+        Returns the same random theme for the entire app session.
+        The theme is chosen once on first call and cached.
+        """
+        if AccentTheme._shared_theme is None:
+            AccentTheme._shared_theme = random.choice(
+                [
+                    AccentTheme.BLUE,
+                    AccentTheme.BROWN,
+                    AccentTheme.RED,
+                    AccentTheme.PURPLE,
+                    AccentTheme.GREEN,
+                    AccentTheme.GRAY,
+                ]
+            )
+        return AccentTheme._shared_theme

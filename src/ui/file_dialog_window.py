@@ -237,12 +237,6 @@ class FileDialog:
                 border: none;
             }}
 
-            /* === Labels === */
-            QLabel {{
-                background-color: transparent;
-                color: "#FFFFFF";
-            }}
-
             /* === Line Edit === */
             QLineEdit {{
                 background-color: #1F1F1F;
@@ -255,42 +249,7 @@ class FileDialog:
                 color: {THEME_TEXT_PRIMARY};
             }}
 
-            /* === Buttons === */
-            QPushButton {{
-                background-color: rgba(255, 255, 255, 0.04);
-                color: {THEME_TEXT_PRIMARY};
-                border-radius: 0px;
-                padding: 3px 10px;
-                min-height: 18px;
-            }}
-            QPushButton:hover {{
-                background-color: rgba(255, 255, 255, 0.08);
-                border-bottom: 2px solid {COLOR_DARK_BLUE};
-            }}
-            QPushButton:pressed {{
-                background-color: rgba(255, 255, 255, 0.12);
-            }}
-            QPushButton:focus {{
-                background-color: rgba(255, 255, 255, 0.08);
-                border-bottom: 2px solid {COLOR_DARK_BLUE};
-                outline: none;
-            }}
 
-            /* === Tool Button === */
-            QToolButton {{
-                background-color: rgba(255, 255, 255, 0.04);
-                border: none;
-                border-radius: {BORDER_RADIUS_SMALL}px;
-                padding: 2px;
-                min-width: 20px;
-                min-height: 20px;
-            }}
-            QToolButton:hover {{
-                background-color: rgba(122, 162, 247, 0.15);
-            }}
-            QToolButton:pressed {{
-                background-color: rgba(122, 162, 247, 0.25);
-            }}
             """
         )
         self._style_dialog(dialog)

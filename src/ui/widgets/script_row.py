@@ -1,8 +1,5 @@
 """Script card widget - entire card is clickable to execute scripts."""
 
-# ----- Built-In Modules-----
-import random
-
 # ----- PySide6 Modules -----
 from PySide6.QtCore import QSize, Qt, Signal
 from PySide6.QtGui import QMouseEvent
@@ -15,59 +12,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-# ----- Core Modules -----
-from src.core import BORDER_RADIUS
-
 # ----- Utils Modules -----
-from src.utils import get_icon
-
-
-class ColorDict:
-    """Dictionary for theme colors."""
-
-    BLUE: dict[str, str] = {
-        "main_background": "rgba(83, 144, 247, 0.2)",
-        "hover_background": "rgba(83, 144, 247, 0.3)",
-        "border": "rgb(83, 144, 247)",
-    }
-    BROWN: dict[str, str] = {
-        "main_background": "rgba(255, 166, 75, 0.2)",
-        "hover_background": "rgba(255, 166, 75, 0.3)",
-        "border": "rgb(255, 166, 75)",
-    }
-    RED: dict[str, str] = {
-        "main_background": "rgba(225, 80, 69, 0.2)",
-        "hover_background": "rgba(225, 80, 69, 0.3)",
-        "border": "rgb(225, 80, 69)",
-    }
-    PURPLE: dict[str, str] = {
-        "main_background": "rgba(153, 116, 248, 0.2)",
-        "hover_background": "rgba(153, 116, 248, 0.3)",
-        "border": "rgb(153, 116, 248)",
-    }
-    GREEN: dict[str, str] = {
-        "main_background": "rgba(89, 143, 76, 0.2)",
-        "hover_background": "rgba(89, 143, 76, 0.3)",
-        "border": "rgb(89, 143, 76)",
-    }
-    GRAY: dict[str, str] = {
-        "main_background": "rgba(151, 151, 151, 0.2)",
-        "hover_background": "rgba(151, 151, 151, 0.3)",
-        "border": "rgb(151, 151, 151)",
-    }
-
-    def random_color() -> dict[str, str]:
-        """Return a random color theme dictionary."""
-        return random.choice(
-            [
-                ColorDict.BLUE,
-                ColorDict.BROWN,
-                ColorDict.RED,
-                ColorDict.PURPLE,
-                ColorDict.GREEN,
-                ColorDict.GRAY,
-            ]
-        )
+from src.utils import AccentTheme, get_icon
 
 
 class ScriptRow(QFrame):
@@ -109,9 +55,9 @@ class ScriptRow(QFrame):
         self.name: str = name
         self._pressed = False
 
-        # Use shared color theme, initialize it once on first instance
+        # Use shared accent theme, initialize it once on first instance
         if ScriptRow._shared_color_theme is None:
-            ScriptRow._shared_color_theme = ColorDict.random_color()
+            ScriptRow._shared_color_theme = AccentTheme.get()
         self.color_theme: dict[str, str] = ScriptRow._shared_color_theme
 
         # Main vertical layout

@@ -260,32 +260,20 @@ class MainWindow(QMainWindow):
         # Settings button
         settings_btn = QToolButton()
         settings_btn.setIcon(get_icon("settings.svg"))
+        settings_btn.setProperty("MainToolButton", True)
         settings_btn.setIconSize(QSize(20, 20))
         settings_btn.setToolTip("Settings (Ctrl+,)")
         settings_btn.setFixedSize(32, 32)
-        settings_btn.setStyleSheet(
-            """
-            QToolButton {
-                border-radius: 0px;
-            }
-            """
-        )
         settings_btn.clicked.connect(self.show_settings)
         header_layout.addWidget(settings_btn)
 
         # About button
         about_btn = QToolButton()
         about_btn.setIcon(get_icon("about.svg"))
+        about_btn.setProperty("MainToolButton", True)
         about_btn.setIconSize(QSize(20, 20))
         about_btn.setToolTip("About")
         about_btn.setFixedSize(32, 32)
-        about_btn.setStyleSheet(
-            """
-            QToolButton {
-                border-radius: 0px;
-            }
-            """
-        )
         about_btn.clicked.connect(self.show_about)
         header_layout.addWidget(about_btn)
 

@@ -1,12 +1,15 @@
 # ----- Utils Modules-----
-from src.utils import COLOR_DARK_BLUE, THEME_TEXT_PRIMARY
+from src.utils import THEME_TEXT_PRIMARY, AccentTheme
 
 
 def qss() -> str:
+    # Get the app's accent color theme
+    accent: dict[str, str] = AccentTheme.get()
+
     return f"""
     /* === Line Edit === */
     QLineEdit {{
-        background-color: rgba(255, 255, 255, 0.04);
+        background-color: {accent['main_background']};
         color: {THEME_TEXT_PRIMARY};
         border-radius: 4px;
         padding: 6px 10px;
@@ -14,25 +17,30 @@ def qss() -> str:
     }}
     QLineEdit:focus {{
         background-color: #222;
-        border-bottom: 2px solid {COLOR_DARK_BLUE};
-        border-right: 2px solid {COLOR_DARK_BLUE};
+        border-bottom: 2px solid {accent['border']};
+        border-right: 2px solid {accent['border']};
         font-style: unset;
     }}
 
     /* === Search Bar === */
     QLineEdit[SearchBar="true"] {{
-        background-color: rgba(255, 255, 255, 0.04);
+        background-color: {accent['main_background']};
         color: {THEME_TEXT_PRIMARY};
-        border: 1px solid #444444;
         border-radius: 0px;
         padding: 1px;
     }}
     QLineEdit[SearchBar="true"]:hover {{
-        background-color: rgba(255, 255, 255, 0.06);
-        border: 1px solid #555555;
+        background-color: {accent['hover_background']};
     }}
     QLineEdit[SearchBar="true"]:focus {{
         background-color: #222;
-        border: 1px solid {COLOR_DARK_BLUE};
+        border: 1px solid {accent['border']};
+    }}
+    QLineEdit QToolButton {{
+        min-width: 16px;
+        min-height: 16px;
+        background-color: transparent;
+        border: none;
+        padding: 0px;
     }}
     """

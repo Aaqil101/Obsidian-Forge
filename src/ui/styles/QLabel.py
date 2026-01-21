@@ -4,20 +4,23 @@ from src.core import BORDER_RADIUS_SMALL, FONT_SIZE_SMALL
 # ----- Utils Modules-----
 from src.utils import (
     COLOR_DARK_BLUE,
-    COLOR_LIGHT_BLUE,
     THEME_BG_SECONDARY,
     THEME_BORDER,
     THEME_TEXT_PRIMARY,
     THEME_TEXT_SUBTLE,
+    AccentTheme,
 )
 
 
 def qss() -> str:
+    # Get the app's accent color theme
+    accent: dict[str, str] = AccentTheme.get()
+
     return f"""
     /* === Labels === */
     QLabel {{
-        color: {THEME_TEXT_PRIMARY};
         background-color: transparent;
+        color: {THEME_TEXT_PRIMARY};
     }}
 
     /* === Info Label === */
@@ -52,7 +55,7 @@ def qss() -> str:
 
     /* === Section Header === */
     QLabel[SectionHeader="true"] {{
-        color: {COLOR_LIGHT_BLUE};
+        color: {accent['border']};
         font-size: {FONT_SIZE_SMALL}pt;
         font-weight: bold;
         padding: 2px 4px 2px 4px;

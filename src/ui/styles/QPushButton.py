@@ -10,6 +10,27 @@ from src.utils import (
 
 def qss() -> str:
     return f"""
+    /* === Buttons === */
+    QPushButton {{
+        background-color: rgba(255, 255, 255, 0.04);
+        color: {THEME_TEXT_PRIMARY};
+        border-radius: 0px;
+        padding: 3px 10px;
+        min-height: 18px;
+    }}
+    QPushButton:hover {{
+        background-color: rgba(255, 255, 255, 0.08);
+        border-bottom: 2px solid {COLOR_DARK_BLUE};
+    }}
+    QPushButton:pressed {{
+        background-color: rgba(255, 255, 255, 0.12);
+    }}
+    QPushButton:focus {{
+        background-color: rgba(255, 255, 255, 0.08);
+        border-bottom: 2px solid {COLOR_DARK_BLUE};
+        outline: none;
+    }}
+
     /* === Browse Button === */
     QPushButton[BrowseButton="true"] {{
         background-color: rgba(255, 255, 255, 0.04);
