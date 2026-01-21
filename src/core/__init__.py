@@ -30,7 +30,7 @@ from src.core.config import (
     WINDOW_MIN_WIDTH,
     Config,
 )
-from src.core.script_executor import ScriptExecutor
+from src.core.script_executor import ScriptExecutor, SleepScriptInputs
 
 __all__: list[str] = [
     "Config",
@@ -62,4 +62,5 @@ __all__: list[str] = [
     "WEEKLY_SCRIPTS_PATH",
     "WINDOW_MIN_HEIGHT",
     "WINDOW_MIN_WIDTH",
+    "SleepScriptInputs",
 ]
