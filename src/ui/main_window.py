@@ -7,7 +7,7 @@ Styled with Tokyo Night theme following GitUI's design patterns.
 from pathlib import Path
 
 # ----- PySide6 Modules-----
-from PySide6.QtCore import QSize, Qt, QThread, Signal
+from PySide6.QtCore import QEasingCurve, QPropertyAnimation, QSize, Qt, QThread, Signal
 from PySide6.QtGui import QFont, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QDialog,
@@ -22,21 +22,19 @@ from PySide6.QtWidgets import (
     QToolButton,
     QVBoxLayout,
     QWidget,
-    QWidgetAction,
 )
 
 # ----- Core Modules-----
 from src.core import (
     APP_NAME,
-    BORDER_RADIUS_SMALL,
     FONT_FAMILY,
-    FONT_SIZE_SMALL,
     FONT_SIZE_TEXT,
     SPACING_SMALL,
     WINDOW_MIN_HEIGHT,
     WINDOW_MIN_WIDTH,
     Config,
     ScriptExecutor,
+    SleepScriptInputs,
 )
 
 # ----- UI Modules-----
@@ -48,7 +46,80 @@ from src.ui.sleep_dialog import SleepInputDialog
 from src.ui.widgets import ScriptRow, SettingsGroup
 
 # ----- Utils Modules-----
-from src.utils import THEME_TEXT_PRIMARY, THEME_TEXT_SUBTLE, Icons, get_icon
+from src.utils import THEME_BG_SECONDARY, THEME_TEXT_PRIMARY, Icons, get_icon
+
+
+class ExpandableSearchBar(QLineEdit):
+    """Search bar that expands from the right when hovered or focused."""
+
+    def __init__(self, parent=None) -> None:
+        super().__init__(parent)
+        self.collapsed_width = 32
+        self.expanded_width = 250
+        self.is_expanded = False
+
+        # Setup animations
+        self.width_animation = QPropertyAnimation(self, b"minimumWidth")
+        self.width_animation.setDuration(200)
+        self.width_animation.setEasingCurve(QEasingCurve.Type.OutCubic)
+
+        self.max_width_animation = QPropertyAnimation(self, b"maximumWidth")
+        self.max_width_animation.setDuration(200)
+        self.max_width_animation.setEasingCurve(QEasingCurve.Type.OutCubic)
+
+        # Initial state - collapsed
+        self.setFixedWidth(self.collapsed_width)
+        self.setPlaceholderText("")
+
+    def expand(self) -> None:
+        """Expand the search bar."""
+        if not self.is_expanded:
+            self.is_expanded = True
+            self.setPlaceholderText("Search scripts... (Ctrl+F)")
+
+            # Animate width
+            self.width_animation.setStartValue(self.collapsed_width)
+            self.width_animation.setEndValue(self.expanded_width)
+            self.max_width_animation.setStartValue(self.collapsed_width)
+            self.max_width_animation.setEndValue(self.expanded_width)
+
+            self.width_animation.start()
+            self.max_width_animation.start()
+
+    def collapse(self) -> None:
+        """Collapse the search bar if not focused and empty."""
+        if self.is_expanded and not self.hasFocus() and not self.text():
+            self.is_expanded = False
+            self.setPlaceholderText("")
+
+            # Animate width
+            self.width_animation.setStartValue(self.expanded_width)
+            self.width_animation.setEndValue(self.collapsed_width)
+            self.max_width_animation.setStartValue(self.expanded_width)
+            self.max_width_animation.setEndValue(self.collapsed_width)
+
+            self.width_animation.start()
+            self.max_width_animation.start()
+
+    def enterEvent(self, event) -> None:
+        """Expand on hover."""
+        self.expand()
+        super().enterEvent(event)
+
+    def leaveEvent(self, event) -> None:
+        """Collapse on leave if not focused and empty."""
+        self.collapse()
+        super().leaveEvent(event)
+
+    def focusInEvent(self, event) -> None:
+        """Expand on focus."""
+        self.expand()
+        super().focusInEvent(event)
+
+    def focusOutEvent(self, event) -> None:
+        """Collapse on focus out if empty."""
+        self.collapse()
+        super().focusOutEvent(event)
 
 
 class ScriptThread(QThread):
@@ -85,8 +156,6 @@ class SleepScriptThread(QThread):
 
     def run(self) -> None:
         """Execute the sleep script."""
-        from src.core.script_executor import SleepScriptInputs
-
         inputs = SleepScriptInputs(
             sleep_wake_times=self.sleep_inputs.sleep_wake_times,
             quality=self.sleep_inputs.quality,
@@ -124,20 +193,6 @@ class MainWindow(QMainWindow):
     ) -> QWidget:
         """Create a custom menu item widget with icon and text."""
         widget = QWidget()
-        widget.setObjectName("MenuItem")
-        widget.setStyleSheet(
-            f"""
-            #MenuItem {{
-                background-color: transparent;
-            }}
-
-            #MenuItem:hover {{
-                background-color: rgba(83, 144, 247, 0.5);
-                color: {THEME_TEXT_PRIMARY};
-                border-radius: 0px;
-            }}
-            """
-        )
         layout = QHBoxLayout(widget)
         layout.setContentsMargins(8, 6, 8, 6)
         layout.setSpacing(8)
@@ -163,61 +218,8 @@ class MainWindow(QMainWindow):
         return widget
 
     def setup_menu(self) -> None:
-        """Setup the menu bar with icon + text actions and corner widget."""
-        menubar = self.menuBar()
-
-        # ---------- File menu ----------
-        file_menu = menubar.addMenu("&File")
-
-        # Settings action
-        settings_widget = self.create_menu_item("settings.svg", "Settings", "Ctrl+,")
-        settings_action = QWidgetAction(self)
-        settings_action.setDefaultWidget(settings_widget)
-        settings_action.triggered.connect(self.show_settings)
-        file_menu.addAction(settings_action)
-
-        file_menu.addSeparator()
-
-        # Exit action
-        exit_widget = self.create_menu_item("exit.svg", "Exit", "Ctrl+Q")
-        exit_action = QWidgetAction(self)
-        exit_action.setDefaultWidget(exit_widget)
-        exit_action.triggered.connect(self.close)
-        file_menu.addAction(exit_action)
-
-        # ---------- Help menu ----------
-        help_menu = menubar.addMenu("&Help")
-
-        # About action
-        about_widget = self.create_menu_item("info.svg", "About")
-        about_action = QWidgetAction(self)
-        about_action.setDefaultWidget(about_widget)
-        about_action.triggered.connect(self.show_about)
-        help_menu.addAction(about_action)
-
-        # ---------- Corner widget with icon buttons ----------
-        corner_widget = QWidget()
-        corner_layout = QHBoxLayout(corner_widget)
-        corner_layout.setContentsMargins(0, 0, 8, 0)
-        corner_layout.setSpacing(4)
-
-        settings_btn = QToolButton()
-        settings_btn.setIcon(get_icon("settings.svg"))
-        settings_btn.setIconSize(QSize(18, 18))
-        settings_btn.setToolTip("Settings (Ctrl+,)")
-        settings_btn.clicked.connect(self.show_settings)
-        corner_layout.addWidget(settings_btn)
-
-        about_btn = QToolButton()
-        about_btn.setIcon(get_icon("info.svg"))
-        about_btn.setIconSize(QSize(18, 18))
-        about_btn.setToolTip("About")
-        about_btn.clicked.connect(self.show_about)
-        corner_layout.addWidget(about_btn)
-
-        menubar.setCornerWidget(corner_widget, Qt.Corner.TopRightCorner)
-
-        # Setup keyboard shortcuts (since QWidgetAction doesn't handle them automatically)
+        """Setup keyboard shortcuts."""
+        # Setup keyboard shortcuts
         self.settings_shortcut = QShortcut(QKeySequence("Ctrl+,"), self)
         self.settings_shortcut.activated.connect(self.show_settings)
 
@@ -236,33 +238,80 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central_widget)
 
         main_layout = QVBoxLayout()
-        main_layout.setContentsMargins(8, 8, 8, 8)
-        main_layout.setSpacing(SPACING_SMALL)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
 
-        # Search bar at top
-        search_container = QWidget()
-        search_layout = QHBoxLayout(search_container)
-        search_layout.setContentsMargins(0, 0, 0, 0)
-        search_layout.setSpacing(SPACING_SMALL)
+        # Header bar with search and action buttons
+        header_widget = QWidget()
+        header_widget.setObjectName("HeaderBar")
+        header_widget.setFixedHeight(32)
+        header_widget.setStyleSheet(
+            f"""
+            #HeaderBar {{
+                background-color: {THEME_BG_SECONDARY};
+            }}
+            """
+        )
 
-        self.search_input = QLineEdit()
+        header_layout = QHBoxLayout(header_widget)
+        header_layout.setContentsMargins(0, 0, 0, 0)
+        header_layout.setSpacing(0)
+
+        # Settings button
+        settings_btn = QToolButton()
+        settings_btn.setIcon(get_icon("settings.svg"))
+        settings_btn.setIconSize(QSize(20, 20))
+        settings_btn.setToolTip("Settings (Ctrl+,)")
+        settings_btn.setFixedSize(32, 32)
+        settings_btn.setStyleSheet(
+            """
+            QToolButton {
+                border-radius: 0px;
+            }
+            """
+        )
+        settings_btn.clicked.connect(self.show_settings)
+        header_layout.addWidget(settings_btn)
+
+        # About button
+        about_btn = QToolButton()
+        about_btn.setIcon(get_icon("about.svg"))
+        about_btn.setIconSize(QSize(20, 20))
+        about_btn.setToolTip("About")
+        about_btn.setFixedSize(32, 32)
+        about_btn.setStyleSheet(
+            """
+            QToolButton {
+                border-radius: 0px;
+            }
+            """
+        )
+        about_btn.clicked.connect(self.show_about)
+        header_layout.addWidget(about_btn)
+
+        # Add stretch to push search bar to the right
+        header_layout.addStretch()
+
+        # Search bar - expandable from the right
+        self.search_input = ExpandableSearchBar()
         self.search_input.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
-        self.search_input.setPlaceholderText("Search scripts... (Ctrl+F)")
         self.search_input.setProperty("SearchBar", True)
         self.search_input.textChanged.connect(self.filter_scripts)
-
-        # Add search icon to the line edit with theme color
+        self.search_input.setFixedHeight(32)
         self.search_input.addAction(
             get_icon("search.svg", THEME_TEXT_PRIMARY),
             QLineEdit.ActionPosition.LeadingPosition,
         )
-
-        # Reduce left margin to bring icon closer
         self.search_input.setTextMargins(0, 0, 0, 0)
+        header_layout.addWidget(self.search_input)
 
-        search_layout.addWidget(self.search_input)
+        main_layout.addWidget(header_widget)
 
-        main_layout.addWidget(search_container)
+        # Content container
+        content_widget = QWidget()
+        content_layout = QVBoxLayout(content_widget)
+        content_layout.setContentsMargins(8, 8, 8, 8)
+        content_layout.setSpacing(SPACING_SMALL)
 
         # Scroll area for script sections
         scroll_area = QScrollArea()
@@ -274,7 +323,7 @@ class MainWindow(QMainWindow):
         self.sections_container = QWidget()
         self.sections_layout = QVBoxLayout(self.sections_container)
         self.sections_layout.setContentsMargins(0, 0, 0, 0)
-        self.sections_layout.setSpacing(0)  # No spacing - cards have their own margin
+        self.sections_layout.setSpacing(0)
 
         # Store all script rows for filtering
         self.all_script_rows = []
@@ -289,8 +338,9 @@ class MainWindow(QMainWindow):
         self.sections_layout.addStretch()
 
         scroll_area.setWidget(self.sections_container)
-        main_layout.addWidget(scroll_area)
+        content_layout.addWidget(scroll_area)
 
+        main_layout.addWidget(content_widget)
         central_widget.setLayout(main_layout)
 
     def create_collapsible_section(self, title: str, script_type: str) -> None:

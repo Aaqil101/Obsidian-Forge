@@ -22,9 +22,7 @@ def qss() -> str:
     }}
 
     QMenuBar::item {{
-        background-color: transparent;
-        padding: 6px 12px;
-        border-radius: {BORDER_RADIUS_SMALL}px;
+        background-color: {THEME_BG_SECONDARY};
     }}
 
     QMenuBar::item:selected {{
@@ -32,7 +30,13 @@ def qss() -> str:
         color: {COLOR_LIGHT_BLUE};
     }}
 
+    QMenuBar::item:hover {{
+        background-color: {THEME_BG_SECONDARY};
+        color: {COLOR_LIGHT_BLUE};
+    }}
+
     QMenuBar::item:pressed {{
         background-color: {THEME_BG_SECONDARY};
+        color: {COLOR_LIGHT_BLUE};
     }}
     """

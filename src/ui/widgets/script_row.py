@@ -1,6 +1,7 @@
-"""Script card widget - entire card is clickable to execute scripts.
-Inspired by Blender-Launcher-V2 design.
-"""
+"""Script card widget - entire card is clickable to execute scripts."""
+
+# ----- Built-In Modules-----
+import random
 
 # ----- PySide6 Modules -----
 from PySide6.QtCore import QSize, Qt, Signal
@@ -21,6 +22,54 @@ from src.core import BORDER_RADIUS
 from src.utils import get_icon
 
 
+class ColorDict:
+    """Dictionary for theme colors."""
+
+    BLUE: dict[str, str] = {
+        "main_background": "rgba(83, 144, 247, 0.2)",
+        "hover_background": "rgba(83, 144, 247, 0.3)",
+        "border": "rgb(83, 144, 247)",
+    }
+    BROWN: dict[str, str] = {
+        "main_background": "rgba(255, 166, 75, 0.2)",
+        "hover_background": "rgba(255, 166, 75, 0.3)",
+        "border": "rgb(255, 166, 75)",
+    }
+    RED: dict[str, str] = {
+        "main_background": "rgba(225, 80, 69, 0.2)",
+        "hover_background": "rgba(225, 80, 69, 0.3)",
+        "border": "rgb(225, 80, 69)",
+    }
+    PURPLE: dict[str, str] = {
+        "main_background": "rgba(153, 116, 248, 0.2)",
+        "hover_background": "rgba(153, 116, 248, 0.3)",
+        "border": "rgb(153, 116, 248)",
+    }
+    GREEN: dict[str, str] = {
+        "main_background": "rgba(89, 143, 76, 0.2)",
+        "hover_background": "rgba(89, 143, 76, 0.3)",
+        "border": "rgb(89, 143, 76)",
+    }
+    GRAY: dict[str, str] = {
+        "main_background": "rgba(151, 151, 151, 0.2)",
+        "hover_background": "rgba(151, 151, 151, 0.3)",
+        "border": "rgb(151, 151, 151)",
+    }
+
+    def random_color() -> dict[str, str]:
+        """Return a random color theme dictionary."""
+        return random.choice(
+            [
+                ColorDict.BLUE,
+                ColorDict.BROWN,
+                ColorDict.RED,
+                ColorDict.PURPLE,
+                ColorDict.GREEN,
+                ColorDict.GRAY,
+            ]
+        )
+
+
 class ScriptRow(QFrame):
     """
     A clickable card widget for executing scripts.
@@ -31,6 +80,7 @@ class ScriptRow(QFrame):
     """
 
     execute_clicked = Signal()
+    _shared_color_theme: dict[str, str] | None = None
 
     def __init__(
         self,
@@ -55,36 +105,14 @@ class ScriptRow(QFrame):
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setFixedHeight(55)
         self.setFrameShape(QFrame.Shape.NoFrame)
-        self.setStyleSheet(
-            f"""
-            /* === Script Row (Button-like Card) === */
-            QFrame {{
-                background-color: rgba(83, 144, 247, 0.2);
-                color: white;
-                border-radius: {BORDER_RADIUS}px;
-            }}
 
-            QFrame:hover {{
-                background-color: rgba(83, 144, 247, 0.3);
-                border-bottom: 2px solid rgb(83, 144, 247);
-                border-left: 2px solid rgb(83, 144, 247);
-            }}
-
-            QLabel {{
-                background: transparent;
-                border: none;
-            }}
-
-            QToolTip {{
-                color: #E6E6E6;
-                font: 10pt "Open Sans SemiBold";
-                background-color: #19191A;
-                border: 1px solid #323232;
-            }}
-            """
-        )
         self.name: str = name
         self._pressed = False
+
+        # Use shared color theme, initialize it once on first instance
+        if ScriptRow._shared_color_theme is None:
+            ScriptRow._shared_color_theme = ColorDict.random_color()
+        self.color_theme: dict[str, str] = ScriptRow._shared_color_theme
 
         # Main vertical layout
         main_layout = QVBoxLayout(self)
@@ -129,24 +157,53 @@ class ScriptRow(QFrame):
             tooltip = f"{description}\nClick to execute"
         self.setToolTip(tooltip)
 
+        # Apply styles directly to the widget
+        self._apply_normal_style()
+
+    def _apply_normal_style(self) -> None:
+        """Apply normal (non-pressed) style."""
+        self.setStyleSheet(
+            f"""
+            QFrame {{
+                background-color: {self.color_theme['main_background']};
+                color: white;
+            }}
+            QFrame:hover {{
+                background-color: {self.color_theme['hover_background']};
+                border-bottom: 2px solid {self.color_theme['border']};
+                border-left: 2px solid {self.color_theme['border']};
+            }}
+
+            QLabel {{
+                background: transparent;
+                border: none;
+            }}
+            """
+        )
+
+    def _apply_pressed_style(self) -> None:
+        """Apply pressed style."""
+        self.setStyleSheet(
+            f"""
+            QFrame {{
+                background-color: {self.color_theme['hover_background']};
+                border-bottom: 2px solid {self.color_theme['border']};
+                border-left: 2px solid {self.color_theme['border']};
+            }}
+
+            QLabel {{
+                background: transparent;
+                border: none;
+            }}
+            """
+        )
+
     def mousePressEvent(self, event: QMouseEvent) -> None:
         """Handle mouse press - add pressed visual state."""
         if event.button() == Qt.MouseButton.LeftButton:
             self._pressed = True
-            self.setStyleSheet(
-                f"""
-                QFrame {{
-                    background-color: rgba(83, 144, 247, 0.3);
-                    border-bottom: 2px solid rgb(83, 144, 247);
-                    border-left: 2px solid rgb(83, 144, 247);
-                    border-radius: {BORDER_RADIUS}px;
-                }}
-                QLabel {{
-                    background: transparent;
-                    border: none;
-                }}
-                """
-            )
+            self._apply_pressed_style()
+
         super().mousePressEvent(event)
 
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
@@ -154,25 +211,8 @@ class ScriptRow(QFrame):
         if event.button() == Qt.MouseButton.LeftButton and self._pressed:
             self._pressed = False
             # Restore normal style
-            self.setStyleSheet(
-                f"""
-                QFrame {{
-                    background-color: rgba(83, 144, 247, 0.2);
-                    color: white;
-                    border-radius: {BORDER_RADIUS}px;
-                }}
+            self._apply_normal_style()
 
-                QFrame:hover {{
-                    background-color: rgba(83, 144, 247, 0.3);
-                    border-bottom: 2px solid rgb(83, 144, 247);
-                    border-left: 2px solid rgb(83, 144, 247);
-                }}
-                QLabel {{
-                    background: transparent;
-                    border: none;
-                }}
-                """
-            )
             # Emit signal if released inside the widget
             if self.rect().contains(event.pos()):
                 self.execute_clicked.emit()

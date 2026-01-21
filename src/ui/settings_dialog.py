@@ -49,7 +49,7 @@ class SettingsDialog(QDialog):
         self.config: Config = config
         self.setWindowTitle(f"Settings - {APP_NAME}")
         self.setMinimumWidth(700)
-        self.setMinimumHeight(600)
+        self.setMinimumHeight(630)
 
         # Store comboboxes for path selection
         self.daily_path_combo: QComboBox = None
