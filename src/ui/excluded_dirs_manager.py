@@ -27,7 +27,6 @@ from src.ui import FileDialog, PopupIcon, PopupWindow
 
 # ----- Utils Modules -----
 from src.utils import (
-    COLOR_DARK_BLUE,
     COLOR_ORANGE,
     THEME_BG_PRIMARY,
     THEME_TEXT_PRIMARY,
@@ -65,14 +64,14 @@ class ExcludedDirsManager(QDialog):
     def _init_ui(self) -> None:
         """Initialize the user interface."""
         self.setWindowTitle("Manage Excluded Directories")
-        self.setFixedSize(700, 500)
+        self.setMinimumSize(600, 540)
         self.setWindowFlags(Qt.WindowType.Dialog | Qt.WindowType.WindowStaysOnTopHint)
         self.setModal(True)
 
         # Main layout
         main_layout = QVBoxLayout(self)
-        main_layout.setSpacing(16)
-        main_layout.setContentsMargins(24, 24, 24, 24)
+        main_layout.setSpacing(8)
+        main_layout.setContentsMargins(12, 12, 12, 12)
 
         # Background styling
         self.setStyleSheet(
@@ -99,10 +98,11 @@ class ExcludedDirsManager(QDialog):
 
         # List section
         list_section = self._create_list_section()
-        main_layout.addWidget(list_section, 1)  # Stretch to fill space
+        main_layout.addWidget(list_section)
 
         # Button bar
         button_bar = self._create_button_bar()
+        button_bar.setContentsMargins(0, 0, 0, 0)
         main_layout.addWidget(button_bar)
 
     def _create_header(self) -> QWidget:
@@ -143,64 +143,42 @@ class ExcludedDirsManager(QDialog):
         widget = QWidget()
         layout = QVBoxLayout(widget)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(8)
+        layout.setSpacing(0)
 
         # List widget
         self.list_widget = QListWidget()
         self.list_widget.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
         self.list_widget.setSelectionMode(QListWidget.SelectionMode.ExtendedSelection)
-        self.list_widget.setStyleSheet(
-            f"""
-            QListWidget {{
-                background-color: rgba(255, 255, 255, 0.04);
-                color: {THEME_TEXT_PRIMARY};
-                border-radius: 6px;
-                padding: 2px;
-            }}
-            QListWidget::item {{
-                border-radius: 4px;
-                padding: 0px;
-                margin: 0px 0;
-            }}
-            QListWidget::item:selected {{
-                color: {THEME_TEXT_PRIMARY};
-                background-color: rgba(122, 162, 247, 0.3);
-            }}
-            QListWidget::item:hover {{
-                color: {THEME_TEXT_PRIMARY};
-                background-color: rgba(255, 255, 255, 0.06);
-            }}
-            QListWidget::item:selected:!active {{
-                color: {THEME_TEXT_PRIMARY};
-                background: rgba(255, 255, 255, 0.08);
-            }}
-            QListWidget:focus {{
-                color: {THEME_TEXT_PRIMARY};
-                background-color: rgba(255, 255, 255, 0.06);
-                outline: none;
-            }}
-            """
-        )
-        layout.addWidget(self.list_widget)
 
-        # Buttons row
-        buttons_row = self._create_list_buttons()
-        layout.addWidget(buttons_row)
+        layout.addWidget(self.list_widget)
 
         return widget
 
-    def _create_list_buttons(self) -> QWidget:
-        """Create add/remove buttons for the list.
+    def _create_button_bar(self) -> QWidget:
+        """Create the bottom button bar with all buttons.
 
         Returns:
-            QWidget: Buttons row widget
+            QWidget: Button bar widget
         """
-        widget = QWidget()
-        layout = QHBoxLayout(widget)
+        bar = QWidget()
+        layout = QHBoxLayout(bar)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(8)
 
         layout.addStretch()
+
+        # Cancel button
+        cancel_btn = HoverIconButton(
+            normal_icon=Icons.CANCEL_OUTLINE,
+            hover_icon=Icons.CANCEL,
+            text="Cancel",
+        )
+        cancel_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
+        cancel_btn.setProperty("CancelButton", True)
+        cancel_btn.setFixedHeight(30)
+        cancel_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        cancel_btn.clicked.connect(self._on_cancel_clicked)
+        layout.addWidget(cancel_btn)
 
         # Browse button
         browse_btn = HoverIconButton(
@@ -210,32 +188,10 @@ class ExcludedDirsManager(QDialog):
             text="Browse",
         )
         browse_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
-        browse_btn.setFixedHeight(32)
+        browse_btn.setProperty("BrowseButton", True)
+        browse_btn.setFixedHeight(30)
         browse_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         browse_btn.setToolTip("Select folders from file system (multi-select)")
-        browse_btn.setStyleSheet(
-            f"""
-            QPushButton {{
-                background-color: rgba(158, 206, 106, 0.2);
-                color: #9ece6a;
-                border-radius: 6px;
-                padding: 6px 16px;
-                font-weight: bold;
-            }}
-            QPushButton:hover {{
-                background-color: rgba(158, 206, 106, 0.3);
-                border-bottom: 2px solid #9ece6a;
-            }}
-            QPushButton:pressed {{
-                background-color: rgba(158, 206, 106, 0.4);
-            }}
-            QPushButton:focus {{
-                background-color: rgba(158, 206, 106, 0.3);
-                border-bottom: 2px solid #9ece6a;
-                outline: none;
-            }}
-            """
-        )
         browse_btn.clicked.connect(self._on_browse_clicked)
         layout.addWidget(browse_btn)
 
@@ -247,82 +203,12 @@ class ExcludedDirsManager(QDialog):
             text="Remove",
         )
         remove_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
-        remove_btn.setFixedHeight(32)
+        remove_btn.setProperty("RemoveButton", True)
+        remove_btn.setFixedHeight(30)
         remove_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        remove_btn.setStyleSheet(
-            f"""
-            QPushButton {{
-                background-color: rgba(247, 118, 142, 0.2);
-                color: #f7768e;
-                border-radius: 6px;
-                padding: 6px 16px;
-                font-weight: bold;
-            }}
-            QPushButton:hover {{
-                background-color: rgba(247, 118, 142, 0.3);
-                border-bottom: 2px solid #f7768e;
-            }}
-            QPushButton:pressed {{
-                background-color: rgba(247, 118, 142, 0.4);
-            }}
-            QPushButton:focus {{
-                background-color: rgba(247, 118, 142, 0.3);
-                border-bottom: 2px solid #f7768e;
-                outline: none;
-            }}
-            """
-        )
+        remove_btn.setToolTip("Remove selected directories from the list")
         remove_btn.clicked.connect(self._on_remove_clicked)
         layout.addWidget(remove_btn)
-
-        return widget
-
-    def _create_button_bar(self) -> QWidget:
-        """Create the bottom button bar with Save/Cancel.
-
-        Returns:
-            QWidget: Button bar widget
-        """
-        bar = QWidget()
-        layout = QHBoxLayout(bar)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(12)
-
-        layout.addStretch()
-
-        # Cancel button
-        cancel_btn = HoverIconButton(
-            normal_icon=Icons.CANCEL_OUTLINE,
-            hover_icon=Icons.CANCEL,
-            text="Cancel",
-        )
-        cancel_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
-        cancel_btn.setFixedHeight(36)
-        cancel_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        cancel_btn.setStyleSheet(
-            f"""
-            QPushButton {{
-                background-color: rgba(255, 255, 255, 0.04);
-                color: {THEME_TEXT_PRIMARY};
-                border-radius: 6px;
-                padding: 8px 20px;
-            }}
-            QPushButton:hover {{
-                background-color: rgba(255, 255, 255, 0.08);
-                border-bottom: 2px solid {COLOR_DARK_BLUE};
-            }}
-            QPushButton:pressed {{
-                background-color: rgba(255, 255, 255, 0.12);
-            }}
-            QPushButton:focus {{
-                background-color: rgba(255, 255, 255, 0.08);
-                border-bottom: 2px solid {COLOR_DARK_BLUE};
-                outline: none;
-            }}
-            """
-        )
-        cancel_btn.clicked.connect(self._on_cancel_clicked)
-        layout.addWidget(cancel_btn)
 
         # Save button
         save_btn = HoverIconButton(
@@ -332,31 +218,10 @@ class ExcludedDirsManager(QDialog):
             text="Save",
         )
         save_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
-        save_btn.setFixedHeight(36)
+        save_btn.setFixedHeight(30)
         save_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        save_btn.setStyleSheet(
-            f"""
-            QPushButton {{
-                background-color: rgba(158, 206, 106, 0.2);
-                color: #9ece6a;
-                border-radius: 6px;
-                padding: 8px 20px;
-                font-weight: bold;
-            }}
-            QPushButton:hover {{
-                background-color: rgba(158, 206, 106, 0.3);
-                border-bottom: 2px solid #9ece6a;
-            }}
-            QPushButton:pressed {{
-                background-color: rgba(158, 206, 106, 0.4);
-            }}
-            QPushButton:focus {{
-                background-color: rgba(158, 206, 106, 0.3);
-                border-bottom: 2px solid #9ece6a;
-                outline: none;
-            }}
-            """
-        )
+        save_btn.setProperty("SaveButton", True)
+
         save_btn.clicked.connect(self._on_save_clicked)
         layout.addWidget(save_btn)
 
@@ -388,15 +253,15 @@ class ExcludedDirsManager(QDialog):
             popup.exec()
             return
 
-        # Use the reusable FileDialog component
+        # Use the FileDialog component
         dialog = FileDialog(
             parent=self,
             title="Select Folder(s) to Exclude",
             directory=str(self.config.vault_path),
         )
-
-        # Select multiple directories
-        folders = dialog.select_directory(multi_select=True)
+        folders = dialog.get_directory(
+            multi_select=True,
+        )
 
         if folders:
 
@@ -521,8 +386,8 @@ class ExcludedDirsManager(QDialog):
             )
             popup.show()
 
-            # Auto-close popup after 500 millisecond, then close the manager window
-            QTimer.singleShot(500, lambda: (popup.accept(), self.accept()))
+            # Auto-close popup after 1 second, then close the manager window
+            QTimer.singleShot(1000, lambda: (popup.accept(), self.accept()))
         else:
             popup = PopupWindow(
                 message="Failed to save excluded directories. Please try again.",

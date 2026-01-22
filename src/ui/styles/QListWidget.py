@@ -1,37 +1,39 @@
-# ----- Core Modules-----
-from src.core import BORDER_RADIUS_SMALL
-
 # ----- Utils Modules-----
-from src.utils import THEME_TEXT_PRIMARY
+from src.utils import THEME_BG_SECONDARY, THEME_TEXT_PRIMARY
 
 
 def qss() -> str:
     return f"""
     /* === List Widget === */
     QListWidget {{
-        background-color: rgba(255, 255, 255, 0.04);
-        color: {THEME_TEXT_PRIMARY};
-        border-radius: {BORDER_RADIUS_SMALL - 2}px;
-        padding: 4px;
+        background-color: {THEME_BG_SECONDARY};
+        border-radius: 0px;
+        outline: 0;
     }}
+
     QListWidget::item {{
-        padding: 6px;
-        border-radius: {BORDER_RADIUS_SMALL - 3}px;
+        background-color: #2D2D2D;
+        color: {THEME_TEXT_PRIMARY};
+        padding: 0px;
     }}
-    QListWidget::item:selected {{
-        background-color: rgba(122, 162, 247, 0.3);
+
+    QListWidget::item:alternate {{
+        background-color: {THEME_BG_SECONDARY};
     }}
+
     QListWidget::item:hover {{
-        color: {THEME_TEXT_PRIMARY};
-        background-color: rgba(255, 255, 255, 0.06);
+        background-color: #444444;
     }}
-    QListWidget::item:selected:!active {{
-        color: {THEME_TEXT_PRIMARY};
-        background: rgba(255, 255, 255, 0.08);
+
+    QListWidget::item:selected {{
+        background-color: #3B5689;
     }}
-    QListWidget:focus {{
-        color: {THEME_TEXT_PRIMARY};
-        background-color: rgba(255, 255, 255, 0.06);
-        outline: none;
+
+    QListWidget::item:selected:hover {{
+        background-color: #546C98;
+    }}
+
+    QListWidget::item:focus {{
+        background-color: #444444;
     }}
     """

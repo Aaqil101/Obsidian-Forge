@@ -2,9 +2,6 @@
 Reusable file dialog component for Obsidian Forge.
 """
 
-# ----- Built-In Modules-----
-from typing import List
-
 # ----- PySide6 Modules -----
 from PySide6.QtWidgets import (
     QAbstractItemView,
@@ -13,9 +10,6 @@ from PySide6.QtWidgets import (
     QTreeView,
     QWidget,
 )
-
-# ----- Core Modules-----
-from src.core import BORDER_RADIUS_SMALL
 
 # ----- Utils Modules -----
 from src.utils import COLOR_DARK_BLUE, THEME_BG_PRIMARY, THEME_TEXT_PRIMARY, get_icon
@@ -56,11 +50,6 @@ class FileDialog:
         dialog = QFileDialog(self.parent)
         dialog.setMinimumSize(900, 600)
         dialog.setWindowTitle(self.title)
-        dialog.setOptions(
-            QFileDialog.Option.DontUseNativeDialog
-            | QFileDialog.Option.HideNameFilterDetails
-            | QFileDialog.Option.DontUseCustomDirectoryIcons
-        )
 
         if self.directory:
             dialog.setDirectory(self.directory)
@@ -236,23 +225,8 @@ class FileDialog:
                 background-color: rgba(83, 144, 247, 0.25);
                 border: none;
             }}
-
-            /* === Line Edit === */
-            QLineEdit {{
-                background-color: #1F1F1F;
-                color: {THEME_TEXT_PRIMARY};
-                border: 1px solid #444444;
-                border-radius: 0px;
-                padding: 1px;
-            }}
-            QLineEdit[text=\"\"] {{
-                color: {THEME_TEXT_PRIMARY};
-            }}
-
-
             """
         )
-        self._style_dialog(dialog)
 
         return dialog
 
@@ -339,7 +313,7 @@ class FileDialog:
         tree_view = dialog.findChild(QTreeView)
         if tree_view:
             tree_view.setSelectionMode(selection_mode)
-            tree_view.setColumnWidth(0, 300)  # Name column width
+            tree_view.setColumnWidth(0, 350)  # Name column width
             tree_view.setWordWrap(True)
 
             # Configure header
@@ -348,54 +322,7 @@ class FileDialog:
                 header.setStretchLastSection(False)
                 header.setSectionResizeMode(0, header.ResizeMode.Interactive)
 
-    def open_file(self, multi_select: bool = False) -> list[str] | None:
-        """
-        Open a file selection dialog.
-
-        Args:
-            multi_select: Allow multiple file selection if True
-
-        Returns:
-            List of selected file paths, or None if cancelled
-        """
-        dialog = self._create_dialog()
-
-        if multi_select:
-            dialog.setFileMode(QFileDialog.FileMode.ExistingFiles)
-        else:
-            dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
-
-        self._configure_views(dialog, multi_select)
-
-        if dialog.exec():
-            return dialog.selectedFiles()
-        return None
-
-    def save_file(self, default_name: str = "") -> str | None:
-        """
-        Open a file save dialog.
-
-        Args:
-            default_name: Default filename to suggest
-
-        Returns:
-            Selected file path, or None if cancelled
-        """
-        dialog = self._create_dialog()
-        dialog.setFileMode(QFileDialog.FileMode.AnyFile)
-        dialog.setAcceptMode(QFileDialog.AcceptMode.AcceptSave)
-
-        if default_name:
-            dialog.selectFile(default_name)
-
-        self._configure_views(dialog, False)
-
-        if dialog.exec():
-            files: List[str] = dialog.selectedFiles()
-            return files[0] if files else None
-        return None
-
-    def select_directory(self, multi_select: bool = False) -> list[str] | None:
+    def get_directory(self, multi_select: bool = False) -> list[str] | None:
         """
         Open a directory selection dialog.
 
@@ -406,82 +333,17 @@ class FileDialog:
             List of selected directory paths, or None if cancelled
         """
         dialog = self._create_dialog()
+        dialog.setOptions(
+            QFileDialog.DontUseNativeDialog
+            | QFileDialog.ShowDirsOnly
+            | QFileDialog.HideNameFilterDetails
+            | QFileDialog.DontUseCustomDirectoryIcons
+        )
         dialog.setFileMode(QFileDialog.FileMode.Directory)
-        dialog.setOption(QFileDialog.Option.ShowDirsOnly)
 
         self._configure_views(dialog, multi_select)
+        self._style_dialog(dialog)
 
         if dialog.exec():
             return dialog.selectedFiles()
         return None
-
-
-# Convenience functions for quick usage
-def open_file_dialog(
-    parent: QWidget | None = None,
-    title: str = "Open File",
-    directory: str = "",
-    file_filter: str = "All Files (*.*)",
-    multi_select: bool = False,
-) -> list[str] | None:
-    """
-    Quick function to open a file selection dialog.
-
-    Args:
-        parent: Parent widget
-        title: Dialog title
-        directory: Initial directory
-        file_filter: File type filter
-        multi_select: Allow multiple selection
-
-    Returns:
-        List of selected file paths, or None if cancelled
-    """
-    dialog = FileDialog(parent, title, directory, file_filter)
-    return dialog.open_file(multi_select)
-
-
-def save_file_dialog(
-    parent: QWidget | None = None,
-    title: str = "Save File",
-    directory: str = "",
-    file_filter: str = "All Files (*.*)",
-    default_name: str = "",
-) -> str | None:
-    """
-    Quick function to open a file save dialog.
-
-    Args:
-        parent: Parent widget
-        title: Dialog title
-        directory: Initial directory
-        file_filter: File type filter
-        default_name: Default filename
-
-    Returns:
-        Selected file path, or None if cancelled
-    """
-    dialog = FileDialog(parent, title, directory, file_filter)
-    return dialog.save_file(default_name)
-
-
-def select_directory_dialog(
-    parent: QWidget | None = None,
-    title: str = "Select Directory",
-    directory: str = "",
-    multi_select: bool = False,
-) -> list[str] | None:
-    """
-    Quick function to open a directory selection dialog.
-
-    Args:
-        parent: Parent widget
-        title: Dialog title
-        directory: Initial directory
-        multi_select: Allow multiple selection
-
-    Returns:
-        List of selected directory paths, or None if cancelled
-    """
-    dialog = FileDialog(parent, title, directory)
-    return dialog.select_directory(multi_select)
