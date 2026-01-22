@@ -9,13 +9,25 @@ def qss() -> str:
     return f"""
     /* === Line Edit === */
     QLineEdit {{
+        background-color: #1F1F1F;
+        color: {THEME_TEXT_PRIMARY};
+        border: 1px solid #444444;
+        border-radius: 0px;
+        padding: 1px;
+    }}
+    QLineEdit[text=\"\"] {{
+        color: {THEME_TEXT_PRIMARY};
+    }}
+
+    /* === Main Line Edit === */
+    QLineEdit[MainLineEdit="true"] {{
         background-color: {accent['main_background']};
         color: {THEME_TEXT_PRIMARY};
         border-radius: 4px;
         padding: 6px 10px;
         border: 2px solid transparent;
     }}
-    QLineEdit:focus {{
+    QLineEdit[MainLineEdit="true"]:focus {{
         background-color: #222;
         border-bottom: 2px solid {accent['border']};
         border-right: 2px solid {accent['border']};

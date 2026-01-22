@@ -16,7 +16,7 @@ def qss() -> str:
         color: {THEME_TEXT_PRIMARY};
         border-radius: 0px;
         padding: 3px 10px;
-        min-height: 18px;
+        height: 18px;
     }}
     QPushButton:hover {{
         background-color: rgba(255, 255, 255, 0.08);
@@ -108,6 +108,26 @@ def qss() -> str:
     QPushButton[CancelButton="true"]:focus {{
         background-color: rgba(255, 255, 255, 0.08);
         border-bottom: 2px solid {COLOR_DARK_BLUE};
+        outline: none;
+    }}
+
+    /* === Remove Button === */
+    QPushButton[RemoveButton="true"] {{
+        background-color: rgba(247, 118, 142, 0.2);
+        color: #f7768e;
+        border-radius: 4px;
+        padding: 6px 16px;
+    }}
+    QPushButton[RemoveButton="true"]:hover {{
+        background-color: rgba(247, 118, 142, 0.3);
+        border-bottom: 2px solid #f7768e;
+    }}
+    QPushButton[RemoveButton="true"]:pressed {{
+        background-color: rgba(247, 118, 142, 0.4);
+    }}
+    QPushButton[RemoveButton="true"]:focus {{
+        background-color: rgba(247, 118, 142, 0.3);
+        border-bottom: 2px solid #f7768e;
         outline: none;
     }}
 

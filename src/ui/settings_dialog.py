@@ -102,6 +102,7 @@ class SettingsDialog(QDialog):
 
         # Vault path input
         self.vault_path_input = QLineEdit()
+        self.vault_path_input.setProperty("MainLineEdit", True)
         self.vault_path_input.setPlaceholderText("Path to your Obsidian vault")
         vault_path_layout.addWidget(self.vault_path_input, 1)
 
@@ -187,6 +188,7 @@ class SettingsDialog(QDialog):
 
         # Node.js path input
         self.nodejs_path_input = QLineEdit()
+        self.nodejs_path_input.setProperty("MainLineEdit", True)
         self.nodejs_path_input.setPlaceholderText("node (or full path to node.exe)")
         nodejs_path_layout.addWidget(self.nodejs_path_input, 1)
 
