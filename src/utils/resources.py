@@ -74,7 +74,7 @@ def get_icon(icon_name: str, color: str = None) -> QIcon:
                 if file.open(
                     QIODevice.OpenModeFlag.ReadOnly | QIODevice.OpenModeFlag.Text
                 ):
-                    svg_content = bytes(file.readAll()).decode("utf-8")
+                    svg_content: str = bytes(file.readAll()).decode("utf-8")
                     file.close()
                 else:
                     raise Exception(f"Could not open Qt resource: {icon_path}")
@@ -85,16 +85,16 @@ def get_icon(icon_name: str, color: str = None) -> QIcon:
 
             # Replace CSS-based fill colors in style tags
             svg_content = re.sub(
-                r'\.st\d+\s*\{[^}]*fill\s*:\s*[^;]+;',
-                lambda m: re.sub(r'fill\s*:\s*[^;]+', f'fill:{color}', m.group(0)),
-                svg_content
+                r"\.st\d+\s*\{[^}]*fill\s*:\s*[^;]+;",
+                lambda m: re.sub(r"fill\s*:\s*[^;]+", f"fill:{color}", m.group(0)),
+                svg_content,
             )
 
             # Replace CSS-based stroke colors in style tags
             svg_content = re.sub(
-                r'\.st\d+\s*\{[^}]*stroke\s*:\s*[^;]+;',
-                lambda m: re.sub(r'stroke\s*:\s*[^;]+', f'stroke:{color}', m.group(0)),
-                svg_content
+                r"\.st\d+\s*\{[^}]*stroke\s*:\s*[^;]+;",
+                lambda m: re.sub(r"stroke\s*:\s*[^;]+", f"stroke:{color}", m.group(0)),
+                svg_content,
             )
 
             # Replace inline stroke attributes
