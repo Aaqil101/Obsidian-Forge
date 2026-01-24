@@ -6,6 +6,7 @@ Styled with Tokyo Night theme following GitUI's design patterns.
 
 # ----- Built-In Modules-----
 import sys
+from pathlib import Path
 
 # ----- PySide6 Modules-----
 from PySide6.QtWidgets import QApplication
@@ -18,7 +19,8 @@ import src.resources_rc  # noqa: F401
 from src.core.config import APP_NAME
 
 # ----- UI Modules-----
-from src.ui import MainWindow, build_stylesheet
+from src.ui import MainWindow
+from src.ui.styles.build_styles import build_stylesheet
 
 # ----- Utils Modules-----
 from src.utils import get_icon
@@ -33,7 +35,7 @@ def main():
     # Set application icon
     app.setWindowIcon(get_icon("obsidian_forge.svg"))
 
-    # Apply stylesheet
+    # Apply stylesheet to entire application
     app.setStyleSheet(build_stylesheet())
 
     window = MainWindow()
