@@ -45,7 +45,6 @@ from src.utils import (
     THEME_BORDER,
     THEME_TEXT_PRIMARY,
     THEME_TEXT_SECONDARY,
-    THEME_TEXT_SUBTLE,
     Icons,
     get_icon,
 )
@@ -264,7 +263,7 @@ class AboutDialog(QDialog):
         created_label = QLabel("Created with")
         created_label.setStyleSheet(
             f"""
-            color: {THEME_TEXT_SUBTLE};
+            color: {THEME_TEXT_SECONDARY};
             font-size: {FONT_SIZE_SMALL}pt;
             background: transparent;
             """
@@ -284,7 +283,7 @@ class AboutDialog(QDialog):
         by_label = QLabel(f"by {AUTHOR}")
         by_label.setStyleSheet(
             f"""
-            color: {THEME_TEXT_SUBTLE};
+            color: {THEME_TEXT_SECONDARY};
             font-size: {FONT_SIZE_SMALL}pt;
             background: transparent;
             """
