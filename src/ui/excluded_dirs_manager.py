@@ -8,7 +8,7 @@ from pathlib import Path
 
 # ----- PySide6 Modules -----
 from PySide6.QtCore import QSize, Qt, QTimer
-from PySide6.QtGui import QCursor, QFont
+from PySide6.QtGui import QCursor, QFont, QKeySequence
 from PySide6.QtWidgets import (
     QDialog,
     QHBoxLayout,
@@ -28,7 +28,6 @@ from src.ui import FileDialog, PopupIcon, PopupWindow
 # ----- Utils Modules -----
 from src.utils import (
     COLOR_ORANGE,
-    THEME_BG_PRIMARY,
     THEME_TEXT_PRIMARY,
     THEME_TEXT_SECONDARY,
     HoverIconButton,
@@ -72,15 +71,6 @@ class ExcludedDirsManager(QDialog):
         main_layout = QVBoxLayout(self)
         main_layout.setSpacing(8)
         main_layout.setContentsMargins(12, 12, 12, 12)
-
-        # Background styling
-        self.setStyleSheet(
-            f"""
-            QDialog {{
-                background-color: {THEME_BG_PRIMARY};
-            }}
-            """
-        )
 
         # Header
         header = self._create_header()
@@ -167,6 +157,22 @@ class ExcludedDirsManager(QDialog):
 
         layout.addStretch()
 
+        # Browse button
+        browse_btn = HoverIconButton(
+            normal_icon=Icons.FOLDER_OUTLINE,
+            hover_icon=Icons.FOLDER,
+            pressed_icon=Icons.FOLDER_OPEN,
+            text=f"{Icons.FOLDER_OUTLINE}",
+        )
+        browse_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
+        browse_btn.setProperty("BrowseButton", True)
+        browse_btn.setShortcut(QKeySequence("Ctrl+B"))
+        browse_btn.setFixedHeight(30)
+        browse_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        browse_btn.setToolTip("Select folders from file system (multi-select)")
+        browse_btn.clicked.connect(self._on_browse_clicked)
+        layout.addWidget(browse_btn)
+
         # Cancel button
         cancel_btn = HoverIconButton(
             normal_icon=Icons.CANCEL_OUTLINE,
@@ -179,21 +185,6 @@ class ExcludedDirsManager(QDialog):
         cancel_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         cancel_btn.clicked.connect(self._on_cancel_clicked)
         layout.addWidget(cancel_btn)
-
-        # Browse button
-        browse_btn = HoverIconButton(
-            normal_icon=Icons.FOLDER_OUTLINE,
-            hover_icon=Icons.FOLDER,
-            pressed_icon=Icons.FOLDER_OPEN,
-            text="Browse",
-        )
-        browse_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
-        browse_btn.setProperty("BrowseButton", True)
-        browse_btn.setFixedHeight(30)
-        browse_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        browse_btn.setToolTip("Select folders from file system (multi-select)")
-        browse_btn.clicked.connect(self._on_browse_clicked)
-        layout.addWidget(browse_btn)
 
         # Remove button
         remove_btn = HoverIconButton(
