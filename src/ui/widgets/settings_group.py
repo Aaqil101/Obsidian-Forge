@@ -23,7 +23,7 @@ from PySide6.QtWidgets import (
 from src.core import FONT_SIZE_HEADER
 
 # ----- Utils Modules -----
-from src.utils import get_icon
+from src.utils import AccentTheme, get_icon
 
 
 class SettingsGroup(QFrame):
@@ -57,11 +57,16 @@ class SettingsGroup(QFrame):
         self._layout.setContentsMargins(0, 0, 0, 0)
         self._layout.setSpacing(0)
 
+        # Get the app's accent color theme
+        self.accent: dict[str, str] = AccentTheme.get()
+
         # Collapse/expand button - compact size
         self.collapse_button = QPushButton(self)
         self.collapse_button.setProperty("CollapseButton", True)
         self.collapse_button.setFixedSize(18, 18)
-        self.collapse_button.setIcon(get_icon("expand_less.svg", color="#7aa2f7"))
+        self.collapse_button.setIcon(
+            get_icon("expand_less.svg", color=self.accent["border"])
+        )
         self.collapse_button.setIconSize(QSize(10, 10))
         self.collapse_button.clicked.connect(self.toggle)
         self._layout.addWidget(self.collapse_button, 0, 0, 1, 1)
@@ -139,7 +144,9 @@ class SettingsGroup(QFrame):
             return
 
         self._widget.hide()
-        self.collapse_button.setIcon(get_icon("expand_more.svg", color="#7aa2f7"))
+        self.collapse_button.setIcon(
+            get_icon("expand_more.svg", color=self.accent["border"])
+        )
         self._collapsed = True
         self.collapsed.emit(True)
 
@@ -153,7 +160,9 @@ class SettingsGroup(QFrame):
             return
 
         self._widget.show()
-        self.collapse_button.setIcon(get_icon("expand_less.svg", color="#7aa2f7"))
+        self.collapse_button.setIcon(
+            get_icon("expand_less.svg", color=self.accent["border"])
+        )
         self._collapsed = False
         self.collapsed.emit(False)
 

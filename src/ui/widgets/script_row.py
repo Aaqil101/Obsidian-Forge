@@ -13,7 +13,7 @@ from PySide6.QtWidgets import (
 )
 
 # ----- Utils Modules -----
-from src.utils import AccentTheme, get_icon
+from src.utils import THEME_TEXT_PRIMARY, AccentTheme, get_icon
 
 
 class ScriptRow(QFrame):
@@ -112,7 +112,7 @@ class ScriptRow(QFrame):
             f"""
             QFrame {{
                 background-color: {self.color_theme['main_background']};
-                color: white;
+                color: {THEME_TEXT_PRIMARY};
             }}
             QFrame:hover {{
                 background-color: {self.color_theme['hover_background']};
@@ -133,6 +133,7 @@ class ScriptRow(QFrame):
             f"""
             QFrame {{
                 background-color: {self.color_theme['hover_background']};
+                color: {THEME_TEXT_PRIMARY};
                 border-bottom: 2px solid {self.color_theme['border']};
                 border-left: 2px solid {self.color_theme['border']};
             }}
