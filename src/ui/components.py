@@ -10,59 +10,16 @@ from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QWidget
 
 # ----- Core Modules -----
 from src.core import (
-    ANIMATION_DURATION,
-    APP_NAME,
-    APP_VERSION,
-    AUTHOR,
-    BORDER_RADIUS,
-    BORDER_RADIUS_LARGE,
-    BORDER_RADIUS_SMALL,
-    DAILY_SCRIPTS_PATH,
     FONT_FAMILY,
     FONT_SIZE_HEADER,
     FONT_SIZE_LABEL,
     FONT_SIZE_SMALL,
     FONT_SIZE_TEXT,
-    FONT_SIZE_TITLE,
-    HOVER_DURATION,
-    PADDING,
-    PADDING_LARGE,
-    PADDING_SMALL,
-    SPACING,
-    SPACING_LARGE,
     SPACING_SMALL,
-    UTILS_SCRIPTS_PATH,
-    WEEKLY_SCRIPTS_PATH,
-    WINDOW_MIN_HEIGHT,
-    WINDOW_MIN_WIDTH,
-    Config,
-    ScriptExecutor,
 )
 
 # ----- Utils Modules-----
-from src.utils import (
-    COLOR_COMPLETE,
-    COLOR_CYAN,
-    COLOR_DARK_BLUE,
-    COLOR_FAILED,
-    COLOR_GREEN,
-    COLOR_LIGHT_BLUE,
-    COLOR_ORANGE,
-    COLOR_PENDING,
-    COLOR_PURPLE,
-    COLOR_QUEUED,
-    COLOR_RED,
-    COLOR_SCANNING,
-    COLOR_SUCCESS,
-    COLOR_YELLOW,
-    THEME_BG_PRIMARY,
-    THEME_BG_SECONDARY,
-    THEME_BORDER,
-    THEME_TEXT_DIM,
-    THEME_TEXT_PRIMARY,
-    THEME_TEXT_SECONDARY,
-    THEME_TEXT_SUBTLE,
-)
+from src.utils import COLOR_LIGHT_BLUE, THEME_TEXT_SECONDARY
 
 
 def create_header_label(text: str, size: int = None) -> QLabel:
