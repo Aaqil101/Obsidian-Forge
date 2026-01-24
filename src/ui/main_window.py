@@ -184,9 +184,22 @@ class MainWindow(QMainWindow):
         self.setup_menu()
         self.setup_shortcuts()
 
+        # Center the window on the screen
+        self.center_on_screen()
+
         # Check if configured
         if not self.config.is_configured():
             self.show_settings()
+
+    def center_on_screen(self) -> None:
+        """Center the window on the screen."""
+        screen = self.screen()
+        if screen:
+            screen_geometry = screen.availableGeometry()
+            window_geometry = self.frameGeometry()
+            center_point = screen_geometry.center()
+            window_geometry.moveCenter(center_point)
+            self.move(window_geometry.topLeft())
 
     def create_menu_item(
         self, icon_name: str, text: str, shortcut: str = ""
