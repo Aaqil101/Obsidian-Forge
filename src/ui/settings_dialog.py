@@ -111,9 +111,10 @@ class SettingsDialog(QDialog):
             normal_icon=Icons.FOLDER_OUTLINE,
             hover_icon=Icons.FOLDER,
             pressed_icon=Icons.FOLDER_OPEN,
-            text="  &Browse",
+            text=f"{Icons.FOLDER_OUTLINE} ",
         )
         vault_browse_btn.setProperty("BrowseButton", True)
+        vault_browse_btn.setShortcut(QKeySequence("Ctrl+Shift+B"))
         vault_browse_btn.setFixedHeight(32)
         vault_browse_btn.clicked.connect(self.browse_vault_path)
         vault_path_layout.addWidget(vault_browse_btn)
@@ -197,9 +198,10 @@ class SettingsDialog(QDialog):
             normal_icon=Icons.FOLDER_OUTLINE,
             hover_icon=Icons.FOLDER,
             pressed_icon=Icons.FOLDER_OPEN,
-            text="  B&rowse",
+            text=f"{Icons.FOLDER_OUTLINE}",
         )
         nodejs_browse_btn.setProperty("BrowseButton", True)
+        nodejs_browse_btn.setShortcut(QKeySequence("Ctrl+B"))
         nodejs_browse_btn.setFixedHeight(32)
         nodejs_browse_btn.clicked.connect(self.browse_nodejs_path)
         nodejs_path_layout.addWidget(nodejs_browse_btn)
@@ -367,6 +369,7 @@ class SettingsDialog(QDialog):
 
         # ComboBox (compact)
         combo = QComboBox()
+        combo.setProperty("MainComboBox", True)
         combo.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT - 1))
         combo.setMinimumHeight(26)
         combo.setMaximumHeight(26)
