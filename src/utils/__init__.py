@@ -18,10 +18,8 @@ from src.utils.color import (
     THEME_BG_PRIMARY,
     THEME_BG_SECONDARY,
     THEME_BORDER,
-    THEME_TEXT_DIM,
     THEME_TEXT_PRIMARY,
     THEME_TEXT_SECONDARY,
-    THEME_TEXT_SUBTLE,
     AccentTheme,
 )
 from src.utils.hover_button import HoverIconButton
@@ -49,9 +47,7 @@ __all__: list[str] = [
     "THEME_BG_PRIMARY",
     "THEME_BG_SECONDARY",
     "THEME_BORDER",
-    "THEME_TEXT_DIM",
     "THEME_TEXT_PRIMARY",
     "THEME_TEXT_SECONDARY",
-    "THEME_TEXT_SUBTLE",
     "AccentTheme",
 ]
