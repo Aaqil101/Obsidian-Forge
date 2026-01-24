@@ -7,7 +7,6 @@ from src.utils import (
     THEME_BG_SECONDARY,
     THEME_BORDER,
     THEME_TEXT_PRIMARY,
-    THEME_TEXT_SUBTLE,
     AccentTheme,
 )
 
@@ -34,7 +33,7 @@ def qss() -> str:
     }}
 
     QLabel[InfoLabel="true"] {{
-        color: {THEME_TEXT_SUBTLE};
+        color: {THEME_BG_SECONDARY};
         font-size: {FONT_SIZE_SMALL}pt;
     }}
 
@@ -48,7 +47,7 @@ def qss() -> str:
 
     /* === Card Subtitle === */
     QLabel[CardSubtitle="true"] {{
-        color: {THEME_TEXT_SUBTLE};
+        color: {THEME_BG_SECONDARY};
         font-size: {FONT_SIZE_SMALL}pt;
         background-color: transparent;
     }}

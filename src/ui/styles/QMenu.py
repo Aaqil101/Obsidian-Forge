@@ -1,13 +1,5 @@
-# ----- Core Modules-----
-from src.core import BORDER_RADIUS, BORDER_RADIUS_SMALL
-
 # ----- Utils Modules-----
-from src.utils import (
-    THEME_BG_SECONDARY,
-    THEME_BORDER,
-    THEME_TEXT_PRIMARY,
-    THEME_TEXT_SUBTLE,
-)
+from src.utils import THEME_TEXT_PRIMARY
 
 
 def qss() -> str:
@@ -24,7 +16,7 @@ def qss() -> str:
         color: {THEME_TEXT_PRIMARY};
         border-radius: 0px;
         padding: 2px 8px;
-        min-height: 16px;
+        height: 16px;
     }}
     QMenu::item::selected {{
         color: {THEME_TEXT_PRIMARY};

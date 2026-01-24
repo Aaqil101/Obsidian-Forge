@@ -1,22 +1,24 @@
 # ----- Utils Modules-----
-from src.utils import COLOR_DARK_BLUE, COLOR_LIGHT_BLUE, THEME_TEXT_PRIMARY
+from src.utils import THEME_TEXT_PRIMARY, AccentTheme
 
 
 def qss() -> str:
+    # Get the app's accent color theme
+    accent: dict[str, str] = AccentTheme.get()
+
     return f"""
     /* === Text Edit === */
     QTextEdit {{
-        background-color: rgba(255, 255, 255, 0.04);
+        background-color: {accent['main_background']};
         color: {THEME_TEXT_PRIMARY};
-        border-radius: 4px;
-        padding: 8px;
-        selection-background-color: {COLOR_LIGHT_BLUE};
+        border-radius: 0px;
+        padding: 2px;
     }}
 
     QTextEdit:focus {{
-        background-color: #222;
-        border-bottom: 2px solid {COLOR_DARK_BLUE};
-        border-right: 2px solid {COLOR_DARK_BLUE};
+        background-color: #1F1F1F;
+        border-bottom: 2px solid {accent['border']};
+        border-right: 2px solid {accent['border']};
         font-style: unset;
     }}
     """

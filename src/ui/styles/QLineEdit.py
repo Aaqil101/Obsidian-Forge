@@ -28,7 +28,7 @@ def qss() -> str:
         border: 2px solid transparent;
     }}
     QLineEdit[MainLineEdit="true"]:focus {{
-        background-color: #222;
+        background-color: #1F1F1F;
         border-bottom: 2px solid {accent['border']};
         border-right: 2px solid {accent['border']};
         font-style: unset;

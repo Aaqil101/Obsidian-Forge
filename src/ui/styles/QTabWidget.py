@@ -8,7 +8,6 @@ from src.utils import (
     THEME_BORDER,
     THEME_TEXT_PRIMARY,
     THEME_TEXT_SECONDARY,
-    THEME_TEXT_SUBTLE,
 )
 
 
@@ -38,7 +37,7 @@ def qss() -> str:
         font-weight: bold;
     }}
     QTabBar::tab:disabled {{
-        color: {THEME_TEXT_SUBTLE};
+        color: {THEME_BG_SECONDARY};
     }}
     QTabBar:focus {{
         outline: none;
