@@ -64,3 +64,8 @@ class Icons:
     MANUAL_OUTLINE: str = "\udb86\udc2e"  # 󱠮
     MANUAL_PRESSED: str = "\ueefd"  # 
     USER: str = "\uf007"  # 
+
+    CHEVRON_DOWN: str = "\uf078"  # 
+    CHEVRON_UP: str = "\uf077"  # 
+    CHEVRON_LEFT: str = "\uf053"  # 
+    CHEVRON_RIGHT: str = "\uf054"  # 
