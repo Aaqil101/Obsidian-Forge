@@ -16,6 +16,7 @@ from typing import Optional
 APP_NAME = "Obsidian Forge"
 APP_VERSION = "1.0.0"
 AUTHOR = "Aaqil"
+DESCRIPTION = "A powerful companion for Obsidian that lets you\nquickly add content to your daily and weekly notes\nusing your existing QuickAdd scripts."
 WEBSITE_URL = "https://github.com/Aaqil101/Obsidian-Forge"
 
 # ══════════════════════════════════════════════════════════════════
