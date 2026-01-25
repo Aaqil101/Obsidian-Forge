@@ -19,6 +19,5 @@ def qss() -> str:
         background-color: #1F1F1F;
         border-bottom: 2px solid {accent['border']};
         border-right: 2px solid {accent['border']};
-        font-style: unset;
     }}
     """

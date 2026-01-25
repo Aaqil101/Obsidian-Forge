@@ -5,10 +5,14 @@ from src.utils import (
     COLOR_ORANGE,
     THEME_BORDER,
     THEME_TEXT_PRIMARY,
+    AccentTheme,
 )
 
 
 def qss() -> str:
+    # Get the app's accent color theme
+    accent: dict[str, str] = AccentTheme.get()
+
     return f"""
     /* === Buttons === */
     QPushButton {{
@@ -31,6 +35,23 @@ def qss() -> str:
         outline: none;
     }}
 
+    /* === About Close Button === */
+    #AboutCloseButton {{
+        background-color: {accent['main_background']};
+        color: {THEME_TEXT_PRIMARY};
+        border: none;
+        border-radius: 4px;
+        padding: 10px 24px;
+        font-size: 10pt;
+        font-weight: bold;
+    }}
+    #AboutCloseButton:hover {{
+        background-color: {accent['hover_background']};
+    }}
+    #AboutCloseButton:pressed {{
+        background-color: {accent['pressed_background']};
+    }}
+
     /* === Browse Button === */
     QPushButton[BrowseButton="true"] {{
         background-color: rgba(255, 255, 255, 0.04);
@@ -39,15 +60,15 @@ def qss() -> str:
         padding: 4px 12px;
     }}
     QPushButton[BrowseButton="true"]:hover {{
-        background-color: rgba(255, 255, 255, 0.08);
-        border-bottom: 2px solid {COLOR_DARK_BLUE};
+        background-color: {accent['hover_background']};
+        border-bottom: 2px solid {accent['border']};
     }}
     QPushButton[BrowseButton="true"]:pressed {{
-        background-color: rgba(255, 255, 255, 0.12);
+        background-color: {accent['pressed_background']};
     }}
     QPushButton[BrowseButton="true"]:focus {{
-        background-color: rgba(255, 255, 255, 0.08);
-        border-bottom: 2px solid {COLOR_DARK_BLUE};
+        background-color: {accent['hover_background']};
+        border-bottom: 2px solid {accent['border']};
         outline: none;
     }}
 
@@ -99,15 +120,15 @@ def qss() -> str:
         padding: 6px 16px;
     }}
     QPushButton[CancelButton="true"]:hover {{
-        background-color: rgba(255, 255, 255, 0.08);
-        border-bottom: 2px solid {COLOR_DARK_BLUE};
+        background-color: {accent['hover_background']};
+        border-bottom: 2px solid {accent['border']};
     }}
     QPushButton[CancelButton="true"]:pressed {{
-        background-color: rgba(255, 255, 255, 0.12);
+        background-color: {accent['pressed_background']};
     }}
     QPushButton[CancelButton="true"]:focus {{
-        background-color: rgba(255, 255, 255, 0.08);
-        border-bottom: 2px solid {COLOR_DARK_BLUE};
+        background-color: {accent['hover_background']};
+        border-bottom: 2px solid {accent['border']};
         outline: none;
     }}
 
@@ -153,9 +174,9 @@ def qss() -> str:
         padding: 2px;
     }}
     QPushButton[CollapseButton="true"]:hover {{
-        background-color: rgba(122, 162, 247, 0.15);
+        background-color: {accent['hover_background']};
     }}
     QPushButton[CollapseButton="true"]:pressed {{
-        background-color: rgba(122, 162, 247, 0.25);
+        background-color: {accent['pressed_background']};
     }}
     """
