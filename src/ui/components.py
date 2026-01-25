@@ -9,14 +9,7 @@ from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QWidget
 
 # ----- Core Modules -----
-from src.core import (
-    FONT_FAMILY,
-    FONT_SIZE_HEADER,
-    FONT_SIZE_LABEL,
-    FONT_SIZE_SMALL,
-    FONT_SIZE_TEXT,
-    SPACING_SMALL,
-)
+from src.core import FONT_FAMILY
 
 # ----- Utils Modules-----
 from src.utils import COLOR_LIGHT_BLUE, THEME_TEXT_SECONDARY
@@ -28,13 +21,13 @@ def create_header_label(text: str, size: int = None) -> QLabel:
 
     Args:
         text: Label text
-        size: Font size (defaults to Config.FONT_SIZE_HEADER)
+        size: Font size (defaults to 13)
 
     Returns:
         Configured QLabel
     """
     if size is None:
-        size = FONT_SIZE_HEADER
+        size = 13
 
     label = QLabel(text)
     font = QFont(FONT_FAMILY, size)
@@ -56,7 +49,7 @@ def create_subtitle_label(text: str) -> QLabel:
         Configured QLabel
     """
     label = QLabel(text)
-    font = QFont(FONT_FAMILY, FONT_SIZE_SMALL)
+    font = QFont(FONT_FAMILY, 9)
     label.setFont(font)
     label.setAlignment(Qt.AlignmentFlag.AlignCenter)
     label.setStyleSheet(f"color: {THEME_TEXT_SECONDARY};")
@@ -74,6 +67,8 @@ def create_info_label(text: str) -> QLabel:
         Configured QLabel with InfoBox property
     """
     label = QLabel(text)
+    font = QFont(FONT_FAMILY)
+    label.setFont(font)
     label.setProperty("InfoBox", True)
     label.setWordWrap(True)
     return label
@@ -86,13 +81,13 @@ def create_icon_label(icon_text: str, text: str = None, size: int = None) -> QLa
     Args:
         icon_text: Nerd Font icon character
         text: Optional text to display after icon
-        size: Font size (defaults to Config.FONT_SIZE_TEXT)
+        size: Font size (defaults to 10)
 
     Returns:
         Configured QLabel with icon
     """
     if size is None:
-        size = FONT_SIZE_TEXT
+        size = 10
 
     if text:
         display_text: str = f"{icon_text}  {text}"
@@ -170,13 +165,13 @@ def create_button_row(*buttons, spacing: int = None) -> QWidget:
 
     Args:
         *buttons: Variable number of QPushButton widgets
-        spacing: Spacing between buttons (defaults to Config.SPACING_SMALL)
+        spacing: Spacing between buttons (defaults to 8)
 
     Returns:
         QWidget containing the button row
     """
     if spacing is None:
-        spacing = SPACING_SMALL
+        spacing = 8
 
     widget = QWidget()
     layout = QHBoxLayout()
@@ -209,14 +204,14 @@ def create_stat_label(icon: str, value: str, label: str = None) -> QWidget:
 
     # Icon
     icon_label = QLabel(icon)
-    icon_font = QFont(FONT_FAMILY, FONT_SIZE_HEADER)
+    icon_font = QFont(FONT_FAMILY, 13)
     icon_label.setFont(icon_font)
     icon_label.setStyleSheet(f"color: {COLOR_LIGHT_BLUE};")
     layout.addWidget(icon_label)
 
     # Value
     value_label = QLabel(value)
-    value_font = QFont(FONT_FAMILY, FONT_SIZE_LABEL)
+    value_font = QFont(FONT_FAMILY, 11)
     value_font.setBold(True)
     value_label.setFont(value_font)
     layout.addWidget(value_label)
@@ -224,7 +219,7 @@ def create_stat_label(icon: str, value: str, label: str = None) -> QWidget:
     # Optional label
     if label:
         label_widget = QLabel(label)
-        label_font = QFont(FONT_FAMILY, FONT_SIZE_SMALL)
+        label_font = QFont(FONT_FAMILY, 9)
         label_widget.setFont(label_font)
         label_widget.setStyleSheet(f"color: {THEME_TEXT_SECONDARY};")
         layout.addWidget(label_widget)
@@ -245,7 +240,7 @@ def create_section_header(text: str) -> QLabel:
         Configured QLabel
     """
     label = QLabel(text)
-    font = QFont(FONT_FAMILY, FONT_SIZE_LABEL)
+    font = QFont(FONT_FAMILY, 11)
     font.setBold(True)
     label.setFont(font)
     label.setStyleSheet(f"color: {COLOR_LIGHT_BLUE};")

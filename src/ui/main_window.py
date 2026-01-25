@@ -8,7 +8,7 @@ from pathlib import Path
 
 # ----- PySide6 Modules-----
 from PySide6.QtCore import QEasingCurve, QPropertyAnimation, QSize, Qt, QThread, Signal
-from PySide6.QtGui import QFont, QKeySequence, QShortcut
+from PySide6.QtGui import QCursor, QFont, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QDialog,
     QFrame,
@@ -28,8 +28,6 @@ from PySide6.QtWidgets import (
 from src.core import (
     APP_NAME,
     FONT_FAMILY,
-    FONT_SIZE_TEXT,
-    SPACING_SMALL,
     WINDOW_MIN_HEIGHT,
     WINDOW_MIN_WIDTH,
     Config,
@@ -46,7 +44,7 @@ from src.ui.sleep_dialog import SleepInputDialog
 from src.ui.widgets import ScriptRow, SettingsGroup
 
 # ----- Utils Modules-----
-from src.utils import THEME_BG_SECONDARY, THEME_TEXT_PRIMARY, Icons, get_icon
+from src.utils import THEME_TEXT_PRIMARY, HoverIconButton, Icons, get_icon
 
 
 class ExpandableSearchBar(QLineEdit):
@@ -258,13 +256,6 @@ class MainWindow(QMainWindow):
         header_widget = QWidget()
         header_widget.setObjectName("HeaderBar")
         header_widget.setFixedHeight(32)
-        header_widget.setStyleSheet(
-            f"""
-            #HeaderBar {{
-                background-color: {THEME_BG_SECONDARY};
-            }}
-            """
-        )
 
         header_layout = QHBoxLayout(header_widget)
         header_layout.setContentsMargins(0, 0, 0, 0)
@@ -295,7 +286,7 @@ class MainWindow(QMainWindow):
 
         # Search bar - expandable from the right
         self.search_input = ExpandableSearchBar()
-        self.search_input.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
+        self.search_input.setFont(QFont(FONT_FAMILY, 10))
         self.search_input.setProperty("SearchBar", True)
         self.search_input.textChanged.connect(self.filter_scripts)
         self.search_input.setFixedHeight(32)
@@ -312,7 +303,7 @@ class MainWindow(QMainWindow):
         content_widget = QWidget()
         content_layout = QVBoxLayout(content_widget)
         content_layout.setContentsMargins(8, 8, 8, 8)
-        content_layout.setSpacing(SPACING_SMALL)
+        content_layout.setSpacing(8)
 
         # Scroll area for script sections
         scroll_area = QScrollArea()
@@ -351,10 +342,10 @@ class MainWindow(QMainWindow):
 
         # Create container for script cards with grid layout
         cards_widget = QWidget()
-        cards_widget.setStyleSheet("background: transparent;")
+        cards_widget.setProperty("CardsContainer", True)
         cards_layout = QGridLayout(cards_widget)
         cards_layout.setContentsMargins(6, 6, 6, 6)
-        cards_layout.setSpacing(SPACING_SMALL)
+        cards_layout.setSpacing(8)
 
         # Get scripts and create cards in grid (5 columns)
         scripts = self.executor.get_available_scripts(script_type)
@@ -418,11 +409,11 @@ class MainWindow(QMainWindow):
         # Create input dialog for other scripts
         dialog = QDialog(self)
         dialog.setWindowTitle(f"Add {script_name}")
-        dialog.setMinimumSize(550, 400)
+        dialog.setMinimumSize(550, 450)
 
         layout = QVBoxLayout()
-        layout.setContentsMargins(6, 6, 6, 6)
-        layout.setSpacing(8)
+        layout.setContentsMargins(8, 8, 8, 8)
+        layout.setSpacing(4)
 
         # Instruction label
         if "daily" in script_path.lower():
@@ -443,27 +434,54 @@ class MainWindow(QMainWindow):
 
         # Text input
         text_edit = QTextEdit()
+        text_edit.setFont(QFont(FONT_FAMILY, 10))
         text_edit.setPlaceholderText("Type here...")
         text_edit.setFocus()
         layout.addWidget(text_edit)
 
         # Buttons
         button_layout = QHBoxLayout()
-        button_layout.setSpacing(SPACING_SMALL)
+        button_layout.setContentsMargins(0, 4, 0, 0)
+        button_layout.setSpacing(8)
         button_layout.addStretch()
 
-        cancel_btn = components.create_secondary_button("Cancel", Icons.CANCEL)
+        # Cancel button
+        cancel_btn = HoverIconButton(
+            normal_icon=Icons.CANCEL_OUTLINE, hover_icon=Icons.CANCEL, text="&Cancel"
+        )
+        cancel_btn.setFont(QFont(FONT_FAMILY, 10))
+        cancel_btn.setProperty("CancelButton", True)
         cancel_btn.setShortcut(QKeySequence("Esc"))
+        cancel_btn.setFixedHeight(36)
+        cancel_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         cancel_btn.clicked.connect(dialog.reject)
         button_layout.addWidget(cancel_btn)
 
-        submit_btn = components.create_primary_button("Submit", Icons.CHECK)
+        # Submit button
+        submit_btn = HoverIconButton(
+            normal_icon=Icons.SAVE,
+            hover_icon=Icons.CONTENT_SAVE,
+            pressed_icon=Icons.CONTENT_SAVE_CHECK,
+            text="&Save",
+        )
+        submit_btn.setFont(QFont(FONT_FAMILY, 10))
+        submit_btn.setProperty("SaveButton", True)
+        submit_btn.setFixedHeight(36)
+        submit_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        submit_btn.setDefault(True)
         submit_btn.setShortcut(QKeySequence("Ctrl+Return"))
         submit_btn.clicked.connect(dialog.accept)
         button_layout.addWidget(submit_btn)
 
         layout.addLayout(button_layout)
         dialog.setLayout(layout)
+
+        # Center dialog on parent window
+        parent_geometry = self.frameGeometry()
+        dialog_geometry = dialog.frameGeometry()
+        center_point = parent_geometry.center()
+        dialog_geometry.moveCenter(center_point)
+        dialog.move(dialog_geometry.topLeft())
 
         # Show dialog
         if dialog.exec() == QDialog.DialogCode.Accepted:

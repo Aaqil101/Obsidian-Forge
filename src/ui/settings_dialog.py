@@ -38,7 +38,14 @@ from src.core.config import (
 from src.ui.widgets import SettingsGroup
 
 # ----- Utils Modules-----
-from src.utils import COLOR_ORANGE, THEME_TEXT_PRIMARY, HoverIconButton, Icons, get_icon
+from src.utils import (
+    COLOR_ORANGE,
+    THEME_TEXT_PRIMARY,
+    AccentTheme,
+    HoverIconButton,
+    Icons,
+    get_icon,
+)
 
 
 class SettingsDialog(QDialog):

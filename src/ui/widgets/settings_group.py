@@ -81,7 +81,7 @@ class SettingsGroup(QFrame):
             self.label = None
         else:
             self.checkbutton = None
-            self.label = QLabel(f" {label}")
+            self.label = QLabel(f"{label}")
             self.label.setProperty("SectionHeader", True)
 
             # Load and apply OpenSans-SemiBold font

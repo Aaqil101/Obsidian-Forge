@@ -18,36 +18,10 @@ from PySide6.QtWidgets import (
 )
 
 # ----- Core Modules-----
-from src.core import (
-    APP_NAME,
-    APP_VERSION,
-    AUTHOR,
-    BORDER_RADIUS,
-    BORDER_RADIUS_LARGE,
-    FONT_FAMILY,
-    FONT_SIZE_SMALL,
-    FONT_SIZE_TEXT,
-    FONT_SIZE_TITLE,
-    PADDING,
-    PADDING_LARGE,
-    SPACING,
-    SPACING_LARGE,
-    WEBSITE_URL,
-)
+from src.core import APP_NAME, APP_VERSION, AUTHOR, DESCRIPTION, WEBSITE_URL
 
 # ----- Utils Modules-----
-from src.utils import (
-    COLOR_CYAN,
-    COLOR_LIGHT_BLUE,
-    COLOR_PURPLE,
-    THEME_BG_PRIMARY,
-    THEME_BG_SECONDARY,
-    THEME_BORDER,
-    THEME_TEXT_PRIMARY,
-    THEME_TEXT_SECONDARY,
-    Icons,
-    get_icon,
-)
+from src.utils import COLOR_CYAN, COLOR_LIGHT_BLUE, COLOR_PURPLE, Icons, get_icon
 
 
 class GlowingLine(QFrame):
@@ -81,7 +55,9 @@ class FeatureItem(QWidget):
         super().__init__(parent)
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 4, 0, 4)
-        layout.setSpacing(SPACING)
+        layout.setSpacing(8)
+
+        layout.addStretch()  # Add stretch before to center content
 
         icon_label = QLabel()
         icon_label.setPixmap(get_icon(icon_name).pixmap(QSize(16, 16)))
@@ -89,15 +65,10 @@ class FeatureItem(QWidget):
         layout.addWidget(icon_label)
 
         text_label = QLabel(text)
-        text_label.setStyleSheet(
-            f"""
-            color: {THEME_TEXT_SECONDARY};
-            font-size: {FONT_SIZE_TEXT}pt;
-            background: transparent;
-            """
-        )
+        text_label.setObjectName("FeatureTextLabel")
+
         layout.addWidget(text_label)
-        layout.addStretch()
+        layout.addStretch()  # Add stretch after to center content
 
 
 class AboutDialog(QDialog):
@@ -106,11 +77,12 @@ class AboutDialog(QDialog):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setWindowTitle(f"About {APP_NAME}")
-        self.setFixedSize(420, 520)
+        self.setFixedSize(350, 450)
         self.setWindowFlags(Qt.WindowType.Dialog | Qt.WindowType.FramelessWindowHint)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
         self.setup_ui()
+        self.center_on_parent()
 
     def setup_ui(self) -> None:
         """Setup the dialog UI."""
@@ -121,15 +93,6 @@ class AboutDialog(QDialog):
         # Container with rounded corners and shadow
         container = QFrame()
         container.setObjectName("AboutContainer")
-        container.setStyleSheet(
-            f"""
-            #AboutContainer {{
-                background-color: {THEME_BG_SECONDARY};
-                border: 1px solid {THEME_BORDER};
-                border-radius: {BORDER_RADIUS_LARGE}px;
-            }}
-            """
-        )
 
         # Add drop shadow
         shadow = QGraphicsDropShadowEffect()
@@ -140,37 +103,28 @@ class AboutDialog(QDialog):
         container.setGraphicsEffect(shadow)
 
         container_layout = QVBoxLayout(container)
-        container_layout.setContentsMargins(
-            PADDING_LARGE, PADDING_LARGE, PADDING_LARGE, PADDING_LARGE
-        )
-        container_layout.setSpacing(SPACING_LARGE)
+        container_layout.setContentsMargins(12, 12, 12, 12)
+        container_layout.setSpacing(8)
 
         # Header section with icon and app name
         header_widget = QWidget()
         header_layout = QVBoxLayout(header_widget)
         header_layout.setContentsMargins(0, 0, 0, 0)
-        header_layout.setSpacing(SPACING)
+        header_layout.setSpacing(12)
         header_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # App icon
         icon_label = QLabel()
         icon_label.setPixmap(get_icon("obsidian_forge.svg").pixmap(QSize(72, 72)))
-        icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         icon_label.setStyleSheet("background: transparent;")
+        icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(icon_label)
 
         # App name with gradient effect
         app_name_label = QLabel(APP_NAME)
+        app_name_label.setObjectName("AppNameLabel")
         app_name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        app_name_label.setStyleSheet(
-            f"""
-            font-family: "{FONT_FAMILY}";
-            font-size: {FONT_SIZE_TITLE}pt;
-            font-weight: bold;
-            color: {THEME_TEXT_PRIMARY};
-            background: transparent;
-            """
-        )
+
         header_layout.addWidget(app_name_label)
 
         # Version badge
@@ -180,16 +134,8 @@ class AboutDialog(QDialog):
         version_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         version_label = QLabel(f"v{APP_VERSION}")
-        version_label.setStyleSheet(
-            f"""
-            background-color: rgba(122, 162, 247, 0.2);
-            color: {COLOR_LIGHT_BLUE};
-            font-size: {FONT_SIZE_SMALL}pt;
-            font-weight: bold;
-            padding: 4px 12px;
-            border-radius: 10px;
-            """
-        )
+        version_label.setObjectName("VersionLabel")
+
         version_layout.addWidget(version_label)
         header_layout.addWidget(version_widget)
 
@@ -199,53 +145,32 @@ class AboutDialog(QDialog):
         container_layout.addWidget(GlowingLine())
 
         # Description
-        desc_label = QLabel(
-            "A powerful companion for Obsidian that lets you\n"
-            "quickly add content to your daily and weekly notes\n"
-            "using your existing QuickAdd scripts."
-        )
+        desc_label = QLabel(DESCRIPTION)
+        desc_label.setObjectName("DescriptionLabel")
         desc_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         desc_label.setWordWrap(True)
-        desc_label.setStyleSheet(
-            f"""
-            color: {THEME_TEXT_SECONDARY};
-            font-size: {FONT_SIZE_TEXT}pt;
-            line-height: 1.5;
-            background: transparent;
-            """
-        )
+
         container_layout.addWidget(desc_label)
 
         # Features section
         features_frame = QFrame()
-        features_frame.setStyleSheet(
-            f"""
-            background-color: {THEME_BG_PRIMARY};
-            border-radius: {BORDER_RADIUS}px;
-            padding: 4px;
-            """
-        )
+        features_frame.setObjectName("FeaturesFrame")
+
         features_layout = QVBoxLayout(features_frame)
-        features_layout.setContentsMargins(PADDING, PADDING, PADDING, PADDING)
-        features_layout.setSpacing(4)
+        features_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        features_layout.setContentsMargins(4, 4, 4, 4)
+        features_layout.setSpacing(2)
 
         features_title = QLabel("Features")
-        features_title.setStyleSheet(
-            f"""
-            color: {COLOR_LIGHT_BLUE};
-            font-size: {FONT_SIZE_TEXT}pt;
-            font-weight: bold;
-            background: transparent;
-            margin-bottom: 4px;
-            """
-        )
+        features_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        features_title.setObjectName("FeaturesTitleLabel")
+
         features_layout.addWidget(features_title)
 
         features = [
             ("daily.svg", "Daily note quick entries"),
             ("weekly.svg", "Weekly note quick entries"),
             ("nodejs.svg", "Native QuickAdd script support"),
-            ("theme.svg", "Tokyo Night theme"),
         ]
 
         for icon, text in features:
@@ -258,53 +183,33 @@ class AboutDialog(QDialog):
         author_layout = QHBoxLayout(author_widget)
         author_layout.setContentsMargins(0, 0, 0, 0)
         author_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        author_layout.setSpacing(SPACING)
+        author_layout.setSpacing(6)
 
         created_label = QLabel("Created with")
-        created_label.setStyleSheet(
-            f"""
-            color: {THEME_TEXT_SECONDARY};
-            font-size: {FONT_SIZE_SMALL}pt;
-            background: transparent;
-            """
-        )
+        created_label.setObjectName("CreatedLabel")
+
         author_layout.addWidget(created_label)
 
         heart_label = QLabel("\u2665")  # Heart symbol
-        heart_label.setStyleSheet(
-            f"""
-            color: #f7768e;
-            font-size: 12px;
-            background: transparent;
-            """
-        )
+        heart_label.setObjectName("HeartLabel")
+
         author_layout.addWidget(heart_label)
 
         by_label = QLabel(f"by {AUTHOR}")
-        by_label.setStyleSheet(
-            f"""
-            color: {THEME_TEXT_SECONDARY};
-            font-size: {FONT_SIZE_SMALL}pt;
-            background: transparent;
-            """
-        )
+        by_label.setObjectName("ByLabel")
+
         author_layout.addWidget(by_label)
 
         container_layout.addWidget(author_widget)
 
         # Website section
         website_label = QLabel(
-            f'<a href="{WEBSITE_URL}" style="color: {COLOR_LIGHT_BLUE}; text-decoration: none;">{WEBSITE_URL}</a>'
+            f'<a href="{WEBSITE_URL}" style="color: {COLOR_LIGHT_BLUE};">{WEBSITE_URL}</a>'
         )
+        website_label.setObjectName("WebsiteLabel")
         website_label.setOpenExternalLinks(True)
         website_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        website_label.setStyleSheet(
-            f"""
-            color: {COLOR_LIGHT_BLUE};
-            font-size: {FONT_SIZE_SMALL}pt;
-            background: transparent;
-            """
-        )
+
         website_label.setCursor(Qt.CursorShape.PointingHandCursor)
         container_layout.addWidget(website_label)
 
@@ -315,25 +220,6 @@ class AboutDialog(QDialog):
         close_btn = QPushButton(f"{Icons.CROSS}  Close")
         close_btn.setObjectName("AboutCloseButton")
         close_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        close_btn.setStyleSheet(
-            f"""
-            #AboutCloseButton {{
-                background-color: rgba(122, 162, 247, 0.2);
-                color: {COLOR_LIGHT_BLUE};
-                border: 1px solid {COLOR_LIGHT_BLUE};
-                border-radius: {BORDER_RADIUS}px;
-                padding: 10px 24px;
-                font-size: {FONT_SIZE_TEXT}pt;
-                font-weight: bold;
-            }}
-            #AboutCloseButton:hover {{
-                background-color: rgba(122, 162, 247, 0.3);
-            }}
-            #AboutCloseButton:pressed {{
-                background-color: rgba(122, 162, 247, 0.4);
-            }}
-            """
-        )
         close_btn.clicked.connect(self.accept)
 
         btn_layout = QHBoxLayout()
@@ -343,6 +229,24 @@ class AboutDialog(QDialog):
         container_layout.addLayout(btn_layout)
 
         main_layout.addWidget(container)
+
+    def center_on_parent(self) -> None:
+        """Center the dialog on the parent window."""
+        if self.parent():
+            parent_geometry = self.parent().geometry()
+            dialog_geometry = self.geometry()
+
+            # Calculate center position
+            x = (
+                parent_geometry.x()
+                + (parent_geometry.width() - dialog_geometry.width()) // 2
+            )
+            y = (
+                parent_geometry.y()
+                + (parent_geometry.height() - dialog_geometry.height()) // 2
+            )
+
+            self.move(x, y)
 
     def keyPressEvent(self, event) -> None:
         """Handle key press events."""

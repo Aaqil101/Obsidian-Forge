@@ -48,7 +48,7 @@ class ScriptExecutor:
             user_input.replace("\\", "\\\\").replace("'", "\\'").replace("\n", "\\n")
         )
 
-        wrapper = f"""
+        wrapper: str = f"""
 const fs = require('fs');
 const path = require('path');
 
@@ -174,7 +174,7 @@ scriptModule({{ quickAddApi }})
                     "error": None,
                 }
             else:
-                error_msg = result.stderr or "Unknown error"
+                error_msg: str = result.stderr or "Unknown error"
                 return {
                     "success": False,
                     "output": "\n".join(notices) if notices else "",
@@ -217,7 +217,7 @@ scriptModule({{ quickAddApi }})
         )
 
         # Quality value (null if skipped)
-        quality_js = f"'{inputs.quality}'" if inputs.quality else "null"
+        quality_js: str = f"'{inputs.quality}'" if inputs.quality else "null"
 
         # Dreams value
         had_dreams_js = "true" if inputs.had_dreams else "false"
@@ -392,7 +392,7 @@ scriptModule({{ quickAddApi }})
                     "error": None,
                 }
             else:
-                error_msg = result.stderr or "Unknown error"
+                error_msg: str = result.stderr or "Unknown error"
                 return {
                     "success": False,
                     "output": "\n".join(notices) if notices else "",
