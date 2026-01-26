@@ -33,7 +33,7 @@ def main():
     app.setOrganizationName(APP_NAME.replace(" ", ""))
 
     # Set application icon
-    app.setWindowIcon(get_icon("obsidian_forge.svg"))
+    app.setWindowIcon(get_icon("application/obsidian_forge.svg"))
 
     # Apply stylesheet to entire application
     app.setStyleSheet(build_stylesheet())

@@ -115,7 +115,9 @@ class AboutDialog(QDialog):
 
         # App icon
         icon_label = QLabel()
-        icon_label.setPixmap(get_icon("obsidian_forge.svg").pixmap(QSize(72, 72)))
+        icon_label.setPixmap(
+            get_icon("application/obsidian_forge.svg").pixmap(QSize(72, 72))
+        )
         icon_label.setStyleSheet("background: transparent;")
         icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(icon_label)
@@ -217,7 +219,9 @@ class AboutDialog(QDialog):
         container_layout.addStretch()
 
         # Close button
-        close_btn = QPushButton(f"{Icons.CROSS}  Close")
+        close_btn = QPushButton("Close")
+        close_btn.setIcon(get_icon("close.svg"))
+        close_btn.setIconSize(QSize(16, 16))
         close_btn.setObjectName("AboutCloseButton")
         close_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         close_btn.clicked.connect(self.accept)

@@ -174,7 +174,7 @@ class MainWindow(QMainWindow):
         self.script_thread = None
 
         self.setWindowTitle(APP_NAME)
-        self.setWindowIcon(get_icon("obsidian_forge.svg"))
+        self.setWindowIcon(get_icon("application/obsidian_forge.svg"))
         self.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint)
         self.setMinimumSize(WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT)
 

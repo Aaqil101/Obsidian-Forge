@@ -443,16 +443,16 @@ scriptModule({{ quickAddApi }})
 
             # Assign icons based on script name (SVG file names)
             icon_map: Dict[str, str] = {
-                "win": "win.svg",
-                "gratitude": "gratitude.svg",
-                "dream": "dream.svg",
-                "sleep": "sleep.svg",
-                "review": "review.svg",
-                "journal entries": "journal_entries.svg",
-                "progress": "progress.svg",
-                "open loops": "open_loops.svg",
-                "discovery": "discovery.svg",
-                "miss": "miss.svg",
+                "win": "daily-weekly/win.svg",
+                "gratitude": "daily-weekly/gratitude.svg",
+                "dream": "daily-weekly/dream.svg",
+                "sleep": "daily-weekly/sleep.svg",
+                "review": "daily-weekly/review.svg",
+                "journal entries": "daily-weekly/journal_entries.svg",
+                "progress": "daily-weekly/progress.svg",
+                "open loops": "daily-weekly/open_loops.svg",
+                "discovery": "daily-weekly/discovery.svg",
+                "miss": "daily-weekly/miss.svg",
             }
 
             icon: str = icon_map.get(name.lower(), "file.svg")
