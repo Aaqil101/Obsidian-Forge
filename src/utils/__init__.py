@@ -22,7 +22,7 @@ from src.utils.color import (
     THEME_TEXT_SECONDARY,
     AccentTheme,
 )
-from src.utils.hover_button import HoverIconButton
+from src.utils.hover_button import HoverIconButton, HoverIconButtonSVG
 from src.utils.icons import Icons
 from src.utils.resources import get_icon
 
@@ -30,6 +30,7 @@ __all__: list[str] = [
     "Icons",
     "get_icon",
     "HoverIconButton",
+    "HoverIconButtonSVG",
     "COLOR_COMPLETE",
     "COLOR_CYAN",
     "COLOR_DARK_BLUE",

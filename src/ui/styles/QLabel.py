@@ -50,13 +50,6 @@ def qss() -> str:
         background-color: transparent;
     }}
 
-    /* === Card Subtitle === */
-    QLabel[CardSubtitle="true"] {{
-        color: {THEME_BG_SECONDARY};
-        font-size: 9pt;
-        background-color: transparent;
-    }}
-
     /* === Section Header === */
     QLabel[SectionHeader="true"] {{
         color: {accent['border']};

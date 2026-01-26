@@ -49,8 +49,10 @@ class ScriptRow(QFrame):
         super().__init__(parent)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.setFixedHeight(55)
+        self.setFixedHeight(32)
         self.setFrameShape(QFrame.Shape.NoFrame)
+        # Ensure child widgets aren't clipped
+        self.setAttribute(Qt.WidgetAttribute.WA_OpaquePaintEvent, False)
 
         self.name: str = name
         self._pressed = False
@@ -62,22 +64,32 @@ class ScriptRow(QFrame):
 
         # Main vertical layout
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(10, 6, 10, 6)
-        main_layout.setSpacing(2)
+        main_layout.setContentsMargins(8, 6, 8, 6)
+        main_layout.setSpacing(0)
 
         # Icon and name row
         name_row = QHBoxLayout()
-        name_row.setSpacing(8)
+        name_row.setSpacing(6)
 
         # Icon
         icon_label = QLabel()
-        icon_label.setPixmap(get_icon(icon_name).pixmap(QSize(16, 16)))
+        icon_label.setPixmap(get_icon(icon_name).pixmap(QSize(14, 14)))
         icon_label.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         icon_label.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         name_row.addWidget(icon_label)
 
-        # Title label
-        self.title_label = QLabel(name, self)
+        # Title label with inline badge
+        if script_type:
+            title_html: str = (
+                f"{name} "
+                f'<span style="color: {self.color_theme["border"]}; '
+                f'font-size: 9pt; font-weight: bold;">'
+                f"[{script_type[0].upper()}]</span>"
+            )
+        else:
+            title_html = name
+
+        self.title_label = QLabel(title_html, self)
         self.title_label.setProperty("CardTitle", True)
         self.title_label.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.title_label.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
@@ -85,17 +97,6 @@ class ScriptRow(QFrame):
         name_row.addStretch()
 
         main_layout.addLayout(name_row)
-
-        # Script type subtitle
-        self.subtitle_label = QLabel(
-            script_type.capitalize() if script_type else "", self
-        )
-        self.subtitle_label.setProperty("CardSubtitle", True)
-        self.subtitle_label.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.subtitle_label.setAttribute(
-            Qt.WidgetAttribute.WA_TransparentForMouseEvents
-        )
-        main_layout.addWidget(self.subtitle_label)
 
         # Set tooltip
         tooltip: str = f"Click to execute {name}"

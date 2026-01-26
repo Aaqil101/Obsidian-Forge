@@ -40,9 +40,12 @@ from src.ui.widgets import SettingsGroup
 # ----- Utils Modules-----
 from src.utils import (
     COLOR_ORANGE,
+    COLOR_RED,
     THEME_TEXT_PRIMARY,
+    THEME_TEXT_SECONDARY,
     AccentTheme,
     HoverIconButton,
+    HoverIconButtonSVG,
     Icons,
     get_icon,
 )
@@ -315,11 +318,10 @@ class SettingsDialog(QDialog):
         button_layout.addWidget(validate_btn)
 
         # Save button
-        save_btn = HoverIconButton(
-            normal_icon=Icons.SAVE,
-            hover_icon=Icons.CONTENT_SAVE,
-            pressed_icon=Icons.CONTENT_SAVE_CHECK,
-            text="&Save",
+        save_btn = HoverIconButtonSVG(
+            normal_icon="square_check.svg",
+            hover_icon="square_check.svg",
+            pressed_icon="square_check_filled.svg",
         )
         save_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
         save_btn.setProperty("SaveButton", True)
@@ -331,8 +333,12 @@ class SettingsDialog(QDialog):
         button_layout.addWidget(save_btn)
 
         # Cancel button
-        cancel_btn = HoverIconButton(
-            normal_icon=Icons.CANCEL_OUTLINE, hover_icon=Icons.CANCEL, text="&Cancel"
+        cancel_btn = HoverIconButtonSVG(
+            normal_icon="cancel_outline.svg",
+            hover_icon="cancel_outline.svg",
+            pressed_icon="cancel.svg",
+            pressed_color=f"{COLOR_RED}",
+            text="&Cancel",
         )
         cancel_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
         cancel_btn.setProperty("CancelButton", True)
