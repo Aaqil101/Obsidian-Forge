@@ -46,6 +46,11 @@
         <file>assets/settings.svg</file>
         <file>assets/square_check.svg</file>
         <file>assets/square_check_filled.svg</file>
+        <file>assets/cancel.svg</file>
+        <file>assets/cancel_outline.svg</file>
+        <file>assets/save_outline.svg</file>
+        <file>assets/save_filled.svg</file>
+        <file>assets/save_check_filled.svg</file>
 
         <!-- Fonts -->
         <file>assets/fonts/OpenSans-SemiBold.ttf</file>
