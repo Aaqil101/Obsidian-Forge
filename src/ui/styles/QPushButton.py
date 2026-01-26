@@ -1,6 +1,7 @@
 # ----- Utils Modules-----
 from src.utils import (
     COLOR_DARK_BLUE,
+    COLOR_GREEN,
     COLOR_LIGHT_BLUE,
     COLOR_ORANGE,
     THEME_BORDER,
@@ -44,6 +45,7 @@ def qss() -> str:
         padding: 10px 24px;
         font-size: 10pt;
         font-weight: bold;
+        text-align: center;
     }}
     #AboutCloseButton:hover {{
         background-color: {accent['hover_background']};
@@ -95,20 +97,20 @@ def qss() -> str:
     /* === Save Button === */
     QPushButton[SaveButton="true"] {{
         background-color: rgba(158, 206, 106, 0.2);
-        color: #9ece6a;
+        color: {COLOR_GREEN};
         border-radius: 4px;
         padding: 6px 16px;
     }}
     QPushButton[SaveButton="true"]:hover {{
         background-color: rgba(158, 206, 106, 0.3);
-        border-bottom: 2px solid #9ece6a;
+        border-bottom: 2px solid {COLOR_GREEN};
     }}
     QPushButton[SaveButton="true"]:pressed {{
         background-color: rgba(158, 206, 106, 0.4);
     }}
     QPushButton[SaveButton="true"]:focus {{
         background-color: rgba(158, 206, 106, 0.3);
-        border-bottom: 2px solid #9ece6a;
+        border-bottom: 2px solid {COLOR_GREEN};
         outline: none;
     }}
 

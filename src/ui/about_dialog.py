@@ -12,7 +12,6 @@ from PySide6.QtWidgets import (
     QGraphicsDropShadowEffect,
     QHBoxLayout,
     QLabel,
-    QPushButton,
     QVBoxLayout,
     QWidget,
 )
@@ -21,7 +20,15 @@ from PySide6.QtWidgets import (
 from src.core import APP_NAME, APP_VERSION, AUTHOR, DESCRIPTION, WEBSITE_URL
 
 # ----- Utils Modules-----
-from src.utils import COLOR_CYAN, COLOR_LIGHT_BLUE, COLOR_PURPLE, Icons, get_icon
+from src.utils import (
+    COLOR_CYAN,
+    COLOR_DARK_BLUE,
+    COLOR_LIGHT_BLUE,
+    COLOR_PURPLE,
+    COLOR_RED,
+    HoverIconButtonSVG,
+    get_icon,
+)
 
 
 class GlowingLine(QFrame):
@@ -170,9 +177,9 @@ class AboutDialog(QDialog):
         features_layout.addWidget(features_title)
 
         features = [
-            ("daily.svg", "Daily note quick entries"),
-            ("weekly.svg", "Weekly note quick entries"),
-            ("nodejs.svg", "Native QuickAdd script support"),
+            ("daily-weekly/daily.svg", "Daily note quick entries"),
+            ("daily-weekly/weekly.svg", "Weekly note quick entries"),
+            ("application/nodejs.svg", "Native QuickAdd script support"),
         ]
 
         for icon, text in features:
@@ -219,9 +226,15 @@ class AboutDialog(QDialog):
         container_layout.addStretch()
 
         # Close button
-        close_btn = QPushButton("Close")
-        close_btn.setIcon(get_icon("close.svg"))
-        close_btn.setIconSize(QSize(16, 16))
+        close_btn = HoverIconButtonSVG(
+            normal_icon="cancel_outline.svg",
+            hover_icon="cancel_outline.svg",
+            hover_color=f"{COLOR_DARK_BLUE}",
+            pressed_icon="cancel.svg",
+            pressed_color=f"{COLOR_RED}",
+            icon_size=14,
+            text="&Close",
+        )
         close_btn.setObjectName("AboutCloseButton")
         close_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         close_btn.clicked.connect(self.accept)

@@ -39,11 +39,10 @@ from src.ui.widgets import SettingsGroup
 
 # ----- Utils Modules-----
 from src.utils import (
+    COLOR_GREEN,
     COLOR_ORANGE,
     COLOR_RED,
     THEME_TEXT_PRIMARY,
-    THEME_TEXT_SECONDARY,
-    AccentTheme,
     HoverIconButton,
     HoverIconButtonSVG,
     Icons,
@@ -106,7 +105,9 @@ class SettingsDialog(QDialog):
 
         # Obsidian icon
         vault_icon_label = QLabel()
-        vault_icon_label.setPixmap(get_icon("obsidian.svg").pixmap(QSize(20, 20)))
+        vault_icon_label.setPixmap(
+            get_icon("application/obsidian.svg").pixmap(QSize(20, 20))
+        )
         vault_icon_label.setFixedSize(20, 20)
         vault_path_layout.addWidget(vault_icon_label)
 
@@ -192,7 +193,9 @@ class SettingsDialog(QDialog):
         # Node.js icon
         nodejs_icon_label = QLabel()
         nodejs_icon_label.setPixmap(
-            get_icon("nodejs.svg", color=f"{COLOR_ORANGE}").pixmap(QSize(20, 20))
+            get_icon("application/nodejs.svg", color=f"{COLOR_ORANGE}").pixmap(
+                QSize(20, 20)
+            )
         )
         nodejs_icon_label.setFixedSize(20, 20)
         nodejs_path_layout.addWidget(nodejs_icon_label)
@@ -319,9 +322,13 @@ class SettingsDialog(QDialog):
 
         # Save button
         save_btn = HoverIconButtonSVG(
-            normal_icon="square_check.svg",
-            hover_icon="square_check.svg",
-            pressed_icon="square_check_filled.svg",
+            normal_icon="save_outline.svg",
+            normal_color=f"{COLOR_GREEN}",
+            hover_icon="save_filled.svg",
+            hover_color=f"{COLOR_GREEN}",
+            pressed_icon="save_check_filled.svg",
+            pressed_color=f"{COLOR_GREEN}",
+            text="&Save",
         )
         save_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
         save_btn.setProperty("SaveButton", True)

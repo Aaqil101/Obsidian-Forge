@@ -74,14 +74,14 @@ class FileDialog:
 
             # Back button
             if "backButton" in button_name or "Back" in button_name:
-                icon = get_icon("navigate_back.svg", color="#7aa2f7")
+                icon = get_icon("file-dialog/navigate_back.svg", color="#7aa2f7")
                 if hasattr(widget, "setIcon"):
                     widget.setIcon(icon)
                     widget.setToolTip("Back")
 
             # Forward button
             elif "forwardButton" in button_name or "Forward" in button_name:
-                icon = get_icon("navigate_forward.svg", color="#7aa2f7")
+                icon = get_icon("file-dialog/navigate_forward.svg", color="#7aa2f7")
                 if hasattr(widget, "setIcon"):
                     widget.setIcon(icon)
                     widget.setToolTip("Forward")
@@ -92,28 +92,28 @@ class FileDialog:
                 or "Parent" in button_name
                 or "Up" in button_name
             ):
-                icon = get_icon("up_arrow.svg", color="#7aa2f7")
+                icon = get_icon("file-dialog/up_arrow.svg", color="#7aa2f7")
                 if hasattr(widget, "setIcon"):
                     widget.setIcon(icon)
                     widget.setToolTip("Parent Directory")
 
             # New Folder button
             elif "newFolderButton" in button_name or "NewFolder" in button_name:
-                icon = get_icon("folder_add.svg", color="#9ece6a")
+                icon = get_icon("file-dialog/folder_add.svg", color="#9ece6a")
                 if hasattr(widget, "setIcon"):
                     widget.setIcon(icon)
                     widget.setToolTip("New Folder")
 
             # List Mode button
             elif "listModeButton" in button_name or "List" in button_name:
-                icon = get_icon("list_view.svg", color="#7aa2f7")
+                icon = get_icon("file-dialog/list_view.svg", color="#7aa2f7")
                 if hasattr(widget, "setIcon"):
                     widget.setIcon(icon)
                     widget.setToolTip("List View")
 
             # Detail Mode button
             elif "detailModeButton" in button_name or "Detail" in button_name:
-                icon = get_icon("grid_view.svg", color="#7aa2f7")
+                icon = get_icon("file-dialog/grid_view.svg", color="#7aa2f7")
                 if hasattr(widget, "setIcon"):
                     widget.setIcon(icon)
                     widget.setToolTip("Detail View")

@@ -55,6 +55,7 @@ class ExpandableSearchBar(QLineEdit):
         self.collapsed_width = 32
         self.expanded_width = 250
         self.is_expanded = False
+        self.main_window = None  # Will be set by MainWindow
 
         # Setup animations
         self.width_animation = QPropertyAnimation(self, b"minimumWidth")
@@ -74,6 +75,9 @@ class ExpandableSearchBar(QLineEdit):
         if not self.is_expanded:
             self.is_expanded = True
             self.setPlaceholderText("Search scripts... (Ctrl+F)")
+            self.setToolTip(
+                "Filter by section:\n/D - Show daily notes only\n/W - Show weekly notes only\n\nExample: /D win (searches 'win' in daily notes)"
+            )
 
             # Animate width
             self.width_animation.setStartValue(self.collapsed_width)
@@ -118,6 +122,15 @@ class ExpandableSearchBar(QLineEdit):
         """Collapse on focus out if empty."""
         self.collapse()
         super().focusOutEvent(event)
+
+    def keyPressEvent(self, event) -> None:
+        """Handle Enter key to execute single search result."""
+        if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+            if self.main_window:
+                self.main_window.execute_single_search_result()
+            event.accept()
+        else:
+            super().keyPressEvent(event)
 
 
 class ScriptThread(QThread):
@@ -237,6 +250,9 @@ class MainWindow(QMainWindow):
         self.exit_shortcut = QShortcut(QKeySequence("Ctrl+Q"), self)
         self.exit_shortcut.activated.connect(self.close)
 
+        self.esc_shortcut = QShortcut(QKeySequence("Esc"), self)
+        self.esc_shortcut.activated.connect(self.close)
+
     def setup_shortcuts(self) -> None:
         """Setup keyboard shortcuts for navigation."""
         # Focus search bar
@@ -286,6 +302,7 @@ class MainWindow(QMainWindow):
 
         # Search bar - expandable from the right
         self.search_input = ExpandableSearchBar()
+        self.search_input.main_window = self  # Set reference to main window
         self.search_input.setFont(QFont(FONT_FAMILY, 10))
         self.search_input.setProperty("SearchBar", True)
         self.search_input.textChanged.connect(self.filter_scripts)
@@ -317,8 +334,10 @@ class MainWindow(QMainWindow):
         self.sections_layout.setContentsMargins(0, 0, 0, 0)
         self.sections_layout.setSpacing(0)
 
-        # Store all script rows for filtering
+        # Store all script rows for filtering (script_row, name, script_type)
         self.all_script_rows = []
+        # Store script information for execution (script_row -> script info)
+        self.script_row_map = {}
 
         # Daily Notes Section
         self.create_collapsible_section("Daily Notes", "daily")
@@ -371,6 +390,8 @@ class MainWindow(QMainWindow):
             self.all_script_rows.append(
                 (script_row, script["name"].lower(), script_type)
             )
+            # Store script info for execution
+            self.script_row_map[script_row] = script
 
         # Set the content widget
         section_group.setWidget(cards_widget)
@@ -379,13 +400,45 @@ class MainWindow(QMainWindow):
         self.sections_layout.addWidget(section_group)
 
     def filter_scripts(self, text: str) -> None:
-        """Filter script rows based on search text."""
+        """Filter script rows based on search text with support for D: and W: prefixes."""
         search_text: str = text.lower().strip()
+
+        # Check for filter prefix
+        filter_type = None
+        if search_text.startswith("/d"):
+            filter_type = "daily"
+            search_text = search_text[2:].strip()
+        elif search_text.startswith("/w"):
+            filter_type = "weekly"
+            search_text = search_text[2:].strip()
+
         for script_row, name, script_type in self.all_script_rows:
+            # First check if section filter matches
+            if filter_type and script_type != filter_type:
+                script_row.setVisible(False)
+                continue
+
+            # Then check if search text matches
             if search_text == "" or search_text in name or search_text in script_type:
                 script_row.setVisible(True)
             else:
                 script_row.setVisible(False)
+
+    def execute_single_search_result(self) -> None:
+        """Execute the script if there's only one visible search result."""
+        visible_scripts = [
+            (script_row, name, script_type)
+            for script_row, name, script_type in self.all_script_rows
+            if script_row.isVisible()
+        ]
+
+        # Only execute if there's exactly one visible result
+        if len(visible_scripts) == 1:
+            script_row = visible_scripts[0][0]
+            # Get the script info and execute it
+            script = self.script_row_map.get(script_row)
+            if script:
+                self.run_script(script["name"], script["path"])
 
     def run_script(self, script_name: str, script_path: str) -> None:
         """Run a script after getting user input."""
@@ -580,6 +633,7 @@ class MainWindow(QMainWindow):
         """Refresh the UI after settings change."""
         # Clear existing script rows
         self.all_script_rows.clear()
+        self.script_row_map.clear()
 
         # Clear the sections layout
         while self.sections_layout.count() > 0:

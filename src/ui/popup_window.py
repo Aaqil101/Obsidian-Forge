@@ -6,7 +6,6 @@ Styled with Tokyo Night theme, adapted from Blender-Launcher-V2 popup design.
 # ----- Built-In Modules -----
 import textwrap
 from enum import Enum
-from typing import Optional
 
 # ----- PySide6 Modules -----
 from PySide6.QtCore import Qt, Signal
@@ -20,15 +19,6 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-# ----- Core Modules -----
-from src.core import (
-    BORDER_RADIUS_SMALL,
-    FONT_FAMILY,
-    FONT_SIZE_TEXT,
-    PADDING_SMALL,
-    SPACING_SMALL,
-)
-
 # ----- Utils Modules -----
 from src.utils import get_icon
 
@@ -36,10 +26,10 @@ from src.utils import get_icon
 class PopupIcon(Enum):
     """Icon types for popup windows."""
 
-    WARNING = "exclamation.svg"
-    INFO = "info.svg"
-    ERROR = "error.svg"
-    SUCCESS = "check.svg"
+    WARNING = "popup/exclamation.svg"
+    INFO = "popup/info.svg"
+    ERROR = "popup/error.svg"
+    SUCCESS = "popup/check.svg"
     NONE = None
 
 
