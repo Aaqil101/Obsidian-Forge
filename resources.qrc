@@ -35,22 +35,46 @@
         <file>assets/popup/exclamation.svg</file>
         <file>assets/popup/info.svg</file>
 
-        <!-- Icons -->
-        <file>assets/about.svg</file>
-        <file>assets/delete.svg</file>
-        <file>assets/exclude.svg</file>
-        <file>assets/expand_less.svg</file>
-        <file>assets/expand_more.svg</file>
-        <file>assets/home.svg</file>
-        <file>assets/search.svg</file>
-        <file>assets/settings.svg</file>
+        <!-- Check Icons -->
         <file>assets/square_check.svg</file>
         <file>assets/square_check_filled.svg</file>
+        <file>assets/check_outline.svg</file>
+        <file>assets/check_bold.svg</file>
+        <file>assets/check_all.svg</file>
+
+        <!-- Expand Icons -->
+        <file>assets/expand_less.svg</file>
+        <file>assets/expand_more.svg</file>
+
+        <!-- Settings Icons -->
+        <file>assets/settings.svg</file>
+        <file>assets/settings_outline.svg</file>
+        <file>assets/settings_advanced.svg</file>
+
+        <!-- Cancel Icons -->
         <file>assets/cancel.svg</file>
         <file>assets/cancel_outline.svg</file>
+
+        <!-- Save Icons -->
         <file>assets/save_outline.svg</file>
         <file>assets/save_filled.svg</file>
         <file>assets/save_check_filled.svg</file>
+
+        <!-- Folder Icons -->
+        <file>assets/folder.svg</file>
+        <file>assets/folder_outline.svg</file>
+        <file>assets/folder_open.svg</file>
+
+        <!-- Trash Icons -->
+        <file>assets/trash.svg</file>
+        <file>assets/trash_blank.svg</file>
+        <file>assets/trash_outline.svg</file>
+
+        <!-- Icons -->
+        <file>assets/about.svg</file>
+        <file>assets/exclude.svg</file>
+        <file>assets/home.svg</file>
+        <file>assets/search.svg</file>
 
         <!-- Fonts -->
         <file>assets/fonts/OpenSans-SemiBold.ttf</file>
