@@ -22,10 +22,10 @@ from src.core import APP_NAME, APP_VERSION, AUTHOR, DESCRIPTION, WEBSITE_URL
 # ----- Utils Modules-----
 from src.utils import (
     COLOR_CYAN,
-    COLOR_DARK_BLUE,
     COLOR_LIGHT_BLUE,
     COLOR_PURPLE,
     COLOR_RED,
+    THEME_TEXT_PRIMARY,
     HoverIconButtonSVG,
     get_icon,
 )
@@ -229,11 +229,11 @@ class AboutDialog(QDialog):
         close_btn = HoverIconButtonSVG(
             normal_icon="cancel_outline.svg",
             hover_icon="cancel_outline.svg",
-            hover_color=f"{COLOR_DARK_BLUE}",
+            hover_color=f"{THEME_TEXT_PRIMARY}",
             pressed_icon="cancel.svg",
             pressed_color=f"{COLOR_RED}",
             icon_size=14,
-            text="&Close",
+            text="&Cancel",
         )
         close_btn.setObjectName("AboutCloseButton")
         close_btn.setCursor(Qt.CursorShape.PointingHandCursor)

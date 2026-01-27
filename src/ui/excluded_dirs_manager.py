@@ -27,10 +27,13 @@ from src.ui import FileDialog, PopupIcon, PopupWindow
 
 # ----- Utils Modules -----
 from src.utils import (
+    COLOR_GREEN,
     COLOR_ORANGE,
+    COLOR_RED,
     THEME_TEXT_PRIMARY,
     THEME_TEXT_SECONDARY,
     HoverIconButton,
+    HoverIconButtonSVG,
     Icons,
     get_icon,
 )
@@ -158,11 +161,14 @@ class ExcludedDirsManager(QDialog):
         layout.addStretch()
 
         # Browse button
-        browse_btn = HoverIconButton(
-            normal_icon=Icons.FOLDER_OUTLINE,
-            hover_icon=Icons.FOLDER,
-            pressed_icon=Icons.FOLDER_OPEN,
-            text=f"{Icons.FOLDER_OUTLINE}",
+        browse_btn = HoverIconButtonSVG(
+            normal_icon="folder_outline.svg",
+            normal_color=f"{THEME_TEXT_PRIMARY}",
+            hover_icon="folder.svg",
+            hover_color=f"{THEME_TEXT_PRIMARY}",
+            pressed_icon="folder_open.svg",
+            pressed_color=f"{THEME_TEXT_PRIMARY}",
+            icon_size=14,
         )
         browse_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
         browse_btn.setProperty("BrowseButton", True)
@@ -174,10 +180,14 @@ class ExcludedDirsManager(QDialog):
         layout.addWidget(browse_btn)
 
         # Cancel button
-        cancel_btn = HoverIconButton(
-            normal_icon=Icons.CANCEL_OUTLINE,
-            hover_icon=Icons.CANCEL,
-            text="Cancel",
+        cancel_btn = HoverIconButtonSVG(
+            normal_icon="cancel_outline.svg",
+            hover_icon="cancel_outline.svg",
+            hover_color=f"{THEME_TEXT_PRIMARY}",
+            pressed_icon="cancel.svg",
+            pressed_color=f"{COLOR_RED}",
+            icon_size=14,
+            text="&Cancel",
         )
         cancel_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
         cancel_btn.setProperty("CancelButton", True)
@@ -187,11 +197,15 @@ class ExcludedDirsManager(QDialog):
         layout.addWidget(cancel_btn)
 
         # Remove button
-        remove_btn = HoverIconButton(
-            normal_icon=Icons.TRASH_OUTLINE,
-            hover_icon=Icons.TRASH,
-            pressed_icon=Icons.TRASH_OCT,
-            text="Remove",
+        remove_btn = HoverIconButtonSVG(
+            normal_icon="trash_outline.svg",
+            normal_color=f"{COLOR_RED}",
+            hover_icon="trash.svg",
+            hover_color=f"{COLOR_RED}",
+            pressed_icon="trash_blank.svg",
+            pressed_color=f"{COLOR_RED}",
+            icon_size=14,
+            text="&Remove",
         )
         remove_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
         remove_btn.setProperty("RemoveButton", True)
@@ -202,11 +216,15 @@ class ExcludedDirsManager(QDialog):
         layout.addWidget(remove_btn)
 
         # Save button
-        save_btn = HoverIconButton(
-            normal_icon=Icons.SAVE,
-            hover_icon=Icons.CONTENT_SAVE,
-            pressed_icon=Icons.CONTENT_SAVE_CHECK,
-            text="Save",
+        save_btn = HoverIconButtonSVG(
+            normal_icon="save_outline.svg",
+            normal_color=f"{COLOR_GREEN}",
+            hover_icon="save_filled.svg",
+            hover_color=f"{COLOR_GREEN}",
+            pressed_icon="save_check_filled.svg",
+            pressed_color=f"{COLOR_GREEN}",
+            icon_size=14,
+            text="&Save",
         )
         save_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
         save_btn.setFixedHeight(30)

@@ -43,9 +43,7 @@ from src.utils import (
     COLOR_ORANGE,
     COLOR_RED,
     THEME_TEXT_PRIMARY,
-    HoverIconButton,
     HoverIconButtonSVG,
-    Icons,
     get_icon,
 )
 
@@ -118,11 +116,14 @@ class SettingsDialog(QDialog):
         vault_path_layout.addWidget(self.vault_path_input, 1)
 
         # Browse button
-        vault_browse_btn = HoverIconButton(
-            normal_icon=Icons.FOLDER_OUTLINE,
-            hover_icon=Icons.FOLDER,
-            pressed_icon=Icons.FOLDER_OPEN,
-            text=f"{Icons.FOLDER_OUTLINE} ",
+        vault_browse_btn = HoverIconButtonSVG(
+            normal_icon="folder_outline.svg",
+            normal_color=f"{THEME_TEXT_PRIMARY}",
+            hover_icon="folder.svg",
+            hover_color=f"{THEME_TEXT_PRIMARY}",
+            pressed_icon="folder_open.svg",
+            pressed_color=f"{THEME_TEXT_PRIMARY}",
+            icon_size=14,
         )
         vault_browse_btn.setProperty("BrowseButton", True)
         vault_browse_btn.setShortcut(QKeySequence("Ctrl+Shift+B"))
@@ -207,11 +208,14 @@ class SettingsDialog(QDialog):
         nodejs_path_layout.addWidget(self.nodejs_path_input, 1)
 
         # Browse button
-        nodejs_browse_btn = HoverIconButton(
-            normal_icon=Icons.FOLDER_OUTLINE,
-            hover_icon=Icons.FOLDER,
-            pressed_icon=Icons.FOLDER_OPEN,
-            text=f"{Icons.FOLDER_OUTLINE}",
+        nodejs_browse_btn = HoverIconButtonSVG(
+            normal_icon="folder_outline.svg",
+            normal_color=f"{THEME_TEXT_PRIMARY}",
+            hover_icon="folder.svg",
+            hover_color=f"{THEME_TEXT_PRIMARY}",
+            pressed_icon="folder_open.svg",
+            pressed_color=f"{THEME_TEXT_PRIMARY}",
+            icon_size=14,
         )
         nodejs_browse_btn.setProperty("BrowseButton", True)
         nodejs_browse_btn.setShortcut(QKeySequence("Ctrl+B"))
@@ -267,10 +271,14 @@ class SettingsDialog(QDialog):
         excluded_dirs_layout.addStretch()
 
         # Manage button
-        manage_excluded_btn = HoverIconButton(
-            normal_icon=Icons.SETTINGS,
-            hover_icon=Icons.COG,
-            pressed_icon=Icons.ADVANCED,
+        manage_excluded_btn = HoverIconButtonSVG(
+            normal_icon="settings_outline.svg",
+            normal_color=f"{THEME_TEXT_PRIMARY}",
+            hover_icon="settings.svg",
+            hover_color=f"{THEME_TEXT_PRIMARY}",
+            pressed_icon="settings_advanced.svg",
+            pressed_color=f"{THEME_TEXT_PRIMARY}",
+            icon_size=14,
             text="&Manage",
         )
         manage_excluded_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
@@ -306,10 +314,14 @@ class SettingsDialog(QDialog):
         button_layout.setSpacing(SPACING)
         button_layout.addStretch()
 
-        validate_btn = HoverIconButton(
-            normal_icon=Icons.VALIDATE_HOVER,
-            hover_icon=Icons.VALIDATE_NORMAL,
-            pressed_icon=Icons.VALIDATE_PRESSED,
+        validate_btn = HoverIconButtonSVG(
+            normal_icon="check_outline.svg",
+            normal_color=f"{COLOR_ORANGE}",
+            hover_icon="check_bold.svg",
+            hover_color=f"{COLOR_ORANGE}",
+            pressed_icon="check_all.svg",
+            pressed_color=f"{COLOR_ORANGE}",
+            icon_size=14,
             text="&Validate",
         )
         validate_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
@@ -328,6 +340,7 @@ class SettingsDialog(QDialog):
             hover_color=f"{COLOR_GREEN}",
             pressed_icon="save_check_filled.svg",
             pressed_color=f"{COLOR_GREEN}",
+            icon_size=14,
             text="&Save",
         )
         save_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
@@ -343,8 +356,10 @@ class SettingsDialog(QDialog):
         cancel_btn = HoverIconButtonSVG(
             normal_icon="cancel_outline.svg",
             hover_icon="cancel_outline.svg",
+            hover_color=f"{THEME_TEXT_PRIMARY}",
             pressed_icon="cancel.svg",
             pressed_color=f"{COLOR_RED}",
+            icon_size=14,
             text="&Cancel",
         )
         cancel_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))

@@ -4,6 +4,7 @@ from src.utils import (
     COLOR_GREEN,
     COLOR_LIGHT_BLUE,
     COLOR_ORANGE,
+    COLOR_RED,
     THEME_BORDER,
     THEME_TEXT_PRIMARY,
     AccentTheme,
@@ -127,6 +128,7 @@ def qss() -> str:
     }}
     QPushButton[CancelButton="true"]:pressed {{
         background-color: {accent['pressed_background']};
+        color: {COLOR_RED};
     }}
     QPushButton[CancelButton="true"]:focus {{
         background-color: {accent['hover_background']};
