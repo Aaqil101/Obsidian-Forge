@@ -22,6 +22,10 @@ def qss() -> str:
         background-color: #4F4F4F;
     }}
 
+    QListView::item:focus {{
+        background-color: #3B5689;
+    }}
+
     QListView::item:selected {{
         background-color: #3B5689;
     }}
