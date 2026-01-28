@@ -53,6 +53,7 @@ def qss() -> str:
     }}
     #AboutCloseButton:pressed {{
         background-color: {accent['pressed_background']};
+        color: {COLOR_RED};
     }}
 
     /* === Browse Button === */
