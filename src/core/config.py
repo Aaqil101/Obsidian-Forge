@@ -120,6 +120,8 @@ class Config:
             "custom_utils_scripts_path": "",
             "custom_time_path": "",
             "excluded_directories": [".obsidian", ".space", ".trash"],
+            "start_minimized": False,
+            "enable_autostart": False,
         }
 
     def _increment_version(self) -> None:
@@ -222,6 +224,26 @@ class Config:
     def excluded_directories(self, directories: list[str]) -> None:
         """Set excluded directories list."""
         self.settings["excluded_directories"] = directories
+
+    @property
+    def start_minimized(self) -> bool:
+        """Get start minimized setting."""
+        return self.settings.get("start_minimized", False)
+
+    @start_minimized.setter
+    def start_minimized(self, value: bool) -> None:
+        """Set start minimized setting."""
+        self.settings["start_minimized"] = value
+
+    @property
+    def enable_autostart(self) -> bool:
+        """Get enable autostart setting."""
+        return self.settings.get("enable_autostart", False)
+
+    @enable_autostart.setter
+    def enable_autostart(self, value: bool) -> None:
+        """Set enable autostart setting."""
+        self.settings["enable_autostart"] = value
 
     def get_daily_scripts_path(self) -> Optional[Path]:
         """Get full path to daily scripts directory."""

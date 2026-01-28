@@ -10,6 +10,7 @@ from pathlib import Path
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QCursor, QFont, QKeySequence
 from PySide6.QtWidgets import (
+    QCheckBox,
     QComboBox,
     QDialog,
     QFileDialog,
@@ -24,15 +25,7 @@ from PySide6.QtWidgets import (
 )
 
 # ----- Core Modules-----
-from src.core.config import (
-    APP_NAME,
-    FONT_FAMILY,
-    FONT_SIZE_TEXT,
-    PADDING_SMALL,
-    SPACING,
-    SPACING_SMALL,
-    Config,
-)
+from src.core.config import APP_NAME, FONT_FAMILY, Config
 
 # ----- UI Modules-----
 from src.ui.widgets import SettingsGroup
@@ -41,15 +34,22 @@ from src.ui.widgets import SettingsGroup
 from src.utils import (
     COLOR_GREEN,
     COLOR_ORANGE,
+    COLOR_PURPLE,
     COLOR_RED,
     THEME_TEXT_PRIMARY,
+    AccentTheme,
     HoverIconButtonSVG,
+    disable_autostart,
+    enable_autostart,
     get_icon,
+    is_autostart_enabled,
 )
 
 
 class SettingsDialog(QDialog):
     """Dialog for configuring application settings."""
+
+    _shared_color_theme: dict[str, str] | None = None
 
     def __init__(self, config: Config, parent=None) -> None:
         super().__init__(parent)
@@ -58,11 +58,20 @@ class SettingsDialog(QDialog):
         self.setMinimumWidth(700)
         self.setMinimumHeight(630)
 
+        # Use shared accent theme, initialize it once on first instance
+        if SettingsDialog._shared_color_theme is None:
+            SettingsDialog._shared_color_theme = AccentTheme.get()
+        self.color_theme: dict[str, str] = SettingsDialog._shared_color_theme
+
         # Store comboboxes for path selection
         self.daily_path_combo: QComboBox = None
         self.weekly_path_combo: QComboBox = None
         self.utils_path_combo: QComboBox = None
         self.time_path_combo: QComboBox = None
+
+        # Store checkboxes for tray settings
+        self.start_minimized_checkbox: QCheckBox = None
+        self.autostart_checkbox: QCheckBox = None
 
         self.setup_ui()
         self.load_settings()
@@ -70,10 +79,8 @@ class SettingsDialog(QDialog):
     def setup_ui(self) -> None:
         """Setup the user interface with card-based collapsible sections."""
         main_layout = QVBoxLayout()
-        main_layout.setContentsMargins(
-            PADDING_SMALL, PADDING_SMALL, PADDING_SMALL, PADDING_SMALL
-        )
-        main_layout.setSpacing(SPACING_SMALL)
+        main_layout.setContentsMargins(12, 12, 12, 12)
+        main_layout.setSpacing(8)
 
         # Scroll area for settings content
         scroll_area = QScrollArea()
@@ -93,18 +100,20 @@ class SettingsDialog(QDialog):
         vault_content = QWidget()
         vault_content_layout = QVBoxLayout(vault_content)
         vault_content_layout.setContentsMargins(8, 8, 8, 8)
-        vault_content_layout.setSpacing(SPACING)
+        vault_content_layout.setSpacing(12)
 
         # Vault path row with icon
         vault_path_row = QWidget()
         vault_path_layout = QHBoxLayout(vault_path_row)
         vault_path_layout.setContentsMargins(0, 0, 0, 0)
-        vault_path_layout.setSpacing(SPACING_SMALL)
+        vault_path_layout.setSpacing(8)
 
         # Obsidian icon
         vault_icon_label = QLabel()
         vault_icon_label.setPixmap(
-            get_icon("application/obsidian.svg").pixmap(QSize(20, 20))
+            get_icon(
+                "application/obsidian.svg", color=self.color_theme["border"]
+            ).pixmap(QSize(20, 20))
         )
         vault_icon_label.setFixedSize(20, 20)
         vault_path_layout.addWidget(vault_icon_label)
@@ -147,7 +156,7 @@ class SettingsDialog(QDialog):
 
         # Script Paths label (compact)
         script_paths_label = QLabel("Script Paths:")
-        script_paths_label.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT - 1))
+        script_paths_label.setFont(QFont(FONT_FAMILY, 9))
         script_paths_label.setStyleSheet(
             "color: rgba(192, 202, 245, 0.7); padding-left: 8px;"
         )
@@ -168,7 +177,7 @@ class SettingsDialog(QDialog):
 
         # Compact info label
         script_paths_info = QLabel("Select custom paths or leave as (Default)")
-        script_paths_info.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT - 2))
+        script_paths_info.setFont(QFont(FONT_FAMILY, 10 - 2))
         script_paths_info.setStyleSheet(
             "color: rgba(192, 202, 245, 0.5); padding-left: 8px;"
         )
@@ -183,18 +192,18 @@ class SettingsDialog(QDialog):
         nodejs_content = QWidget()
         nodejs_content_layout = QVBoxLayout(nodejs_content)
         nodejs_content_layout.setContentsMargins(8, 8, 8, 8)
-        nodejs_content_layout.setSpacing(SPACING)
+        nodejs_content_layout.setSpacing(12)
 
         # Node.js path row with icon
         nodejs_path_row = QWidget()
         nodejs_path_layout = QHBoxLayout(nodejs_path_row)
         nodejs_path_layout.setContentsMargins(0, 0, 0, 0)
-        nodejs_path_layout.setSpacing(SPACING_SMALL)
+        nodejs_path_layout.setSpacing(8)
 
         # Node.js icon
         nodejs_icon_label = QLabel()
         nodejs_icon_label.setPixmap(
-            get_icon("application/nodejs.svg", color=f"{COLOR_ORANGE}").pixmap(
+            get_icon("application/nodejs.svg", color=self.color_theme["border"]).pixmap(
                 QSize(20, 20)
             )
         )
@@ -231,7 +240,7 @@ class SettingsDialog(QDialog):
             "Otherwise, specify the full path to node.exe"
         )
         nodejs_info.setProperty("InfoLabel", True)
-        nodejs_info.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT - 1))
+        nodejs_info.setFont(QFont(FONT_FAMILY, 9))
         nodejs_info.setStyleSheet(
             "color: rgba(192, 202, 245, 0.6); padding-left: 28px;"
         )
@@ -246,25 +255,27 @@ class SettingsDialog(QDialog):
         scan_content = QWidget()
         scan_content_layout = QVBoxLayout(scan_content)
         scan_content_layout.setContentsMargins(8, 8, 8, 8)
-        scan_content_layout.setSpacing(SPACING)
+        scan_content_layout.setSpacing(12)
 
         # Excluded directories row
         excluded_dirs_row = QWidget()
         excluded_dirs_layout = QHBoxLayout(excluded_dirs_row)
         excluded_dirs_layout.setContentsMargins(0, 0, 0, 0)
-        excluded_dirs_layout.setSpacing(SPACING_SMALL)
+        excluded_dirs_layout.setSpacing(8)
 
         # Icon label using SVG
         icon_label = QLabel()
         icon_label.setPixmap(
-            get_icon("exclude.svg", color=f"{COLOR_ORANGE}").pixmap(QSize(20, 20))
+            get_icon("exclude.svg", color=self.color_theme["border"]).pixmap(
+                QSize(20, 20)
+            )
         )
         icon_label.setFixedSize(20, 20)
         excluded_dirs_layout.addWidget(icon_label)
 
         # Description label
         desc_label = QLabel("Excluded Directories")
-        desc_label.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
+        desc_label.setFont(QFont(FONT_FAMILY, 10))
         desc_label.setStyleSheet(f"color: {THEME_TEXT_PRIMARY};")
         excluded_dirs_layout.addWidget(desc_label)
 
@@ -281,7 +292,7 @@ class SettingsDialog(QDialog):
             icon_size=14,
             text="&Manage",
         )
-        manage_excluded_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
+        manage_excluded_btn.setFont(QFont(FONT_FAMILY, 10))
         manage_excluded_btn.setProperty("BrowseButton", True)
         manage_excluded_btn.setFixedHeight(32)
         manage_excluded_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
@@ -295,7 +306,7 @@ class SettingsDialog(QDialog):
             "Manage directory names to exclude from vault scans.\n"
             "These directories will be hidden from folder searches and file scans."
         )
-        excluded_dirs_info.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT - 1))
+        excluded_dirs_info.setFont(QFont(FONT_FAMILY, 9))
         excluded_dirs_info.setStyleSheet(
             "color: rgba(192, 202, 245, 0.6); padding-left: 28px;"
         )
@@ -304,6 +315,78 @@ class SettingsDialog(QDialog):
         scan_section.setWidget(scan_content)
         sections_layout.addWidget(scan_section)
 
+        # === Background & Tray Section ===
+        tray_section = SettingsGroup("Background & Tray", parent=sections_container)
+
+        tray_content = QWidget()
+        tray_content_layout = QVBoxLayout(tray_content)
+        tray_content_layout.setContentsMargins(8, 8, 8, 8)
+        tray_content_layout.setSpacing(12)
+
+        # Start minimized checkbox
+        start_minimized_row = QWidget()
+        start_minimized_layout = QHBoxLayout(start_minimized_row)
+        start_minimized_layout.setContentsMargins(0, 0, 0, 0)
+        start_minimized_layout.setSpacing(8)
+
+        self.start_minimized_checkbox = QCheckBox("Start minimized to system tray")
+        self.start_minimized_checkbox.setFont(QFont(FONT_FAMILY, 10))
+        self.start_minimized_checkbox.setIconSize(QSize(20, 20))
+        self.start_minimized_checkbox.toggled.connect(self._update_checkbox_icons)
+        start_minimized_layout.addWidget(self.start_minimized_checkbox)
+        start_minimized_layout.addStretch()
+
+        tray_content_layout.addWidget(start_minimized_row)
+
+        # Start minimized info
+        start_minimized_info = QLabel(
+            "When enabled, the application will start hidden in the system tray.\n"
+            "Double-click the tray icon to show the window."
+        )
+        start_minimized_info.setFont(QFont(FONT_FAMILY, 9))
+        start_minimized_info.setStyleSheet(
+            "color: rgba(192, 202, 245, 0.6); padding-left: 28px;"
+        )
+        tray_content_layout.addWidget(start_minimized_info)
+
+        # Separator
+        separator = QFrame()
+        separator.setFrameShape(QFrame.Shape.HLine)
+        separator.setStyleSheet(
+            "background-color: rgba(192, 202, 245, 0.1); margin: 8px 0px;"
+        )
+        separator.setFixedHeight(1)
+        tray_content_layout.addWidget(separator)
+
+        # Autostart checkbox
+        autostart_row = QWidget()
+        autostart_layout = QHBoxLayout(autostart_row)
+        autostart_layout.setContentsMargins(0, 0, 0, 0)
+        autostart_layout.setSpacing(8)
+
+        self.autostart_checkbox = QCheckBox("Run on Windows startup")
+        self.autostart_checkbox.setFont(QFont(FONT_FAMILY, 10))
+        self.autostart_checkbox.setIconSize(QSize(20, 20))
+        self.autostart_checkbox.toggled.connect(self._update_checkbox_icons)
+        autostart_layout.addWidget(self.autostart_checkbox)
+        autostart_layout.addStretch()
+
+        tray_content_layout.addWidget(autostart_row)
+
+        # Autostart info
+        autostart_info = QLabel(
+            "Automatically launch Obsidian Forge when Windows starts.\n"
+            "The application will start minimized to the system tray if that option is enabled."
+        )
+        autostart_info.setFont(QFont(FONT_FAMILY, 9))
+        autostart_info.setStyleSheet(
+            "color: rgba(192, 202, 245, 0.6); padding-left: 28px;"
+        )
+        tray_content_layout.addWidget(autostart_info)
+
+        tray_section.setWidget(tray_content)
+        sections_layout.addWidget(tray_section)
+
         sections_layout.addStretch()
 
         scroll_area.setWidget(sections_container)
@@ -311,7 +394,7 @@ class SettingsDialog(QDialog):
 
         # Buttons
         button_layout = QHBoxLayout()
-        button_layout.setSpacing(SPACING)
+        button_layout.setSpacing(12)
         button_layout.addStretch()
 
         validate_btn = HoverIconButtonSVG(
@@ -324,7 +407,7 @@ class SettingsDialog(QDialog):
             icon_size=14,
             text="&Validate",
         )
-        validate_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
+        validate_btn.setFont(QFont(FONT_FAMILY, 10))
         validate_btn.setProperty("ValidateButton", True)
         validate_btn.setFixedHeight(36)
         validate_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
@@ -343,7 +426,7 @@ class SettingsDialog(QDialog):
             icon_size=14,
             text="&Save",
         )
-        save_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
+        save_btn.setFont(QFont(FONT_FAMILY, 10))
         save_btn.setProperty("SaveButton", True)
         save_btn.setFixedHeight(36)
         save_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
@@ -362,7 +445,7 @@ class SettingsDialog(QDialog):
             icon_size=14,
             text="&Cancel",
         )
-        cancel_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
+        cancel_btn.setFont(QFont(FONT_FAMILY, 10))
         cancel_btn.setProperty("CancelButton", True)
         cancel_btn.setShortcut(QKeySequence("Esc"))
         cancel_btn.setFixedHeight(36)
@@ -387,7 +470,7 @@ class SettingsDialog(QDialog):
         row = QWidget()
         layout = QHBoxLayout(row)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(SPACING_SMALL)
+        layout.setSpacing(8)
 
         # Indent spacer
         indent = QLabel()
@@ -396,7 +479,7 @@ class SettingsDialog(QDialog):
 
         # Label (compact)
         label = QLabel(label_text)
-        label.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT - 1))
+        label.setFont(QFont(FONT_FAMILY, 9))
         label.setStyleSheet("color: rgba(192, 202, 245, 0.7);")
         label.setMinimumWidth(60)
         label.setMaximumWidth(60)
@@ -405,7 +488,7 @@ class SettingsDialog(QDialog):
         # ComboBox (compact)
         combo = QComboBox()
         combo.setProperty("MainComboBox", True)
-        combo.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT - 1))
+        combo.setFont(QFont(FONT_FAMILY, 9))
         combo.setMinimumHeight(26)
         combo.setMaximumHeight(26)
         combo.addItem("(Default)")
@@ -450,6 +533,13 @@ class SettingsDialog(QDialog):
         if self.config.custom_time_path:
             self._set_combobox_value(self.time_path_combo, self.config.custom_time_path)
 
+        # Load tray settings
+        self.start_minimized_checkbox.setChecked(self.config.start_minimized)
+        self.autostart_checkbox.setChecked(is_autostart_enabled())
+
+        # Initialize checkbox icons
+        self._update_checkbox_icons()
+
         self.vault_path_input.setFocus()
 
     def _set_combobox_value(self, combo: QComboBox, value: str) -> None:
@@ -465,6 +555,28 @@ class SettingsDialog(QDialog):
             # Add the value and select it
             combo.addItem(value)
             combo.setCurrentText(value)
+
+    def _update_checkbox_icons(self) -> None:
+        """Update checkbox icons based on checked state."""
+        # Update Start Minimized checkbox
+        if self.start_minimized_checkbox.isChecked():
+            self.start_minimized_checkbox.setIcon(
+                get_icon("square_check_filled.svg", color=self.color_theme["border"])
+            )
+        else:
+            self.start_minimized_checkbox.setIcon(
+                get_icon("square_check.svg", color=self.color_theme["border"])
+            )
+
+        # Update Autostart checkbox
+        if self.autostart_checkbox.isChecked():
+            self.autostart_checkbox.setIcon(
+                get_icon("square_check_filled.svg", color=self.color_theme["border"])
+            )
+        else:
+            self.autostart_checkbox.setIcon(
+                get_icon("square_check.svg", color=self.color_theme["border"])
+            )
 
     def browse_vault_path(self) -> None:
         """Open file dialog to select vault path."""
@@ -653,6 +765,21 @@ class SettingsDialog(QDialog):
             if self.time_path_combo.currentText() == "(Default)"
             else self.time_path_combo.currentText()
         )
+
+        # Save tray settings
+        self.config.start_minimized = self.start_minimized_checkbox.isChecked()
+
+        # Handle autostart
+        autostart_enabled = self.autostart_checkbox.isChecked()
+        if autostart_enabled:
+            if not enable_autostart():
+                QMessageBox.warning(
+                    self,
+                    "Autostart Warning",
+                    "Failed to enable autostart. Please check permissions.",
+                )
+        else:
+            disable_autostart()
 
         if self.config.save_settings():
             errors: list[str] = self.config.validate_paths()

@@ -9,14 +9,14 @@ import sys
 from pathlib import Path
 
 # ----- PySide6 Modules-----
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QSystemTrayIcon
 
 # ----- Resources-----
 # Import Qt compiled resources (needed for :/assets/ paths in stylesheets)
 import src.resources_rc  # noqa: F401
 
 # ----- Core Modules-----
-from src.core.config import APP_NAME
+from src.core.config import APP_NAME, Config
 
 # ----- UI Modules-----
 from src.ui import MainWindow
@@ -38,8 +38,21 @@ def main():
     # Apply stylesheet to entire application
     app.setStyleSheet(build_stylesheet())
 
+    # Create main window
     window = MainWindow()
-    window.show()
+
+    # Check if should start minimized
+    config = Config()
+
+    if not config.start_minimized:
+        window.show()
+    else:
+        # Window is created but hidden - tray icon is already visible
+        window.tray_manager.show_notification(
+            "Obsidian Forge",
+            "Application started in background. Double-click tray icon to open.",
+            QSystemTrayIcon.MessageIcon.Information,
+        )
 
     sys.exit(app.exec())
 

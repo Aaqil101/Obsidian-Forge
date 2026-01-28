@@ -1,5 +1,10 @@
 """Utility modules for Obsidian Forge application."""
 
+from src.utils.autostart import (
+    disable_autostart,
+    enable_autostart,
+    is_autostart_enabled,
+)
 from src.utils.color import (
     COLOR_COMPLETE,
     COLOR_CYAN,
@@ -31,6 +36,9 @@ __all__: list[str] = [
     "get_icon",
     "HoverIconButton",
     "HoverIconButtonSVG",
+    "enable_autostart",
+    "disable_autostart",
+    "is_autostart_enabled",
     "COLOR_COMPLETE",
     "COLOR_CYAN",
     "COLOR_DARK_BLUE",

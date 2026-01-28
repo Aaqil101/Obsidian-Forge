@@ -4,12 +4,18 @@ Styled with Tokyo Night theme following GitUI's design patterns.
 """
 
 # ----- Built-In Modules-----
+import os
+import sys
 from pathlib import Path
+
+# ----- Keyboard Modules-----
+import keyboard
 
 # ----- PySide6 Modules-----
 from PySide6.QtCore import QEasingCurve, QPropertyAnimation, QSize, Qt, QThread, Signal
 from PySide6.QtGui import QCursor, QFont, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
+    QApplication,
     QDialog,
     QFrame,
     QGridLayout,
@@ -18,6 +24,7 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QMainWindow,
     QScrollArea,
+    QSystemTrayIcon,
     QTextEdit,
     QToolButton,
     QVBoxLayout,
@@ -39,8 +46,10 @@ from src.core import (
 from src.ui import components
 from src.ui.about_dialog import AboutDialog
 from src.ui.popup_window import PopupIcon, PopupWindow
+from src.ui.script_search_dialog import ScriptSearchDialog
 from src.ui.settings_dialog import SettingsDialog
 from src.ui.sleep_dialog import SleepInputDialog
+from src.ui.system_tray import SystemTrayManager
 from src.ui.widgets import ScriptRow, SettingsGroup
 
 # ----- Utils Modules-----
@@ -180,11 +189,30 @@ class SleepScriptThread(QThread):
 class MainWindow(QMainWindow):
     """Main application window."""
 
+    # Signal for thread-safe script search dialog opening
+    open_script_search_signal = Signal()
+
     def __init__(self) -> None:
         super().__init__()
         self.config = Config()
         self.executor = ScriptExecutor(self.config)
         self.script_thread = None
+        self.keyboard_hotkey_registered = False
+
+        # Connect the signal to the method for thread-safe access
+        self.open_script_search_signal.connect(
+            self._show_script_search, Qt.ConnectionType.QueuedConnection
+        )
+
+        # Setup system tray
+        self.tray_manager = SystemTrayManager(self.executor, self)
+        self._setup_tray_connections()
+
+        # Script search dialog (lazy initialization)
+        self.script_search_dialog = None
+
+        # Track window visibility state
+        self._is_window_visible = True
 
         self.setWindowTitle(APP_NAME)
         self.setWindowIcon(get_icon("application/obsidian_forge.svg"))
@@ -194,6 +222,7 @@ class MainWindow(QMainWindow):
         self.setup_ui()
         self.setup_menu()
         self.setup_shortcuts()
+        self.setup_global_hotkeys()
 
         # Center the window on the screen
         self.center_on_screen()
@@ -201,6 +230,83 @@ class MainWindow(QMainWindow):
         # Check if configured
         if not self.config.is_configured():
             self.show_settings()
+
+    def _setup_tray_connections(self) -> None:
+        """Connect system tray signals to MainWindow slots."""
+        self.tray_manager.show_window_requested.connect(self._toggle_window_visibility)
+        self.tray_manager.settings_requested.connect(self.show_settings)
+        self.tray_manager.about_requested.connect(self.show_about)
+        self.tray_manager.exit_requested.connect(self._exit_application)
+        self.tray_manager.script_execution_requested.connect(self._execute_from_tray)
+        self.tray_manager.search_scripts_requested.connect(self._show_script_search)
+
+    def _toggle_window_visibility(self) -> None:
+        """Toggle window show/hide state."""
+        if self.isVisible():
+            self.hide()
+            self._is_window_visible = False
+            self.tray_manager.update_show_hide_text(False)
+        else:
+            self.show()
+            self.activateWindow()
+            self.raise_()
+            self._is_window_visible = True
+            self.tray_manager.update_show_hide_text(True)
+
+    def _execute_from_tray(self, script_name: str, script_path: str) -> None:
+        """Execute a script from the tray menu."""
+        # Show window first to ensure proper parent for dialogs
+        if not self.isVisible():
+            self._toggle_window_visibility()
+        # Execute the script normally
+        self.run_script(script_name, script_path)
+
+    def _show_script_search(self) -> None:
+        """Show the script search dialog from tray."""
+        # Lazy initialization
+        if self.script_search_dialog is None:
+            self.script_search_dialog = ScriptSearchDialog(self.executor, self)
+            self.script_search_dialog.script_selected.connect(self._execute_from_search)
+            self.script_search_dialog.restart_requested.connect(
+                self._restart_application
+            )
+
+        # Show and activate the dialog
+        self.script_search_dialog.show()
+        self.script_search_dialog.activateWindow()
+        self.script_search_dialog.raise_()
+
+    def _execute_from_search(self, script_name: str, script_path: str) -> None:
+        """Execute a script selected from search dialog."""
+        # Hide search dialog
+        if self.script_search_dialog:
+            self.script_search_dialog.hide()
+
+        # Execute the script directly - dialogs can appear without showing main window
+        self.run_script(script_name, script_path)
+
+    def _restart_application(self) -> None:
+        """Restart the application."""
+        # Clean up keyboard hooks before restart
+        self.cleanup_global_hotkeys()
+
+        # Close the current application
+        QApplication.quit()
+
+        # Start a new instance
+        if getattr(sys, "frozen", False):
+            # Running as compiled executable
+            os.execl(sys.executable, sys.executable, *sys.argv)
+        else:
+            # Running as script
+            python = sys.executable
+            script = sys.argv[0]
+            os.execl(python, python, script, *sys.argv[1:])
+
+    def _exit_application(self) -> None:
+        """Properly exit the application."""
+        self.cleanup_global_hotkeys()
+        QApplication.quit()
 
     def center_on_screen(self) -> None:
         """Center the window on the screen."""
@@ -258,6 +364,32 @@ class MainWindow(QMainWindow):
         # Focus search bar
         search_shortcut = QShortcut(QKeySequence("Ctrl+F"), self)
         search_shortcut.activated.connect(lambda: self.search_input.setFocus())
+
+    def setup_global_hotkeys(self) -> None:
+        """Setup global hotkeys that work even when app is minimized."""
+        try:
+            # Register Win+Space to open script search
+            # Use signal emission for thread-safe Qt interaction
+            keyboard.add_hotkey(
+                "win+space",
+                lambda: self.open_script_search_signal.emit(),
+                suppress=False,
+            )
+            self.keyboard_hotkey_registered = True
+        except ImportError:
+            # keyboard library not installed, skip global hotkeys
+            print("Warning: 'keyboard' library not installed. Global hotkeys disabled.")
+        except Exception as e:
+            # Failed to register hotkey (maybe permissions issue)
+            print(f"Warning: Failed to register global hotkey: {e}")
+
+    def cleanup_global_hotkeys(self) -> None:
+        """Clean up global hotkeys on application exit."""
+        if self.keyboard_hotkey_registered:
+            try:
+                keyboard.unhook_all()
+            except Exception:
+                pass  # Ignore cleanup errors
 
     def setup_ui(self) -> None:
         """Setup the user interface with Blender-Launcher-inspired design."""
@@ -604,23 +736,45 @@ class MainWindow(QMainWindow):
         self.statusBar().clearMessage()
 
         if result["success"]:
-            popup = PopupWindow(
-                message=result["output"] or "Script executed successfully!",
-                title="Success",
-                icon=PopupIcon.SUCCESS,
-                info_popup=True,
-                parent=self,
+            message = result["output"] or "Script executed successfully!"
+
+            # Show tray notification
+            self.tray_manager.show_notification(
+                "Script Success",
+                message,
+                QSystemTrayIcon.MessageIcon.Information,
             )
-            popup.exec()
+
+            # Show popup if window is visible
+            if self._is_window_visible:
+                popup = PopupWindow(
+                    message=message,
+                    title="Success",
+                    icon=PopupIcon.SUCCESS,
+                    info_popup=True,
+                    parent=self,
+                )
+                popup.exec()
         else:
-            popup = PopupWindow(
-                message=f"Script execution failed:\n\n{result['error']}",
-                title="Error",
-                icon=PopupIcon.ERROR,
-                info_popup=True,
-                parent=self,
+            error_msg = f"Script execution failed:\n\n{result['error']}"
+
+            # Show tray notification (truncate for notification)
+            self.tray_manager.show_notification(
+                "Script Error",
+                result["error"][:100],
+                QSystemTrayIcon.MessageIcon.Critical,
             )
-            popup.exec()
+
+            # Show popup if window is visible
+            if self._is_window_visible:
+                popup = PopupWindow(
+                    message=error_msg,
+                    title="Error",
+                    icon=PopupIcon.ERROR,
+                    info_popup=True,
+                    parent=self,
+                )
+                popup.exec()
 
     def show_settings(self) -> None:
         """Show the settings dialog."""
@@ -646,7 +800,37 @@ class MainWindow(QMainWindow):
         self.create_collapsible_section("Weekly Notes", "weekly")
         self.sections_layout.addStretch()
 
+        # Clear cached search dialog to reload scripts
+        if self.script_search_dialog:
+            self.script_search_dialog.deleteLater()
+            self.script_search_dialog = None
+
     def show_about(self) -> None:
         """Show the about dialog."""
         dialog = AboutDialog(self)
         dialog.exec()
+
+    def closeEvent(self, event) -> None:
+        """Handle window close event - minimize to tray or close fully with Shift."""
+        # Check if Shift key is held down
+        modifiers = QApplication.keyboardModifiers()
+        if modifiers & Qt.KeyboardModifier.ShiftModifier:
+            # Shift+Click = fully close the application
+            self.cleanup_global_hotkeys()
+            event.accept()
+            QApplication.quit()
+        else:
+            # Normal close = minimize to tray
+            event.ignore()  # Don't actually close
+            self.hide()
+            self._is_window_visible = False
+            self.tray_manager.update_show_hide_text(False)
+
+            # Show notification on first minimize
+            if not hasattr(self, "_first_minimize_shown"):
+                self.tray_manager.show_notification(
+                    "Obsidian Forge",
+                    "Application minimized to system tray. Double-click the tray icon to restore.\nTip: Hold Shift while clicking close to exit completely.",
+                    QSystemTrayIcon.MessageIcon.Information,
+                )
+                self._first_minimize_shown = True
