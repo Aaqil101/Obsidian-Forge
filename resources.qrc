@@ -72,6 +72,9 @@
 
         <!-- Icons -->
         <file>assets/about.svg</file>
+        <file>assets/exit.svg</file>
+        <file>assets/refresh.svg</file>
+        <file>assets/file.svg</file>
         <file>assets/exclude.svg</file>
         <file>assets/home.svg</file>
         <file>assets/search.svg</file>
