@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QListWidget,
     QListWidgetItem,
+    QSizePolicy,
     QVBoxLayout,
     QWidget,
 )
@@ -127,6 +128,7 @@ class ScriptSearchDialog(QDialog):
 
     script_selected = Signal(str, str)  # (script_name, script_path)
     restart_requested = Signal()  # Request application restart
+    exit_requested = Signal()  # Request application exit
 
     def __init__(self, executor: ScriptExecutor, parent=None) -> None:
         """
@@ -158,7 +160,18 @@ class ScriptSearchDialog(QDialog):
         """Setup the dialog UI - Flow Launcher style."""
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(12, 12, 12, 12)
-        main_layout.setSpacing(8)
+        main_layout.setSpacing(0)
+
+        # Container widget for unified appearance
+        self.container = QWidget()
+        self.container.setObjectName("SearchContainer")
+        self.container.setSizePolicy(
+            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum
+        )
+        container_layout = QVBoxLayout(self.container)
+        container_layout.setContentsMargins(0, 0, 0, 0)
+        container_layout.setSpacing(0)
+        container_layout.setSizeConstraint(QVBoxLayout.SizeConstraint.SetDefaultConstraint)
 
         # Search input with icon on right (Spotlight style)
         self.search_input = QLineEdit()
@@ -166,13 +179,14 @@ class ScriptSearchDialog(QDialog):
         self.search_input.setPlaceholderText("Search scripts...")
         self.search_input.setFont(QFont(FONT_FAMILY, 13))
         self.search_input.setMinimumHeight(50)
+        self.search_input.setMaximumHeight(50)
         self.search_input.textChanged.connect(self._filter_scripts)
         # Search icon on the right side (trailing position)
         self.search_input.addAction(
             get_icon("search.svg"),
             QLineEdit.ActionPosition.TrailingPosition,
         )
-        main_layout.addWidget(self.search_input)
+        container_layout.addWidget(self.search_input)
 
         # Script list with larger items (initially hidden)
         self.script_list = QListWidget()
@@ -182,10 +196,17 @@ class ScriptSearchDialog(QDialog):
         self.script_list.setHorizontalScrollBarPolicy(
             Qt.ScrollBarPolicy.ScrollBarAlwaysOff
         )
+        self.script_list.setSizePolicy(
+            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Maximum
+        )
         self.script_list.itemClicked.connect(self._on_item_clicked)
         self.script_list.itemActivated.connect(self._on_item_activated)
+        self.script_list.setMaximumHeight(0)  # Start with 0 height
+        self.script_list.setMinimumHeight(0)
         self.script_list.hide()  # Start hidden
-        main_layout.addWidget(self.script_list)
+        container_layout.addWidget(self.script_list)
+
+        main_layout.addWidget(self.container)
 
     def _apply_styles(self) -> None:
         """Apply Spotlight/Raycast-style CSS to the dialog."""
@@ -195,16 +216,33 @@ class ScriptSearchDialog(QDialog):
             QDialog {
                 background-color: transparent;
             }
-            """
-        )
 
-        # List widget styling with background
-        self.script_list.setStyleSheet(
-            """
-            QListWidget {
+            /* Unified container for search and results */
+            #SearchContainer {
                 background-color: rgba(26, 27, 38, 0.95);
                 border: 1px solid #414868;
                 border-radius: 10px;
+            }
+
+            /* Search bar - rounded top corners only */
+            QLineEdit[SearchBar="true"] {
+                background-color: transparent;
+                border: none;
+                border-bottom: 1px solid rgba(65, 72, 104, 0.5);
+                border-radius: 0px;
+                padding: 0px 16px;
+                color: #c0caf5;
+            }
+
+            QLineEdit[SearchBar="true"]:focus {
+                border-bottom: 1px solid rgba(65, 72, 104, 0.8);
+            }
+
+            /* List widget - rounded bottom corners only */
+            QListWidget {
+                background-color: transparent;
+                border: none;
+                border-radius: 0px;
                 outline: none;
                 padding: 6px;
             }
@@ -240,6 +278,16 @@ class ScriptSearchDialog(QDialog):
             is_system_action=True,
         )
         self.all_scripts.append(restart_item)
+
+        exit_item = ScriptSearchItem(
+            name="Exit Application",
+            path="",
+            icon="exit.svg",
+            script_type="system",
+            display_text="Exit Application",
+            is_system_action=True,
+        )
+        self.all_scripts.append(exit_item)
 
         # Load daily scripts
         daily_scripts = self.executor.get_available_scripts("daily")
@@ -305,8 +353,10 @@ class ScriptSearchDialog(QDialog):
 
         # If search is empty, hide the list and resize window
         if not search_text:
+            self.script_list.setMaximumHeight(0)
+            self.script_list.setMinimumHeight(0)
             self.script_list.hide()
-            self.adjustSize()
+            self._resize_keeping_position()
             return
 
         # Check for filter prefix
@@ -347,16 +397,22 @@ class ScriptSearchDialog(QDialog):
                 "color: #565f89; padding: 16px; text-align: center;"
             )
             placeholder_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            placeholder_item.setSizeHint(QSize(0, 48))
+            placeholder_item.setSizeHint(QSize(0, 50))
             placeholder_item.setFlags(Qt.ItemFlag.NoItemFlags)
             self.script_list.addItem(placeholder_item)
             self.script_list.setItemWidget(placeholder_item, placeholder_label)
-            visible_count = 1  # For height calculation
 
         # Show the list and resize window
+        self.script_list.setMaximumHeight(16777215)  # Reset max height
+        self.script_list.setMinimumHeight(0)  # Reset min height
+        if visible_count == 0:
+            # For placeholder, use exact height needed
+            self.script_list.setFixedHeight(62)  # 50 (item) + 12 (padding)
+        else:
+            # For actual results, calculate based on visible count
+            self.script_list.setFixedHeight(min(400, visible_count * 60 + 20))
         self.script_list.show()
-        self.script_list.setFixedHeight(min(400, visible_count * 60 + 20))
-        self.adjustSize()
+        self._resize_keeping_position()
 
         # Auto-select first item if there are results
         if visible_count > 0:
@@ -394,6 +450,8 @@ class ScriptSearchDialog(QDialog):
                 if script.is_system_action:
                     if script.name == "Restart Application":
                         self.restart_requested.emit()
+                    elif script.name == "Exit Application":
+                        self.exit_requested.emit()
                 else:
                     # Regular script execution
                     self.script_selected.emit(script.name, script.path)
@@ -421,10 +479,42 @@ class ScriptSearchDialog(QDialog):
         else:
             super().keyPressEvent(event)
 
+    def _resize_keeping_position(self) -> None:
+        """Resize the dialog while keeping its top position fixed."""
+        # Process pending events to ensure list widget has resized
+        QApplication.processEvents()
+
+        # Save current geometry
+        current_x = self.x()
+        current_y = self.y()
+        current_width = self.width()
+
+        # Calculate required height
+        search_height = 50
+        margins = 24  # Top + bottom margins (12 + 12)
+        list_height = self.script_list.height() if self.script_list.isVisible() else 0
+
+        total_height = search_height + list_height + margins
+
+        # Set fixed size to prevent layout from overriding
+        self.setFixedSize(current_width, total_height)
+
+        # Position at saved coordinates
+        self.move(current_x, current_y)
+
+        # Process events to apply changes immediately
+        QApplication.processEvents()
+
+        # Remove fixed size constraint to allow future resizes
+        self.setMaximumSize(16777215, 16777215)
+        self.setMinimumSize(0, 0)
+
     def _center_window(self) -> None:
         """Position the window at the top-center of the screen, Flow Launcher style."""
         # Get the screen that contains the cursor
-        cursor_pos = QApplication.instance().primaryScreen().availableGeometry().center()
+        cursor_pos = (
+            QApplication.instance().primaryScreen().availableGeometry().center()
+        )
         screen = QApplication.screenAt(cursor_pos)
 
         if screen is None:
@@ -458,6 +548,8 @@ class ScriptSearchDialog(QDialog):
         # Clear search input and list, hide list
         self.search_input.clear()
         self.script_list.clear()
+        self.script_list.setMaximumHeight(0)
+        self.script_list.setMinimumHeight(0)
         self.script_list.hide()
         self.adjustSize()
 

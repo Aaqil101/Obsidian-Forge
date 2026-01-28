@@ -270,6 +270,7 @@ class MainWindow(QMainWindow):
             self.script_search_dialog.restart_requested.connect(
                 self._restart_application
             )
+            self.script_search_dialog.exit_requested.connect(self._exit_application)
 
         # Show and activate the dialog
         self.script_search_dialog.show()
