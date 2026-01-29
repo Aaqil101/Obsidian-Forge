@@ -58,8 +58,34 @@ def qss() -> str:
         padding: 2px 4px 2px 4px;
     }}
 
+    /* === Badge === */
+    QLabel[Badge="true"] {{
+        background-color: rgba(255, 255, 255, 0.06);
+        color: {THEME_TEXT_SECONDARY};
+        border-radius: 4px;
+        padding: 2px 6px;
+    }}
+
+    /* === Title === */
+    QLabel[Title="true"] {{
+        color: {THEME_TEXT_PRIMARY};
+        font-weight: bold;
+    }}
+
+    /* === Subtitle === */
+    QLabel[Subtitle="true"] {{
+        color: {THEME_TEXT_SECONDARY};
+    }}
+
+    /* === Placeholder === */
+    QLabel[PlaceHolder="true"] {{
+        color: {THEME_TEXT_SECONDARY};
+        padding: 16px;
+        text-align: center;
+    }}
+
     /* === App Name Label === */
-    #AppNameLabel {{
+    #AppName {{
         font-family: "{FONT_FAMILY}";
         font-size: 20pt;
         font-weight: bold;
@@ -68,7 +94,7 @@ def qss() -> str:
     }}
 
     /* === Version Label === */
-    #VersionLabel {{
+    #Version {{
         background-color: {accent['main_background']};
         color: {THEME_TEXT_PRIMARY};
         font-size: 9pt;
@@ -78,7 +104,7 @@ def qss() -> str:
     }}
 
     /* === Description Label === */
-    #DescriptionLabel {{
+    #Description {{
         color: {THEME_TEXT_SECONDARY};
         font-size: 10pt;
         line-height: 1.5;
@@ -93,7 +119,7 @@ def qss() -> str:
     }}
 
     /* === Features Title Label === */
-    #FeaturesTitleLabel {{
+    #FeaturesTitle {{
         color: {COLOR_LIGHT_BLUE};
         font-size: 10pt;
         font-weight: bold;
@@ -102,28 +128,28 @@ def qss() -> str:
     }}
 
     /* === Created Label === */
-    CreatedLabel {{
+    Created {{
         color: {THEME_TEXT_SECONDARY};
         font-size: 9pt;
         background: transparent;
     }}
 
     /* === Heart Label === */
-    #HeartLabel {{
+    #Heart {{
         color: #f7768e;
         font-size: 12px;
         background: transparent;
     }}
 
     /* === By Label === */
-    #ByLabel {{
+    #By {{
         color: {THEME_TEXT_SECONDARY};
         font-size: 9pt;
         background: transparent;
     }}
 
     /* === Website Label === */
-    #WebsiteLabel {{
+    #Website {{
         color: {COLOR_LIGHT_BLUE};
         font-size: 9pt;
         text-decoration: none;
@@ -131,7 +157,7 @@ def qss() -> str:
     }}
 
     /* === Feature Item Text Label === */
-    #FeatureTextLabel {{
+    #FeatureText {{
         color: {THEME_TEXT_SECONDARY};
         font-size: 10pt;
         background: transparent;

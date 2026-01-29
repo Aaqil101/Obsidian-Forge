@@ -72,7 +72,7 @@ class FeatureItem(QWidget):
         layout.addWidget(icon_label)
 
         text_label = QLabel(text)
-        text_label.setObjectName("FeatureTextLabel")
+        text_label.setObjectName("FeatureText")
 
         layout.addWidget(text_label)
         layout.addStretch()  # Add stretch after to center content
@@ -131,7 +131,7 @@ class AboutDialog(QDialog):
 
         # App name with gradient effect
         app_name_label = QLabel(APP_NAME)
-        app_name_label.setObjectName("AppNameLabel")
+        app_name_label.setObjectName("AppName")
         app_name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         header_layout.addWidget(app_name_label)
@@ -143,7 +143,7 @@ class AboutDialog(QDialog):
         version_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         version_label = QLabel(f"v{APP_VERSION}")
-        version_label.setObjectName("VersionLabel")
+        version_label.setObjectName("Version")
 
         version_layout.addWidget(version_label)
         header_layout.addWidget(version_widget)
@@ -155,7 +155,7 @@ class AboutDialog(QDialog):
 
         # Description
         desc_label = QLabel(DESCRIPTION)
-        desc_label.setObjectName("DescriptionLabel")
+        desc_label.setObjectName("Description")
         desc_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         desc_label.setWordWrap(True)
 
@@ -172,11 +172,11 @@ class AboutDialog(QDialog):
 
         features_title = QLabel("Features")
         features_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        features_title.setObjectName("FeaturesTitleLabel")
+        features_title.setObjectName("FeaturesTitle")
 
         features_layout.addWidget(features_title)
 
-        features = [
+        features: list[tuple[str, str]] = [
             ("daily-weekly/daily.svg", "Daily note quick entries"),
             ("daily-weekly/weekly.svg", "Weekly note quick entries"),
             ("application/nodejs.svg", "Native QuickAdd script support"),
@@ -195,17 +195,17 @@ class AboutDialog(QDialog):
         author_layout.setSpacing(6)
 
         created_label = QLabel("Created with")
-        created_label.setObjectName("CreatedLabel")
+        created_label.setObjectName("Created")
 
         author_layout.addWidget(created_label)
 
         heart_label = QLabel("\u2665")  # Heart symbol
-        heart_label.setObjectName("HeartLabel")
+        heart_label.setObjectName("Heart")
 
         author_layout.addWidget(heart_label)
 
         by_label = QLabel(f"by {AUTHOR}")
-        by_label.setObjectName("ByLabel")
+        by_label.setObjectName("By")
 
         author_layout.addWidget(by_label)
 
@@ -215,7 +215,7 @@ class AboutDialog(QDialog):
         website_label = QLabel(
             f'<a href="{WEBSITE_URL}" style="color: {COLOR_LIGHT_BLUE};">{WEBSITE_URL}</a>'
         )
-        website_label.setObjectName("WebsiteLabel")
+        website_label.setObjectName("Website")
         website_label.setOpenExternalLinks(True)
         website_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 

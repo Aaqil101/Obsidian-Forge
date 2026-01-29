@@ -74,7 +74,7 @@ class ScriptItemWidget(QWidget):
         # Title
         title_label = QLabel(script.name)
         title_label.setFont(QFont(FONT_FAMILY, 11))
-        title_label.setStyleSheet("color: #c0caf5; font-weight: 500;")
+        title_label.setProperty("Title", True)
         text_layout.addWidget(title_label)
 
         # Subtitle (script type and path)
@@ -85,8 +85,9 @@ class ScriptItemWidget(QWidget):
                 f"{'Daily' if script.script_type == 'daily' else 'Weekly'} script"
             )
         subtitle_label = QLabel(subtitle_text)
+        subtitle_label.setProperty("Subtitle", True)
         subtitle_label.setFont(QFont(FONT_FAMILY, 9))
-        subtitle_label.setStyleSheet("color: #565f89;")
+
         text_layout.addWidget(subtitle_label)
 
         layout.addLayout(text_layout)
@@ -97,15 +98,9 @@ class ScriptItemWidget(QWidget):
         # Badge for script type (only for scripts, not system actions)
         if not script.is_system_action:
             badge_label = QLabel("[D]" if script.script_type == "daily" else "[W]")
+            badge_label.setProperty("Badge", True)
             badge_label.setFont(QFont(FONT_FAMILY, 9))
-            badge_label.setStyleSheet(
-                """
-                color: #565f89;
-                background-color: rgba(86, 95, 137, 0.2);
-                border-radius: 4px;
-                padding: 2px 6px;
-                """
-            )
+
             layout.addWidget(badge_label)
 
 
@@ -153,13 +148,12 @@ class ScriptSearchDialog(QDialog):
         self.setFixedWidth(650)
 
         self._setup_ui()
-        self._apply_styles()
         self._load_scripts()
 
     def _setup_ui(self) -> None:
         """Setup the dialog UI - Flow Launcher style."""
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(12, 12, 12, 12)
+        main_layout.setContentsMargins(8, 8, 8, 8)
         main_layout.setSpacing(0)
 
         # Container widget for unified appearance
@@ -171,15 +165,17 @@ class ScriptSearchDialog(QDialog):
         container_layout = QVBoxLayout(self.container)
         container_layout.setContentsMargins(0, 0, 0, 0)
         container_layout.setSpacing(0)
-        container_layout.setSizeConstraint(QVBoxLayout.SizeConstraint.SetDefaultConstraint)
+        container_layout.setSizeConstraint(
+            QVBoxLayout.SizeConstraint.SetDefaultConstraint
+        )
 
         # Search input with icon on right (Spotlight style)
         self.search_input = QLineEdit()
         self.search_input.setProperty("SearchBar", True)
         self.search_input.setPlaceholderText("Search scripts...")
         self.search_input.setFont(QFont(FONT_FAMILY, 13))
-        self.search_input.setMinimumHeight(50)
-        self.search_input.setMaximumHeight(50)
+        self.search_input.setMinimumHeight(40)
+        self.search_input.setMaximumHeight(40)
         self.search_input.textChanged.connect(self._filter_scripts)
         # Search icon on the right side (trailing position)
         self.search_input.addAction(
@@ -190,9 +186,10 @@ class ScriptSearchDialog(QDialog):
 
         # Script list with larger items (initially hidden)
         self.script_list = QListWidget()
+        self.script_list.setProperty("ScriptList", True)
         self.script_list.setFont(QFont(FONT_FAMILY, 11))
         self.script_list.setIconSize(QSize(32, 32))
-        self.script_list.setSpacing(4)
+        self.script_list.setSpacing(8)
         self.script_list.setHorizontalScrollBarPolicy(
             Qt.ScrollBarPolicy.ScrollBarAlwaysOff
         )
@@ -207,62 +204,6 @@ class ScriptSearchDialog(QDialog):
         container_layout.addWidget(self.script_list)
 
         main_layout.addWidget(self.container)
-
-    def _apply_styles(self) -> None:
-        """Apply Spotlight/Raycast-style CSS to the dialog."""
-        # Main dialog styling - transparent background
-        self.setStyleSheet(
-            """
-            QDialog {
-                background-color: transparent;
-            }
-
-            /* Unified container for search and results */
-            #SearchContainer {
-                background-color: rgba(26, 27, 38, 0.95);
-                border: 1px solid #414868;
-                border-radius: 10px;
-            }
-
-            /* Search bar - rounded top corners only */
-            QLineEdit[SearchBar="true"] {
-                background-color: transparent;
-                border: none;
-                border-bottom: 1px solid rgba(65, 72, 104, 0.5);
-                border-radius: 0px;
-                padding: 0px 16px;
-                color: #c0caf5;
-            }
-
-            QLineEdit[SearchBar="true"]:focus {
-                border-bottom: 1px solid rgba(65, 72, 104, 0.8);
-            }
-
-            /* List widget - rounded bottom corners only */
-            QListWidget {
-                background-color: transparent;
-                border: none;
-                border-radius: 0px;
-                outline: none;
-                padding: 6px;
-            }
-            QListWidget::item {
-                border-radius: 6px;
-                padding: 0px;
-                margin: 2px 0px;
-                background-color: transparent;
-            }
-            QListWidget::item:hover {
-                background-color: rgba(125, 207, 255, 0.1);
-            }
-            QListWidget::item:selected {
-                background-color: rgba(125, 207, 255, 0.15);
-            }
-            QListWidget::item:selected:hover {
-                background-color: rgba(125, 207, 255, 0.2);
-            }
-            """
-        )
 
     def _load_scripts(self) -> None:
         """Load all scripts (daily + weekly) from the executor into memory only."""
@@ -363,7 +304,7 @@ class ScriptSearchDialog(QDialog):
         filter_type = None
         if search_text.startswith("/d"):
             filter_type = "daily"
-            search_text = search_text[2:].strip()
+            search_text: str = search_text[2:].strip()
         elif search_text.startswith("/w"):
             filter_type = "weekly"
             search_text = search_text[2:].strip()
@@ -393,9 +334,7 @@ class ScriptSearchDialog(QDialog):
             )
             placeholder_label = QLabel(placeholder_text)
             placeholder_label.setFont(QFont(FONT_FAMILY, 10))
-            placeholder_label.setStyleSheet(
-                "color: #565f89; padding: 16px; text-align: center;"
-            )
+            placeholder_label.setProperty("PlaceHolder", True)
             placeholder_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             placeholder_item.setSizeHint(QSize(0, 50))
             placeholder_item.setFlags(Qt.ItemFlag.NoItemFlags)
@@ -485,16 +424,18 @@ class ScriptSearchDialog(QDialog):
         QApplication.processEvents()
 
         # Save current geometry
-        current_x = self.x()
-        current_y = self.y()
-        current_width = self.width()
+        current_x: int = self.x()
+        current_y: int = self.y()
+        current_width: int = self.width()
 
         # Calculate required height
-        search_height = 50
-        margins = 24  # Top + bottom margins (12 + 12)
-        list_height = self.script_list.height() if self.script_list.isVisible() else 0
+        search_height = 40
+        margins = 16  # Top + bottom margins (8 + 8)
+        list_height: int = (
+            self.script_list.height() if self.script_list.isVisible() else 0
+        )
 
-        total_height = search_height + list_height + margins
+        total_height: int = search_height + list_height + margins
 
         # Set fixed size to prevent layout from overriding
         self.setFixedSize(current_width, total_height)
@@ -525,10 +466,10 @@ class ScriptSearchDialog(QDialog):
         screen_geometry = screen.availableGeometry()
 
         # Calculate horizontal center
-        x = screen_geometry.x() + (screen_geometry.width() - self.width()) // 2
+        x: int = screen_geometry.x() + (screen_geometry.width() - self.width()) // 2
 
         # Position at ~20% from top (Flow Launcher style)
-        y = screen_geometry.y() + int(screen_geometry.height() * 0.20)
+        y: int = screen_geometry.y() + int(screen_geometry.height() * 0.20)
 
         # Move dialog to position
         self.move(x, y)
@@ -551,7 +492,12 @@ class ScriptSearchDialog(QDialog):
         self.script_list.setMaximumHeight(0)
         self.script_list.setMinimumHeight(0)
         self.script_list.hide()
-        self.adjustSize()
+
+        # Set explicit initial size (search bar only)
+        search_height = 40
+        margins = 16  # Top + bottom margins (8 + 8)
+        initial_height = search_height + margins
+        self.setFixedSize(650, initial_height)
 
         # Process pending events to ensure geometry is updated
         QApplication.processEvents()
