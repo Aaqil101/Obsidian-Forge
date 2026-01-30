@@ -33,10 +33,12 @@ class SettingsGroup(QFrame):
     Signals:
         collapsed(bool): Emitted when the group is collapsed/expanded
         checked(bool): Emitted when the checkbox is toggled (if checkable)
+        action_clicked(): Emitted when the action button is clicked (if action button is set)
     """
 
     collapsed = Signal(bool)
     checked = Signal(bool)
+    action_clicked = Signal()
 
     def __init__(
         self, label: str, *, checkable: bool = False, parent: QWidget | None = None
@@ -98,6 +100,9 @@ class SettingsGroup(QFrame):
                     self.label.setFont(font)
 
             self._layout.addWidget(self.label, 0, 1, 1, 1)
+
+        # Action button (optional, initially hidden)
+        self.action_button = None
 
         self._widget = None
         self._collapsed = False
@@ -183,3 +188,29 @@ class SettingsGroup(QFrame):
         if self._checkable and self.checkbutton:
             return self.checkbutton.isChecked()
         return False
+
+    @Slot(str, str)
+    def setActionButton(self, icon_name: str, tooltip: str = "") -> None:
+        """
+        Add an action button to the header.
+
+        Args:
+            icon_name: Name of the icon file (e.g., "edit.svg")
+            tooltip: Tooltip text for the button
+        """
+        # Remove existing action button if any
+        if self.action_button:
+            self._layout.removeWidget(self.action_button)
+            self.action_button.deleteLater()
+
+        # Create new action button
+        self.action_button = QPushButton(self)
+        self.action_button.setProperty("CollapseButton", True)
+        self.action_button.setFixedSize(20, 20)
+        self.action_button.setIcon(get_icon(icon_name, color=self.accent["border"]))
+        self.action_button.setIconSize(QSize(14, 14))
+        self.action_button.setToolTip(tooltip)
+        self.action_button.clicked.connect(self.action_clicked.emit)
+
+        # Add to layout - column 2 (after label/checkbox)
+        self._layout.addWidget(self.action_button, 0, 2, 1, 1)

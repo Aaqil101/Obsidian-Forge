@@ -45,6 +45,7 @@ from src.core import (
 # ----- UI Modules-----
 from src.ui import components
 from src.ui.about_dialog import AboutDialog
+from src.ui.frontmatter_dialog import FrontmatterDialog
 from src.ui.popup_window import PopupIcon, PopupWindow
 from src.ui.script_search_dialog import ScriptSearchDialog
 from src.ui.settings_dialog import SettingsDialog
@@ -267,6 +268,9 @@ class MainWindow(QMainWindow):
         if self.script_search_dialog is None:
             self.script_search_dialog = ScriptSearchDialog(self.executor, self)
             self.script_search_dialog.script_selected.connect(self._execute_from_search)
+            self.script_search_dialog.frontmatter_edit_requested.connect(
+                lambda note_type: self.show_frontmatter_editor(note_type)
+            )
             self.script_search_dialog.restart_requested.connect(
                 self._restart_application
             )
@@ -491,6 +495,12 @@ class MainWindow(QMainWindow):
         """Create a collapsible section with script cards in a grid layout."""
         # Create collapsible settings group
         section_group = SettingsGroup(title, parent=self.sections_container)
+
+        # Add frontmatter edit button to section header
+        section_group.setActionButton("edit.svg", f"Edit {script_type.title()} Note Frontmatter")
+        section_group.action_clicked.connect(
+            lambda st=script_type: self.show_frontmatter_editor(st)
+        )
 
         # Create container for script cards with grid layout
         cards_widget = QWidget()
@@ -809,6 +819,26 @@ class MainWindow(QMainWindow):
     def show_about(self) -> None:
         """Show the about dialog."""
         dialog = AboutDialog(self)
+        dialog.exec()
+
+    def show_frontmatter_editor(self, note_type: str = "daily") -> None:
+        """
+        Show the frontmatter editing dialog.
+
+        Args:
+            note_type: Type of note to edit - "daily" or "weekly"
+        """
+        if not self.config.vault_path:
+            popup = PopupWindow(
+                message="Please configure your Obsidian vault path in settings first.",
+                title="No Vault",
+                icon=PopupIcon.WARNING,
+                parent=self,
+            )
+            popup.exec()
+            return
+
+        dialog = FrontmatterDialog(self.config, note_type=note_type, parent=self)
         dialog.exec()
 
     def closeEvent(self, event) -> None:

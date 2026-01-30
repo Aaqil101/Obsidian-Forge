@@ -65,7 +65,9 @@ class SettingsDialog(QDialog):
 
         # Store comboboxes for path selection
         self.daily_path_combo: QComboBox = None
+        self.daily_journal_combo: QComboBox = None
         self.weekly_path_combo: QComboBox = None
+        self.weekly_journal_combo: QComboBox = None
         self.utils_path_combo: QComboBox = None
         self.time_path_combo: QComboBox = None
 
@@ -182,6 +184,38 @@ class SettingsDialog(QDialog):
             "color: rgba(192, 202, 245, 0.5); padding-left: 8px;"
         )
         vault_content_layout.addWidget(script_paths_info)
+
+        # Separator line
+        separator2 = QFrame()
+        separator2.setFrameShape(QFrame.Shape.HLine)
+        separator2.setStyleSheet(
+            "background-color: rgba(192, 202, 245, 0.1); margin: 8px 0px;"
+        )
+        separator2.setFixedHeight(1)
+        vault_content_layout.addWidget(separator2)
+
+        # Journal Paths label (compact)
+        journal_paths_label = QLabel("Journal Paths:")
+        journal_paths_label.setFont(QFont(FONT_FAMILY, 9))
+        journal_paths_label.setStyleSheet(
+            "color: rgba(192, 202, 245, 0.7); padding-left: 8px;"
+        )
+        vault_content_layout.addWidget(journal_paths_label)
+
+        # Compact journal path rows
+        daily_journal_row = self._create_path_combobox_row("Daily:", "daily_journal")
+        vault_content_layout.addWidget(daily_journal_row)
+
+        weekly_journal_row = self._create_path_combobox_row("Weekly:", "weekly_journal")
+        vault_content_layout.addWidget(weekly_journal_row)
+
+        # Compact info label for journal paths
+        journal_paths_info = QLabel("Select journal folders or leave as (Default)")
+        journal_paths_info.setFont(QFont(FONT_FAMILY, 10 - 2))
+        journal_paths_info.setStyleSheet(
+            "color: rgba(192, 202, 245, 0.5); padding-left: 8px;"
+        )
+        vault_content_layout.addWidget(journal_paths_info)
 
         vault_section.setWidget(vault_content)
         sections_layout.addWidget(vault_section)
@@ -499,8 +533,12 @@ class SettingsDialog(QDialog):
         # Store reference to combobox
         if path_type == "daily":
             self.daily_path_combo = combo
+        elif path_type == "daily_journal":
+            self.daily_journal_combo = combo
         elif path_type == "weekly":
             self.weekly_path_combo = combo
+        elif path_type == "weekly_journal":
+            self.weekly_journal_combo = combo
         elif path_type == "utils":
             self.utils_path_combo = combo
         elif path_type == "time":
@@ -522,9 +560,17 @@ class SettingsDialog(QDialog):
             self._set_combobox_value(
                 self.daily_path_combo, self.config.custom_daily_scripts_path
             )
+        if self.config.custom_daily_journal_path:
+            self._set_combobox_value(
+                self.daily_journal_combo, self.config.custom_daily_journal_path
+            )
         if self.config.custom_weekly_scripts_path:
             self._set_combobox_value(
                 self.weekly_path_combo, self.config.custom_weekly_scripts_path
+            )
+        if self.config.custom_weekly_journal_path:
+            self._set_combobox_value(
+                self.weekly_journal_combo, self.config.custom_weekly_journal_path
             )
         if self.config.custom_utils_scripts_path:
             self._set_combobox_value(
@@ -638,7 +684,9 @@ class SettingsDialog(QDialog):
 
         # Populate comboboxes silently
         self._populate_combobox(self.daily_path_combo, folders)
+        self._populate_combobox(self.daily_journal_combo, folders)
         self._populate_combobox(self.weekly_path_combo, folders)
+        self._populate_combobox(self.weekly_journal_combo, folders)
         self._populate_combobox(self.utils_path_combo, folders)
         self._populate_combobox(self.time_path_combo, sorted(files))
 
@@ -686,7 +734,9 @@ class SettingsDialog(QDialog):
         original_vault: str = self.config.vault_path
         original_nodejs: str = self.config.nodejs_path
         original_daily: str = self.config.custom_daily_scripts_path
+        original_daily_journal: str = self.config.custom_daily_journal_path
         original_weekly: str = self.config.custom_weekly_scripts_path
+        original_weekly_journal: str = self.config.custom_weekly_journal_path
         original_utils: str = self.config.custom_utils_scripts_path
         original_time: str = self.config.custom_time_path
 
@@ -699,10 +749,20 @@ class SettingsDialog(QDialog):
             if self.daily_path_combo.currentText() == "(Default)"
             else self.daily_path_combo.currentText()
         )
+        self.config.custom_daily_journal_path = (
+            ""
+            if self.daily_journal_combo.currentText() == "(Default)"
+            else self.daily_journal_combo.currentText()
+        )
         self.config.custom_weekly_scripts_path = (
             ""
             if self.weekly_path_combo.currentText() == "(Default)"
             else self.weekly_path_combo.currentText()
+        )
+        self.config.custom_weekly_journal_path = (
+            ""
+            if self.weekly_journal_combo.currentText() == "(Default)"
+            else self.weekly_journal_combo.currentText()
         )
         self.config.custom_utils_scripts_path = (
             ""
@@ -721,7 +781,9 @@ class SettingsDialog(QDialog):
         self.config.vault_path = original_vault
         self.config.nodejs_path = original_nodejs
         self.config.custom_daily_scripts_path = original_daily
+        self.config.custom_daily_journal_path = original_daily_journal
         self.config.custom_weekly_scripts_path = original_weekly
+        self.config.custom_weekly_journal_path = original_weekly_journal
         self.config.custom_utils_scripts_path = original_utils
         self.config.custom_time_path = original_time
 
@@ -750,10 +812,20 @@ class SettingsDialog(QDialog):
             if self.daily_path_combo.currentText() == "(Default)"
             else self.daily_path_combo.currentText()
         )
+        self.config.custom_daily_journal_path = (
+            ""
+            if self.daily_journal_combo.currentText() == "(Default)"
+            else self.daily_journal_combo.currentText()
+        )
         self.config.custom_weekly_scripts_path = (
             ""
             if self.weekly_path_combo.currentText() == "(Default)"
             else self.weekly_path_combo.currentText()
+        )
+        self.config.custom_weekly_journal_path = (
+            ""
+            if self.weekly_journal_combo.currentText() == "(Default)"
+            else self.weekly_journal_combo.currentText()
         )
         self.config.custom_utils_scripts_path = (
             ""

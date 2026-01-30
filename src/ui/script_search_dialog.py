@@ -50,8 +50,8 @@ class ScriptItemWidget(QWidget):
 
         # Main horizontal layout
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(12, 8, 12, 8)
-        layout.setSpacing(12)
+        layout.setContentsMargins(8, 4, 8, 4)
+        layout.setSpacing(10)
 
         # Icon label
         icon_label = QLabel()
@@ -122,6 +122,7 @@ class ScriptSearchDialog(QDialog):
     """
 
     script_selected = Signal(str, str)  # (script_name, script_path)
+    frontmatter_edit_requested = Signal(str)  # Request frontmatter editor with note_type
     restart_requested = Signal()  # Request application restart
     exit_requested = Signal()  # Request application exit
 
@@ -189,7 +190,7 @@ class ScriptSearchDialog(QDialog):
         self.script_list.setProperty("ScriptList", True)
         self.script_list.setFont(QFont(FONT_FAMILY, 11))
         self.script_list.setIconSize(QSize(32, 32))
-        self.script_list.setSpacing(8)
+        self.script_list.setSpacing(4)
         self.script_list.setHorizontalScrollBarPolicy(
             Qt.ScrollBarPolicy.ScrollBarAlwaysOff
         )
@@ -210,6 +211,26 @@ class ScriptSearchDialog(QDialog):
         self.all_scripts.clear()
 
         # Add system actions first
+        daily_frontmatter_item = ScriptSearchItem(
+            name="Edit Daily Frontmatter",
+            path="daily",  # Store note_type in path field for system actions
+            icon="edit.svg",
+            script_type="system",
+            display_text="Edit Daily Frontmatter",
+            is_system_action=True,
+        )
+        self.all_scripts.append(daily_frontmatter_item)
+
+        weekly_frontmatter_item = ScriptSearchItem(
+            name="Edit Weekly Frontmatter",
+            path="weekly",  # Store note_type in path field for system actions
+            icon="edit.svg",
+            script_type="system",
+            display_text="Edit Weekly Frontmatter",
+            is_system_action=True,
+        )
+        self.all_scripts.append(weekly_frontmatter_item)
+
         restart_item = ScriptSearchItem(
             name="Restart Application",
             path="",
@@ -270,7 +291,7 @@ class ScriptSearchDialog(QDialog):
         widget = ScriptItemWidget(script)
 
         # Set item height (width will auto-fit to list widget)
-        item.setSizeHint(QSize(0, 56))
+        item.setSizeHint(QSize(0, 44))
 
         # Add item and set custom widget
         self.script_list.addItem(item)
@@ -313,8 +334,18 @@ class ScriptSearchDialog(QDialog):
         visible_count = 0
         for script_data in self.all_scripts:
             # Type filter
-            if filter_type and script_data.script_type != filter_type:
-                continue
+            if filter_type:
+                # For frontmatter edit actions, match them with their corresponding type
+                if script_data.is_system_action:
+                    if script_data.name == "Edit Daily Frontmatter" and filter_type != "daily":
+                        continue
+                    elif script_data.name == "Edit Weekly Frontmatter" and filter_type != "weekly":
+                        continue
+                    elif script_data.name not in ["Edit Daily Frontmatter", "Edit Weekly Frontmatter"]:
+                        # Other system actions (restart, exit) are excluded when using filters
+                        continue
+                elif script_data.script_type != filter_type:
+                    continue
 
             # Text filter (show all if search_text is empty after prefix removal)
             if search_text and search_text not in script_data.name.lower():
@@ -349,7 +380,7 @@ class ScriptSearchDialog(QDialog):
             self.script_list.setFixedHeight(62)  # 50 (item) + 12 (padding)
         else:
             # For actual results, calculate based on visible count
-            self.script_list.setFixedHeight(min(400, visible_count * 60 + 20))
+            self.script_list.setFixedHeight(min(400, visible_count * 48 + 16))
         self.script_list.show()
         self._resize_keeping_position()
 
@@ -387,7 +418,11 @@ class ScriptSearchDialog(QDialog):
                 self.hide()
                 # Check if it's a system action
                 if script.is_system_action:
-                    if script.name == "Restart Application":
+                    if script.name == "Edit Daily Frontmatter":
+                        self.frontmatter_edit_requested.emit("daily")
+                    elif script.name == "Edit Weekly Frontmatter":
+                        self.frontmatter_edit_requested.emit("weekly")
+                    elif script.name == "Restart Application":
                         self.restart_requested.emit()
                     elif script.name == "Exit Application":
                         self.exit_requested.emit()

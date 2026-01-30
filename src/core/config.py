@@ -23,7 +23,9 @@ WEBSITE_URL = "https://github.com/Aaqil101/Obsidian-Forge"
 # VAULT PATHS
 # ══════════════════════════════════════════════════════════════════
 DAILY_SCRIPTS_PATH = "98 - Organize/Scripts/Add to Daily Note"
+DAILY_JOURNAL_PATH = "01 - Journal/Daily"
 WEEKLY_SCRIPTS_PATH = "98 - Organize/Scripts/Add to Weekly Note"
+WEEKLY_JOURNAL_PATH = "01 - Journal/Weekly"
 UTILS_SCRIPTS_PATH = "98 - Organize/Scripts/Utils"
 TIME_PATH = "Time.md"
 
@@ -116,7 +118,9 @@ class Config:
             "nodejs_path": "node",  # Default to 'node' in PATH
             "enable_animations": True,
             "custom_daily_scripts_path": "",
+            "custom_daily_journal_path": "",
             "custom_weekly_scripts_path": "",
+            "custom_weekly_journal_path": "",
             "custom_utils_scripts_path": "",
             "custom_time_path": "",
             "excluded_directories": [".obsidian", ".space", ".trash"],
@@ -184,6 +188,16 @@ class Config:
         self.settings["custom_daily_scripts_path"] = path
 
     @property
+    def custom_daily_journal_path(self) -> str:
+        """Get custom daily journal path."""
+        return self.settings.get("custom_daily_journal_path", "")
+
+    @custom_daily_journal_path.setter
+    def custom_daily_journal_path(self, path: str) -> None:
+        """Set custom daily journal path."""
+        self.settings["custom_daily_journal_path"] = path
+
+    @property
     def custom_weekly_scripts_path(self) -> str:
         """Get custom weekly scripts path."""
         return self.settings.get("custom_weekly_scripts_path", "")
@@ -192,6 +206,16 @@ class Config:
     def custom_weekly_scripts_path(self, path: str) -> None:
         """Set custom weekly scripts path."""
         self.settings["custom_weekly_scripts_path"] = path
+
+    @property
+    def custom_weekly_journal_path(self) -> str:
+        """Get custom weekly journal path."""
+        return self.settings.get("custom_weekly_journal_path", "")
+
+    @custom_weekly_journal_path.setter
+    def custom_weekly_journal_path(self, path: str) -> None:
+        """Set custom weekly journal path."""
+        self.settings["custom_weekly_journal_path"] = path
 
     @property
     def custom_utils_scripts_path(self) -> str:
@@ -254,6 +278,15 @@ class Config:
             return Path(self.vault_path) / self.custom_daily_scripts_path
         return Path(self.vault_path) / DAILY_SCRIPTS_PATH
 
+    def get_daily_journal_path(self) -> Optional[Path]:
+        """Get full path to daily journal directory."""
+        if not self.vault_path:
+            return None
+        # Use custom path if set, otherwise use default
+        if self.custom_daily_journal_path:
+            return Path(self.vault_path) / self.custom_daily_journal_path
+        return Path(self.vault_path) / DAILY_JOURNAL_PATH
+
     def get_weekly_scripts_path(self) -> Optional[Path]:
         """Get full path to weekly scripts directory."""
         if not self.vault_path:
@@ -262,6 +295,15 @@ class Config:
         if self.custom_weekly_scripts_path:
             return Path(self.vault_path) / self.custom_weekly_scripts_path
         return Path(self.vault_path) / WEEKLY_SCRIPTS_PATH
+
+    def get_weekly_journal_path(self) -> Optional[Path]:
+        """Get full path to weekly journal directory."""
+        if not self.vault_path:
+            return None
+        # Use custom path if set, otherwise use default
+        if self.custom_weekly_journal_path:
+            return Path(self.vault_path) / self.custom_weekly_journal_path
+        return Path(self.vault_path) / WEEKLY_JOURNAL_PATH
 
     def get_utils_scripts_path(self) -> Optional[Path]:
         """Get full path to utils scripts directory."""
