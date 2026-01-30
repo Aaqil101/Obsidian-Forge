@@ -37,6 +37,8 @@ def qss() -> str:
     /* === Search Bar === */
     QLineEdit[SearchBar="true"] {{
         background-color: {accent['main_background']};
+        selection-background-color: {accent['border']};
+        selection-color: {THEME_TEXT_PRIMARY};
         color: {THEME_TEXT_PRIMARY};
         border-radius: 0px;
         padding: 1px;
