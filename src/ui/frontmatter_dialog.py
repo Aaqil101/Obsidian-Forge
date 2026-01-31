@@ -4,23 +4,20 @@ Allows users to edit frontmatter fields without opening Obsidian.
 """
 
 # ----- Built-In Modules-----
-import datetime
 from pathlib import Path
 from typing import Optional
 
 # ----- PySide6 Modules-----
-from PySide6.QtCore import QDate, QSize, Qt, QTimer
+from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QCursor, QFont, QGuiApplication, QKeySequence
 from PySide6.QtWidgets import (
-    QButtonGroup,
     QCheckBox,
-    QDateEdit,
+    QComboBox,
     QDialog,
+    QDoubleSpinBox,
     QFrame,
     QHBoxLayout,
     QLabel,
-    QLineEdit,
-    QRadioButton,
     QScrollArea,
     QSizePolicy,
     QSpinBox,
@@ -33,8 +30,6 @@ from src.core import APP_NAME, FONT_FAMILY, Config
 from src.core.frontmatter_handler import (
     DAILY_FIELDS,
     WEEKLY_FIELDS,
-    calculate_daily_note_path,
-    calculate_weekly_note_path,
     get_fields_by_section,
     parse_frontmatter,
     update_frontmatter,
@@ -47,11 +42,13 @@ from src.ui.widgets import SettingsGroup
 
 # ----- Utils Modules-----
 from src.utils import (
+    COLOR_GREEN,
     COLOR_LIGHT_BLUE,
+    COLOR_RED,
     THEME_BORDER,
+    THEME_TEXT_PRIMARY,
     THEME_TEXT_SECONDARY,
-    HoverIconButton,
-    Icons,
+    HoverIconButtonSVG,
     get_icon,
 )
 
@@ -85,8 +82,9 @@ class FrontmatterDialog(QDialog):
         self._setup_ui()
         self._center_window()
 
-        # Load today's note by default (daily or weekly based on note_type)
-        self._on_date_changed()
+        # Populate dropdowns and load the most recent note
+        self._populate_years()
+        self._select_most_recent_note()
 
     def _setup_ui(self) -> None:
         """Setup the dialog UI with collapsible sections."""
@@ -116,24 +114,53 @@ class FrontmatterDialog(QDialog):
         date_layout.setContentsMargins(8, 8, 8, 8)
         date_layout.setSpacing(8)
 
-        self.date_picker = QDateEdit()
-        self.date_picker.setFont(QFont(FONT_FAMILY, 10))
-        self.date_picker.setCalendarPopup(True)
-        self.date_picker.setDate(QDate.currentDate())
-        # Set display format based on note type
-        if self.current_note_type == "daily":
-            self.date_picker.setDisplayFormat("yyyy-MM-dd (dddd)")
-        else:
-            self.date_picker.setDisplayFormat("yyyy-MM-dd ('Week' ww)")
-        self.date_picker.setMinimumHeight(32)
-        self.date_picker.dateChanged.connect(self._on_date_changed)
-        date_layout.addWidget(self.date_picker)
+        # Dropdowns container
+        dropdowns_layout = QHBoxLayout()
+        dropdowns_layout.setSpacing(8)
 
-        # Status label
-        self.status_label = QLabel()
-        self.status_label.setFont(QFont(FONT_FAMILY, 9))
-        self.status_label.setStyleSheet(f"color: {THEME_TEXT_SECONDARY};")
-        date_layout.addWidget(self.status_label)
+        # Year dropdown (for both daily and weekly)
+        year_label = QLabel("Year:")
+        year_label.setFont(QFont(FONT_FAMILY, 10))
+        dropdowns_layout.addWidget(year_label)
+
+        self.year_combo = QComboBox()
+        self.year_combo.setProperty("MainComboBox", True)
+        self.year_combo.setFont(QFont(FONT_FAMILY, 10))
+        self.year_combo.setMinimumHeight(26)
+        self.year_combo.currentIndexChanged.connect(self._on_year_changed)
+        dropdowns_layout.addWidget(self.year_combo)
+
+        if self.current_note_type == "daily":
+            # Month dropdown (daily only)
+            month_label = QLabel("Month:")
+            month_label.setFont(QFont(FONT_FAMILY, 10))
+            dropdowns_layout.addWidget(month_label)
+
+            self.month_combo = QComboBox()
+            self.month_combo.setProperty("MainComboBox", True)
+            self.month_combo.setFont(QFont(FONT_FAMILY, 10))
+            self.month_combo.setMinimumHeight(26)
+            self.month_combo.setMinimumWidth(140)
+            self.month_combo.currentIndexChanged.connect(self._on_month_changed)
+            dropdowns_layout.addWidget(self.month_combo)
+        else:
+            self.month_combo = None
+
+        # File dropdown (for both daily and weekly)
+        file_label = QLabel("File:")
+        file_label.setFont(QFont(FONT_FAMILY, 10))
+        dropdowns_layout.addWidget(file_label)
+
+        self.file_combo = QComboBox()
+        self.file_combo.setProperty("MainComboBox", True)
+        self.file_combo.setFont(QFont(FONT_FAMILY, 10))
+        self.file_combo.setMinimumHeight(26)
+        self.file_combo.setMinimumWidth(140)
+        self.file_combo.currentIndexChanged.connect(self._on_file_changed)
+        dropdowns_layout.addWidget(self.file_combo)
+
+        dropdowns_layout.addStretch()
+        date_layout.addLayout(dropdowns_layout)
 
         date_section.setLayout(date_layout)
         self.sections_layout.addWidget(date_section)
@@ -160,29 +187,37 @@ class FrontmatterDialog(QDialog):
         button_layout.setSpacing(8)
         button_layout.addStretch()
 
-        cancel_btn = HoverIconButton(
-            normal_icon=Icons.CANCEL_OUTLINE,
-            hover_icon=Icons.CANCEL,
-            text="  Cancel",
+        cancel_btn = HoverIconButtonSVG(
+            normal_icon="cancel_outline.svg",
+            hover_icon="cancel_outline.svg",
+            hover_color=f"{THEME_TEXT_PRIMARY}",
+            pressed_icon="cancel.svg",
+            pressed_color=f"{COLOR_RED}",
+            icon_size=14,
+            text="&Cancel",
         )
         cancel_btn.setProperty("CancelButton", True)
         cancel_btn.setFont(QFont(FONT_FAMILY, 10))
         cancel_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        cancel_btn.setFixedHeight(30)
+        cancel_btn.setFixedHeight(36)
         cancel_btn.setShortcut(QKeySequence("Esc"))
         cancel_btn.clicked.connect(self.reject)
         button_layout.addWidget(cancel_btn)
 
-        save_btn = HoverIconButton(
-            normal_icon=Icons.SAVE,
-            hover_icon=Icons.CONTENT_SAVE,
-            pressed_icon=Icons.CONTENT_SAVE_CHECK,
-            text="  Save Changes",
+        save_btn = HoverIconButtonSVG(
+            normal_icon="save_outline.svg",
+            normal_color=f"{COLOR_GREEN}",
+            hover_icon="save_filled.svg",
+            hover_color=f"{COLOR_GREEN}",
+            pressed_icon="save_check_filled.svg",
+            pressed_color=f"{COLOR_GREEN}",
+            icon_size=14,
+            text="&Save Changes",
         )
         save_btn.setProperty("SaveButton", True)
         save_btn.setFont(QFont(FONT_FAMILY, 10))
         save_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        save_btn.setFixedHeight(30)
+        save_btn.setFixedHeight(36)
         save_btn.setShortcut(QKeySequence("Ctrl+Return"))
         save_btn.clicked.connect(self._on_save)
         button_layout.addWidget(save_btn)
@@ -269,21 +304,25 @@ class FrontmatterDialog(QDialog):
         elif field_type == "int":
             widget = QSpinBox()
             widget.setFont(QFont(FONT_FAMILY, 10))
-            widget.setMinimumWidth(120)
-            widget.setMinimumHeight(32)
+            widget.setMinimumWidth(60)
+            widget.setMinimumHeight(26)
             widget.setRange(*field_config["range"])
-            widget.setProperty("MainSpinBox", True)
-            widget.setButtonSymbols(QSpinBox.ButtonSymbols.UpDownArrows)
+            widget.setButtonSymbols(QSpinBox.ButtonSymbols.NoButtons)
             return widget
 
-        else:  # text
-            widget = QLineEdit()
+        elif field_type == "float":
+            widget = QDoubleSpinBox()
             widget.setFont(QFont(FONT_FAMILY, 10))
-            widget.setMinimumWidth(200)
-            widget.setMinimumHeight(32)
-            widget.setProperty("MainLineEdit", True)
-            widget.setPlaceholderText(f"Enter {field_name.replace('_', ' ')}")
+            widget.setMinimumWidth(60)
+            widget.setMinimumHeight(26)
+            widget.setRange(*field_config["range"])
+            widget.setDecimals(2)  # Allow 2 decimal places
+            widget.setSingleStep(0.5)  # Increment by 0.5
+            widget.setButtonSymbols(QDoubleSpinBox.ButtonSymbols.NoButtons)
             return widget
+
+        # No other field types are currently defined
+        raise ValueError(f"Unknown field type: {field_type} for field {field_name}")
 
     def _update_checkbox_icon(self, checkbox: QCheckBox, state: int) -> None:
         """Update checkbox icon based on state."""
@@ -294,35 +333,186 @@ class FrontmatterDialog(QDialog):
         else:
             checkbox.setIcon(get_icon("square_check.svg", color=THEME_BORDER))
 
-
-    def _on_date_changed(self) -> None:
-        """Handle date picker change."""
-        # Calculate file path
-        q_date = self.date_picker.date()
-        py_date = datetime.date(q_date.year(), q_date.month(), q_date.day())
+    def _populate_years(self) -> None:
+        """Populate the year dropdown based on existing folders."""
+        self.year_combo.blockSignals(True)
+        self.year_combo.clear()
 
         if self.current_note_type == "daily":
-            self.current_file_path = calculate_daily_note_path(
-                self.config.vault_path, py_date
-            )
+            journal_path = self.config.get_daily_journal_path()
         else:
-            self.current_file_path = calculate_weekly_note_path(
-                self.config.vault_path, py_date
-            )
+            journal_path = self.config.get_weekly_journal_path()
 
-        # Check if file exists
-        if self.current_file_path.exists():
-            self.status_label.setText(f"✓ Note exists: {self.current_file_path.name}")
-            self.status_label.setStyleSheet("color: #9ece6a;")  # Green
+        if not journal_path or not journal_path.exists():
+            self.year_combo.blockSignals(False)
+            return
+
+        # Get all year folders
+        years = []
+        for item in journal_path.iterdir():
+            if item.is_dir() and item.name.isdigit():
+                years.append(item.name)
+
+        years.sort(reverse=True)  # Most recent first
+        self.year_combo.addItems(years)
+        self.year_combo.blockSignals(False)
+
+        if years:
+            self._on_year_changed()
+
+    def _on_year_changed(self) -> None:
+        """Handle year dropdown change."""
+        if self.current_note_type == "daily":
+            self._populate_months()
+        else:
+            self._populate_weekly_files()
+
+    def _populate_months(self) -> None:
+        """Populate the month dropdown for daily notes."""
+        if not self.month_combo:
+            return
+
+        self.month_combo.blockSignals(True)
+        self.month_combo.clear()
+
+        year = self.year_combo.currentText()
+        if not year:
+            self.month_combo.blockSignals(False)
+            return
+
+        journal_path = self.config.get_daily_journal_path()
+        if not journal_path:
+            self.month_combo.blockSignals(False)
+            return
+
+        year_path = journal_path / year
+        if not year_path.exists():
+            self.month_combo.blockSignals(False)
+            return
+
+        # Get all month folders (format: MM-MMMM)
+        months = []
+        for item in year_path.iterdir():
+            if item.is_dir():
+                months.append(item.name)
+
+        # Sort by month number (first 2 characters)
+        months.sort(key=lambda x: x[:2], reverse=True)  # Most recent first
+        self.month_combo.addItems(months)
+        self.month_combo.blockSignals(False)
+
+        if months:
+            self._on_month_changed()
+
+    def _on_month_changed(self) -> None:
+        """Handle month dropdown change."""
+        self._populate_daily_files()
+
+    def _populate_daily_files(self) -> None:
+        """Populate the file dropdown for daily notes."""
+        self.file_combo.blockSignals(True)
+        self.file_combo.clear()
+
+        year = self.year_combo.currentText()
+        month = self.month_combo.currentText() if self.month_combo else ""
+
+        if not year or not month:
+            self.file_combo.blockSignals(False)
+            return
+
+        journal_path = self.config.get_daily_journal_path()
+        if not journal_path:
+            self.file_combo.blockSignals(False)
+            return
+
+        month_path = journal_path / year / month
+        if not month_path.exists():
+            self.file_combo.blockSignals(False)
+            return
+
+        # Get all .md files
+        files = []
+        for item in month_path.iterdir():
+            if item.is_file() and item.suffix == ".md":
+                files.append(item.name)
+
+        files.sort(reverse=True)  # Most recent first
+        self.file_combo.addItems(files)
+        self.file_combo.blockSignals(False)
+
+        if files:
+            self._on_file_changed()
+
+    def _populate_weekly_files(self) -> None:
+        """Populate the file dropdown for weekly notes."""
+        self.file_combo.blockSignals(True)
+        self.file_combo.clear()
+
+        year = self.year_combo.currentText()
+        if not year:
+            self.file_combo.blockSignals(False)
+            return
+
+        journal_path = self.config.get_weekly_journal_path()
+        if not journal_path:
+            self.file_combo.blockSignals(False)
+            return
+
+        year_path = journal_path / year
+        if not year_path.exists():
+            self.file_combo.blockSignals(False)
+            return
+
+        # Get all .md files, excluding *-Data.md files
+        files = []
+        for item in year_path.iterdir():
+            if item.is_file() and item.suffix == ".md":
+                # Exclude files matching pattern *-[W]*-Data.md
+                if not item.name.endswith("-Data.md"):
+                    files.append(item.name)
+
+        files.sort(reverse=True)  # Most recent first
+        self.file_combo.addItems(files)
+        self.file_combo.blockSignals(False)
+
+        if files:
+            self._on_file_changed()
+
+    def _on_file_changed(self) -> None:
+        """Handle file dropdown change."""
+        filename = self.file_combo.currentText()
+        if not filename:
+            self._clear_fields()
+            self.save_btn.setEnabled(False)
+            return
+
+        # Build file path
+        if self.current_note_type == "daily":
+            year = self.year_combo.currentText()
+            month = self.month_combo.currentText() if self.month_combo else ""
+            journal_path = self.config.get_daily_journal_path()
+            if journal_path:
+                self.current_file_path = journal_path / year / month / filename
+        else:
+            year = self.year_combo.currentText()
+            journal_path = self.config.get_weekly_journal_path()
+            if journal_path:
+                self.current_file_path = journal_path / year / filename
+
+        # Load frontmatter if file exists
+        if self.current_file_path and self.current_file_path.exists():
             self._load_frontmatter()
             self.save_btn.setEnabled(True)
         else:
-            self.status_label.setText(
-                f"⚠️ Note not found - Create it in Obsidian first"
-            )
-            self.status_label.setStyleSheet("color: #e0af68;")  # Yellow
             self._clear_fields()
             self.save_btn.setEnabled(False)
+
+    def _select_most_recent_note(self) -> None:
+        """Select the most recent note (first item in each dropdown)."""
+        # The dropdowns are already populated with most recent first
+        # Just ensure the first item is selected (which triggers the cascade)
+        if self.year_combo.count() > 0:
+            self.year_combo.setCurrentIndex(0)
 
     def _load_frontmatter(self) -> None:
         """Load frontmatter from the current file and populate widgets."""
@@ -357,8 +547,14 @@ class FrontmatterDialog(QDialog):
                         widget.setValue(int(value))
                     except (ValueError, TypeError):
                         widget.setValue(widget.minimum())
-            elif isinstance(widget, QLineEdit):
-                widget.setText(str(value) if value not in [None, ""] else "")
+            elif isinstance(widget, QDoubleSpinBox):
+                if value == "" or value is None:
+                    widget.setValue(widget.minimum())
+                else:
+                    try:
+                        widget.setValue(float(value))
+                    except (ValueError, TypeError):
+                        widget.setValue(widget.minimum())
 
     def _clear_fields(self) -> None:
         """Clear all field widgets."""
@@ -367,8 +563,8 @@ class FrontmatterDialog(QDialog):
                 widget.setChecked(False)
             elif isinstance(widget, QSpinBox):
                 widget.setValue(widget.minimum())
-            elif isinstance(widget, QLineEdit):
-                widget.clear()
+            elif isinstance(widget, QDoubleSpinBox):
+                widget.setValue(widget.minimum())
 
     def _validate_inputs(self) -> list[str]:
         """Validate all inputs and return list of errors."""
@@ -379,8 +575,8 @@ class FrontmatterDialog(QDialog):
                 value = widget.isChecked()
             elif isinstance(widget, QSpinBox):
                 value = widget.value()
-            elif isinstance(widget, QLineEdit):
-                value = widget.text()
+            elif isinstance(widget, QDoubleSpinBox):
+                value = widget.value()
             else:
                 continue
 
@@ -424,10 +620,11 @@ class FrontmatterDialog(QDialog):
                 # Only include non-zero values for optional fields
                 if value != 0 or widget.minimum() != 0:
                     updates[field_name] = value
-            elif isinstance(widget, QLineEdit):
-                text = widget.text().strip()
-                if text:  # Only include non-empty values
-                    updates[field_name] = text
+            elif isinstance(widget, QDoubleSpinBox):
+                value = widget.value()
+                # Only include non-zero values for optional fields
+                if value != 0.0 or widget.minimum() != 0.0:
+                    updates[field_name] = value
 
         # Update frontmatter
         success = update_frontmatter(self.current_file_path, updates)

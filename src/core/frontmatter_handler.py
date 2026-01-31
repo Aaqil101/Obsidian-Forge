@@ -15,10 +15,10 @@ from src.core.config import DAILY_JOURNAL_PATH, WEEKLY_JOURNAL_PATH
 
 # Field schemas for daily and weekly notes
 DAILY_FIELDS = {
-    "book": {"type": "text", "section": "Tracking"},
-    "learn_blender": {"type": "text", "section": "Tracking"},
-    "learn_python": {"type": "text", "section": "Tracking"},
-    "learn_ahk": {"type": "text", "section": "Tracking"},
+    "book": {"type": "float", "range": (0, 24), "section": "Tracking"},
+    "learn_blender": {"type": "float", "range": (0, 24), "section": "Tracking"},
+    "learn_python": {"type": "float", "range": (0, 24), "section": "Tracking"},
+    "learn_ahk": {"type": "float", "range": (0, 24), "section": "Tracking"},
     "morning_mood": {"type": "int", "range": (0, 10), "section": "Mood"},
     "evening_mood": {"type": "int", "range": (0, 10), "section": "Mood"},
     "MAD": {"type": "int", "range": (0, 4), "section": "Metrics"},
@@ -28,12 +28,12 @@ DAILY_FIELDS = {
 }
 
 WEEKLY_FIELDS = {
-    "weekly_overview": {"type": "int", "range": (0, 168), "section": "Overview"},
-    "overall_mood": {"type": "int", "range": (0, 10), "section": "Mood"},
-    "reading": {"type": "int", "range": (0, 168), "section": "Tracking"},
-    "learn_blender": {"type": "int", "range": (0, 168), "section": "Tracking"},
-    "learn_python": {"type": "int", "range": (0, 168), "section": "Tracking"},
-    "learn_ahk": {"type": "int", "range": (0, 168), "section": "Tracking"},
+    "weekly_overview": {"type": "float", "range": (0, 168), "section": "Overview"},
+    "overall_mood": {"type": "float", "range": (0, 10), "section": "Mood"},
+    "reading": {"type": "float", "range": (0, 168), "section": "Tracking"},
+    "learn_blender": {"type": "float", "range": (0, 168), "section": "Tracking"},
+    "learn_python": {"type": "float", "range": (0, 168), "section": "Tracking"},
+    "learn_ahk": {"type": "float", "range": (0, 168), "section": "Tracking"},
     "MAD": {"type": "int", "range": (0, 28), "section": "Metrics"},
     "PAD": {"type": "int", "range": (0, 70), "section": "Metrics"},
     "fajr_sunnah_total": {"type": "int", "range": (0, 7), "section": "Spiritual"},
@@ -205,6 +205,16 @@ def validate_field_value(field_name: str, value: any, note_type: str) -> Optiona
             int_value = int(value)
             min_val, max_val = field_config["range"]
             if not (min_val <= int_value <= max_val):
+                return f"{field_name} must be between {min_val} and {max_val}"
+        except (ValueError, TypeError):
+            return f"{field_name} must be a number"
+    elif field_type == "float":
+        if value == "" or value is None:
+            return None  # Empty values are allowed
+        try:
+            float_value = float(value)
+            min_val, max_val = field_config["range"]
+            if not (min_val <= float_value <= max_val):
                 return f"{field_name} must be between {min_val} and {max_val}"
         except (ValueError, TypeError):
             return f"{field_name} must be a number"
