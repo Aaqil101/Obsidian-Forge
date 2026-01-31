@@ -10,6 +10,11 @@ def qss() -> str:
         spacing: 8px;
     }}
 
+    QCheckBox:focus {{
+        background: transparent;
+        color: {THEME_TEXT_PRIMARY};
+    }}
+
     QCheckBox::indicator {{
         width: 0px;
         height: 0px;

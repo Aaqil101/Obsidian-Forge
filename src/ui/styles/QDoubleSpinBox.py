@@ -7,23 +7,23 @@ def qss() -> str:
     accent: dict[str, str] = AccentTheme.get()
 
     return f"""
-    QSpinBox {{
+    QDoubleSpinBox {{
         background-color: {accent['main_background']};
         color: {THEME_TEXT_PRIMARY};
         border: 1px solid {accent['border']};
         padding: 1px;
-}}
+    }}
 
-    QSpinBox:disabled {{
+    QDoubleSpinBox:disabled {{
         color: #828282;
     }}
 
-    QSpinBox:focus {{
+    QDoubleSpinBox:focus {{
         background-color: #222;
         border: 1px solid {accent['border']};
     }}
 
-    QSpinBox[text=\"\"] {{
+    QDoubleSpinBox[text=\"\"] {{
         color: {THEME_TEXT_PRIMARY};
     }}
     """
