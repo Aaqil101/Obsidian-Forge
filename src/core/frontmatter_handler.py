@@ -24,7 +24,12 @@ DAILY_FIELDS = {
     "MAD": {"type": "int", "range": (0, 4), "section": "Metrics"},
     "PAD": {"type": "int", "range": (0, 10), "section": "Metrics"},
     "fajr_sunnah": {"type": "bool", "section": "Spiritual"},
-    "prayers": {"type": "int", "range": (0, 5), "section": "Spiritual"},
+    "fajr": {"type": "bool", "section": "Spiritual"},
+    "dhuhr": {"type": "bool", "section": "Spiritual"},
+    "asr": {"type": "bool", "section": "Spiritual"},
+    "maghrib": {"type": "bool", "section": "Spiritual"},
+    "isha": {"type": "bool", "section": "Spiritual"},
+    "prayers": {"type": "int", "range": (0, 5), "section": "Spiritual"},  # Legacy field
 }
 
 WEEKLY_FIELDS = {
@@ -37,7 +42,12 @@ WEEKLY_FIELDS = {
     "MAD": {"type": "int", "range": (0, 28), "section": "Metrics"},
     "PAD": {"type": "int", "range": (0, 70), "section": "Metrics"},
     "fajr_sunnah_total": {"type": "int", "range": (0, 7), "section": "Spiritual"},
-    "prayers": {"type": "int", "range": (0, 35), "section": "Spiritual"},
+    "fajr_total": {"type": "int", "range": (0, 7), "section": "Spiritual"},
+    "dhuhr_total": {"type": "int", "range": (0, 7), "section": "Spiritual"},
+    "asr_total": {"type": "int", "range": (0, 7), "section": "Spiritual"},
+    "maghrib_total": {"type": "int", "range": (0, 7), "section": "Spiritual"},
+    "isha_total": {"type": "int", "range": (0, 7), "section": "Spiritual"},
+    "prayers": {"type": "int", "range": (0, 35), "section": "Spiritual"},  # Legacy field
 }
 
 

@@ -69,6 +69,7 @@ class FrontmatterDialog(QDialog):
         self.config = config
         self.current_note_type = note_type
         self.field_widgets = {}  # Maps field_name -> widget
+        self.field_rows = {}  # Maps field_name -> row widget for visibility control
         self.current_file_path: Optional[Path] = None
 
         # Set title based on note type
@@ -235,6 +236,7 @@ class FrontmatterDialog(QDialog):
                 item.widget().deleteLater()
 
         self.field_widgets.clear()
+        self.field_rows.clear()
 
         # Get field sections for current note type
         sections = get_fields_by_section(self.current_note_type)
@@ -254,10 +256,11 @@ class FrontmatterDialog(QDialog):
 
             for field_name in field_names:
                 field_config = fields[field_name]
-                field_widget = self._create_field_row(
+                field_row = self._create_field_row(
                     field_name, field_config, section_content
                 )
-                section_layout.addWidget(field_widget)
+                self.field_rows[field_name] = field_row  # Store row for visibility control
+                section_layout.addWidget(field_row)
 
             section_group.setLayout(section_layout)
             self.fields_layout.addWidget(section_group)
@@ -463,12 +466,12 @@ class FrontmatterDialog(QDialog):
             self.file_combo.blockSignals(False)
             return
 
-        # Get all .md files, excluding *-Data.md files
+        # Get all .md files, excluding * - Data.md files
         files = []
         for item in year_path.iterdir():
             if item.is_file() and item.suffix == ".md":
-                # Exclude files matching pattern *-[W]*-Data.md
-                if not item.name.endswith("-Data.md"):
+                # Exclude files matching pattern *-W* - Data.md
+                if not item.name.endswith(" - Data.md"):
                     files.append(item.name)
 
         files.sort(reverse=True)  # Most recent first
@@ -533,6 +536,9 @@ class FrontmatterDialog(QDialog):
             self._clear_fields()
             return
 
+        # Update prayer field visibility based on frontmatter content
+        self._update_prayer_field_visibility(frontmatter)
+
         # Populate widgets
         for field_name, widget in self.field_widgets.items():
             value = frontmatter.get(field_name)
@@ -558,6 +564,9 @@ class FrontmatterDialog(QDialog):
 
     def _clear_fields(self) -> None:
         """Clear all field widgets."""
+        # Set default visibility (show new individual fields, hide legacy 'prayers')
+        self._update_prayer_field_visibility({})
+
         for field_name, widget in self.field_widgets.items():
             if isinstance(widget, QCheckBox):
                 widget.setChecked(False)
@@ -566,11 +575,40 @@ class FrontmatterDialog(QDialog):
             elif isinstance(widget, QDoubleSpinBox):
                 widget.setValue(widget.minimum())
 
+    def _update_prayer_field_visibility(self, frontmatter: dict) -> None:
+        """
+        Show/hide prayer fields based on what exists in the frontmatter.
+
+        Logic:
+        - If 'prayers' field exists in frontmatter, show only 'prayers' and hide individual fields
+        - Otherwise, hide 'prayers' and show individual fields
+        """
+        has_legacy_prayers = "prayers" in frontmatter
+
+        if self.current_note_type == "daily":
+            # Individual prayer fields for daily notes
+            individual_fields = ["fajr", "dhuhr", "asr", "maghrib", "isha"]
+        else:  # weekly
+            # Individual prayer total fields for weekly notes
+            individual_fields = ["fajr_total", "dhuhr_total", "asr_total", "maghrib_total", "isha_total"]
+
+        # Show/hide based on whether legacy 'prayers' field exists
+        if "prayers" in self.field_rows:
+            self.field_rows["prayers"].setVisible(has_legacy_prayers)
+
+        for field in individual_fields:
+            if field in self.field_rows:
+                self.field_rows[field].setVisible(not has_legacy_prayers)
+
     def _validate_inputs(self) -> list[str]:
         """Validate all inputs and return list of errors."""
         errors = []
 
         for field_name, widget in self.field_widgets.items():
+            # Skip hidden fields
+            if field_name in self.field_rows and not self.field_rows[field_name].isVisible():
+                continue
+
             if isinstance(widget, QCheckBox):
                 value = widget.isChecked()
             elif isinstance(widget, QSpinBox):
@@ -610,9 +648,13 @@ class FrontmatterDialog(QDialog):
             popup.exec()
             return
 
-        # Collect values from widgets
+        # Collect values from widgets (only from visible fields)
         updates = {}
         for field_name, widget in self.field_widgets.items():
+            # Skip hidden fields
+            if field_name in self.field_rows and not self.field_rows[field_name].isVisible():
+                continue
+
             if isinstance(widget, QCheckBox):
                 updates[field_name] = widget.isChecked()
             elif isinstance(widget, QSpinBox):
