@@ -9,10 +9,12 @@ def qss() -> str:
     return f"""
     QSpinBox {{
         background-color: {accent['main_background']};
+        selection-background-color: {accent['border']};
+        selection-color: {THEME_TEXT_PRIMARY};
         color: {THEME_TEXT_PRIMARY};
         border: 1px solid {accent['border']};
         padding: 1px;
-}}
+    }}
 
     QSpinBox:disabled {{
         color: #828282;
