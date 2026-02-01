@@ -45,7 +45,7 @@ from src.core import (
 # ----- UI Modules-----
 from src.ui import components
 from src.ui.about_dialog import AboutDialog
-from src.ui.frontmatter_dialog import FrontmatterDialog
+from src.ui.frontmatter import DailyFrontmatterDialog, WeeklyFrontmatterDialog
 from src.ui.popup_window import PopupIcon, PopupWindow
 from src.ui.script_search_dialog import ScriptSearchDialog
 from src.ui.settings_dialog import SettingsDialog
@@ -838,7 +838,10 @@ class MainWindow(QMainWindow):
             popup.exec()
             return
 
-        dialog = FrontmatterDialog(self.config, note_type=note_type, parent=self)
+        if note_type == "daily":
+            dialog = DailyFrontmatterDialog(self.config, parent=self)
+        else:  # weekly
+            dialog = WeeklyFrontmatterDialog(self.config, parent=self)
         dialog.exec()
 
     def closeEvent(self, event) -> None:

@@ -34,7 +34,7 @@ DAILY_FIELDS = {
 
 WEEKLY_FIELDS = {
     "weekly_overview": {"type": "float", "range": (0, 168), "section": "Overview"},
-    "overall_mood": {"type": "float", "range": (0, 10), "section": "Mood"},
+    "overall_mood": {"type": "float", "range": (0, 10), "section": "Overview"},
     "reading": {"type": "float", "range": (0, 168), "section": "Tracking"},
     "learn_blender": {"type": "float", "range": (0, 168), "section": "Tracking"},
     "learn_python": {"type": "float", "range": (0, 168), "section": "Tracking"},
