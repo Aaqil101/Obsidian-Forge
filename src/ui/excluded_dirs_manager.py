@@ -20,7 +20,7 @@ from PySide6.QtWidgets import (
 )
 
 # ----- Core Modules -----
-from src.core.config import FONT_FAMILY, FONT_SIZE_HEADER, FONT_SIZE_TEXT, Config
+from src.core.config import FONT_FAMILY, Config
 
 # ----- UI Component Imports -----
 from src.ui import FileDialog, PopupIcon, PopupWindow
@@ -32,9 +32,7 @@ from src.utils import (
     COLOR_RED,
     THEME_TEXT_PRIMARY,
     THEME_TEXT_SECONDARY,
-    HoverIconButton,
     HoverIconButtonSVG,
-    Icons,
     get_icon,
 )
 
@@ -84,7 +82,7 @@ class ExcludedDirsManager(QDialog):
             "Add directories to exclude from vault scans.\n"
             "You can exclude by folder name (e.g., '.obsidian') or by full path (e.g., 'Zettelkasten/98 - Organize/Canvas')."
         )
-        desc.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
+        desc.setFont(QFont(FONT_FAMILY, 10))
         desc.setStyleSheet(f"color: {THEME_TEXT_SECONDARY}; padding: 0 0 8px 0;")
         desc.setWordWrap(True)
         main_layout.addWidget(desc)
@@ -119,7 +117,7 @@ class ExcludedDirsManager(QDialog):
 
         # Title
         title_label = QLabel("Excluded Directories")
-        title_label.setFont(QFont(FONT_FAMILY, FONT_SIZE_HEADER, QFont.Weight.Bold))
+        title_label.setFont(QFont(FONT_FAMILY, 13, QFont.Weight.Bold))
         title_label.setStyleSheet(f"color: {THEME_TEXT_PRIMARY};")
         layout.addWidget(title_label)
 
@@ -140,7 +138,7 @@ class ExcludedDirsManager(QDialog):
 
         # List widget
         self.list_widget = QListWidget()
-        self.list_widget.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
+        self.list_widget.setFont(QFont(FONT_FAMILY, 10))
         self.list_widget.setSelectionMode(QListWidget.SelectionMode.ExtendedSelection)
 
         layout.addWidget(self.list_widget)
@@ -170,7 +168,7 @@ class ExcludedDirsManager(QDialog):
             pressed_color=f"{THEME_TEXT_PRIMARY}",
             icon_size=14,
         )
-        browse_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
+        browse_btn.setFont(QFont(FONT_FAMILY, 10))
         browse_btn.setProperty("BrowseButton", True)
         browse_btn.setShortcut(QKeySequence("Ctrl+B"))
         browse_btn.setFixedHeight(30)
@@ -189,7 +187,7 @@ class ExcludedDirsManager(QDialog):
             icon_size=14,
             text="&Cancel",
         )
-        cancel_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
+        cancel_btn.setFont(QFont(FONT_FAMILY, 10))
         cancel_btn.setProperty("CancelButton", True)
         cancel_btn.setFixedHeight(30)
         cancel_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
@@ -207,7 +205,7 @@ class ExcludedDirsManager(QDialog):
             icon_size=14,
             text="&Remove",
         )
-        remove_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
+        remove_btn.setFont(QFont(FONT_FAMILY, 10))
         remove_btn.setProperty("RemoveButton", True)
         remove_btn.setFixedHeight(30)
         remove_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
@@ -226,7 +224,7 @@ class ExcludedDirsManager(QDialog):
             icon_size=14,
             text="&Save",
         )
-        save_btn.setFont(QFont(FONT_FAMILY, FONT_SIZE_TEXT))
+        save_btn.setFont(QFont(FONT_FAMILY, 10))
         save_btn.setFixedHeight(30)
         save_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         save_btn.setProperty("SaveButton", True)
@@ -391,12 +389,10 @@ class ExcludedDirsManager(QDialog):
                 title="Settings Saved",
                 icon=PopupIcon.SUCCESS,
                 info_popup=True,
+                auto_close_ms=1000,
                 parent=self,
             )
             popup.show()
-
-            # Auto-close popup after 1 second, then close the manager window
-            QTimer.singleShot(1000, lambda: (popup.accept(), self.accept()))
         else:
             popup = PopupWindow(
                 message="Failed to save excluded directories. Please try again.",

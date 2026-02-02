@@ -37,11 +37,13 @@ from src.ui.widgets import SettingsGroup
 
 # ----- Utils Modules-----
 from src.utils import (
+    COLOR_GREEN,
     COLOR_LIGHT_BLUE,
+    COLOR_RED,
     THEME_BORDER,
+    THEME_TEXT_PRIMARY,
     THEME_TEXT_SECONDARY,
-    HoverIconButton,
-    Icons,
+    HoverIconButtonSVG,
     get_icon,
 )
 
@@ -331,10 +333,14 @@ class SleepInputDialog(QDialog):
         button_layout.setSpacing(8)
         button_layout.addStretch()
 
-        cancel_btn = HoverIconButton(
-            normal_icon=Icons.CANCEL_OUTLINE,
-            hover_icon=Icons.CANCEL,
-            text="  Cancel",
+        cancel_btn = HoverIconButtonSVG(
+            normal_icon="cancel_outline.svg",
+            hover_icon="cancel_outline.svg",
+            hover_color=f"{THEME_TEXT_PRIMARY}",
+            pressed_icon="cancel.svg",
+            pressed_color=f"{COLOR_RED}",
+            icon_size=14,
+            text="&Cancel",
         )
         cancel_btn.setProperty("CancelButton", True)
         cancel_btn.setFont(QFont(FONT_FAMILY, 10))
@@ -344,11 +350,15 @@ class SleepInputDialog(QDialog):
         cancel_btn.clicked.connect(self.reject)
         button_layout.addWidget(cancel_btn)
 
-        submit_btn = HoverIconButton(
-            normal_icon=Icons.SAVE,
-            hover_icon=Icons.CONTENT_SAVE,
-            pressed_icon=Icons.CONTENT_SAVE_CHECK,
-            text="  Save Entry",
+        submit_btn = HoverIconButtonSVG(
+            normal_icon="save_outline.svg",
+            normal_color=f"{COLOR_GREEN}",
+            hover_icon="save_filled.svg",
+            hover_color=f"{COLOR_GREEN}",
+            pressed_icon="save_check_filled.svg",
+            pressed_color=f"{COLOR_GREEN}",
+            icon_size=14,
+            text="&Save Entry",
         )
         submit_btn.setProperty("SaveButton", True)
         submit_btn.setFont(QFont(FONT_FAMILY, 10))
