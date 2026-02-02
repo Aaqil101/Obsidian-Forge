@@ -27,6 +27,11 @@ DAILY_JOURNAL_PATH = "01 - Journal/Daily"
 WEEKLY_SCRIPTS_PATH = "98 - Organize/Scripts/Add to Weekly Note"
 WEEKLY_JOURNAL_PATH = "01 - Journal/Weekly"
 UTILS_SCRIPTS_PATH = "98 - Organize/Scripts/Utils"
+BOOKS = "95 - Notes\Books"
+YOUTUBE = "95 - Notes\YouTube Videos"
+TV_SHOWS = "95 - Notes\TV Shows"
+MOVIES = "95 - Notes\Movies"
+DOCUMENTARIES = "95 - Notes\Documentaries"
 TIME_PATH = "Time.md"
 
 # ══════════════════════════════════════════════════════════════════

@@ -157,20 +157,6 @@ def qss() -> str:
         outline: none;
     }}
 
-    /* === Popup Button === */
-    QPushButton[Popup=true] {{
-        color: {THEME_TEXT_PRIMARY};
-        background-color: #313131;
-        border: none;
-        padding: 4px;
-    }}
-
-    QPushButton[Popup=true]:hover {{
-        color: #FFFFFF;
-        background-color: #414141;
-        border: none;
-    }}
-
     /* === Collapse Button === */
     QPushButton[CollapseButton="true"] {{
         background-color: transparent;

@@ -6,14 +6,9 @@ Styled with Tokyo Night theme following GitUI's design patterns.
 
 # ----- Built-In Modules-----
 import sys
-from pathlib import Path
 
 # ----- PySide6 Modules-----
 from PySide6.QtWidgets import QApplication, QSystemTrayIcon
-
-# ----- Resources-----
-# Import Qt compiled resources (needed for :/assets/ paths in stylesheets)
-import src.resources_rc  # noqa: F401
 
 # ----- Core Modules-----
 from src.core.config import APP_NAME, Config

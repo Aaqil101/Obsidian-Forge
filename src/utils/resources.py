@@ -14,9 +14,9 @@ from PySide6.QtGui import QIcon, QPainter, QPixmap
 from PySide6.QtSvg import QSvgRenderer
 
 # ----- Resources-----
-try:
-    import src.resources_rc  # noqa: F401
+import src.resources_rc  # noqa: F401
 
+try:
     USE_QT_RESOURCES = True
 except ImportError:
     USE_QT_RESOURCES = False
