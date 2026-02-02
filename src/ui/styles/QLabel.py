@@ -32,11 +32,6 @@ def qss() -> str:
         padding: 6px;
     }}
 
-    QLabel[InfoBox="true"]:hover {{
-        border-bottom: 2px solid {accent['border']};
-        border-right: 2px solid {accent['border']};
-    }}
-
     QLabel[InfoLabel="true"] {{
         color: {THEME_BG_SECONDARY};
         font-size: 9pt;

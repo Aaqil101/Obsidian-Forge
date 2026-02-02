@@ -158,17 +158,17 @@ def qss() -> str:
     }}
 
     /* === Popup Button === */
-    QPushButton[Popup="true"] {{
-        background-color: rgba(255, 255, 255, 0.08);
+    QPushButton[Popup=true] {{
         color: {THEME_TEXT_PRIMARY};
-        border: 1px solid {THEME_BORDER};
-        padding: 8px 20px;
-        min-width: 80px;
+        background-color: #313131;
+        border: none;
+        padding: 4px;
     }}
-    QPushButton[Popup="true"]:hover {{
-        background-color: rgba(122, 162, 247, 0.2);
+
+    QPushButton[Popup=true]:hover {{
         color: #FFFFFF;
-        border: 1px solid {COLOR_LIGHT_BLUE};
+        background-color: #414141;
+        border: none;
     }}
 
     /* === Collapse Button === */
