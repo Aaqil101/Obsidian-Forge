@@ -3,9 +3,6 @@ Frontmatter editing dialog for weekly notes.
 Allows users to edit frontmatter fields without opening Obsidian.
 """
 
-# ----- Built-In Modules-----
-from pathlib import Path
-
 # ----- PySide6 Modules-----
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
@@ -104,7 +101,9 @@ class WeeklyFrontmatterDialog(BaseFrontmatterDialog):
         )
         self.weekly_overview_widget = QDoubleSpinBox()
         min_val, max_val = WEEKLY_FIELDS["weekly_overview"]["range"]
-        self._setup_double_spinbox(self.weekly_overview_widget, float(min_val), float(max_val))
+        self._setup_double_spinbox(
+            self.weekly_overview_widget, float(min_val), float(max_val)
+        )
         self._add_widget_to_container(
             weekly_overview_container, self.weekly_overview_widget
         )
@@ -118,7 +117,9 @@ class WeeklyFrontmatterDialog(BaseFrontmatterDialog):
         )
         self.overall_mood_widget = QDoubleSpinBox()
         min_val, max_val = WEEKLY_FIELDS["overall_mood"]["range"]
-        self._setup_double_spinbox(self.overall_mood_widget, float(min_val), float(max_val))
+        self._setup_double_spinbox(
+            self.overall_mood_widget, float(min_val), float(max_val)
+        )
         self._add_widget_to_container(overall_mood_container, self.overall_mood_widget)
         self.field_widgets["overall_mood"] = self.overall_mood_widget
         self.field_rows["overall_mood"] = overall_mood_container
@@ -154,7 +155,9 @@ class WeeklyFrontmatterDialog(BaseFrontmatterDialog):
         )
         self.learn_blender_widget = QDoubleSpinBox()
         min_val, max_val = WEEKLY_FIELDS["learn_blender"]["range"]
-        self._setup_double_spinbox(self.learn_blender_widget, float(min_val), float(max_val))
+        self._setup_double_spinbox(
+            self.learn_blender_widget, float(min_val), float(max_val)
+        )
         self._add_widget_to_container(
             learn_blender_container, self.learn_blender_widget
         )
@@ -168,7 +171,9 @@ class WeeklyFrontmatterDialog(BaseFrontmatterDialog):
         )
         self.learn_python_widget = QDoubleSpinBox()
         min_val, max_val = WEEKLY_FIELDS["learn_python"]["range"]
-        self._setup_double_spinbox(self.learn_python_widget, float(min_val), float(max_val))
+        self._setup_double_spinbox(
+            self.learn_python_widget, float(min_val), float(max_val)
+        )
         self._add_widget_to_container(learn_python_container, self.learn_python_widget)
         self.field_widgets["learn_python"] = self.learn_python_widget
         self.field_rows["learn_python"] = learn_python_container
@@ -180,7 +185,9 @@ class WeeklyFrontmatterDialog(BaseFrontmatterDialog):
         )
         self.learn_ahk_widget = QDoubleSpinBox()
         min_val, max_val = WEEKLY_FIELDS["learn_ahk"]["range"]
-        self._setup_double_spinbox(self.learn_ahk_widget, float(min_val), float(max_val))
+        self._setup_double_spinbox(
+            self.learn_ahk_widget, float(min_val), float(max_val)
+        )
         self._add_widget_to_container(learn_ahk_container, self.learn_ahk_widget)
         self.field_widgets["learn_ahk"] = self.learn_ahk_widget
         self.field_rows["learn_ahk"] = learn_ahk_container

@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Optional
 
 # ----- Third-Party Modules-----
-import yaml
+from ruamel.yaml import YAML
 
 # ----- Core Modules-----
 from src.core.config import DAILY_JOURNAL_PATH, WEEKLY_JOURNAL_PATH
@@ -132,9 +132,13 @@ def parse_frontmatter(file_path: Path) -> tuple[dict, str]:
     remaining: str = parts[2]
 
     try:
-        frontmatter = yaml.safe_load(yaml_str) or {}
+        yaml = YAML()
+        yaml.preserve_quotes = True
+        yaml.default_flow_style = False
+        yaml.indent(mapping=2, sequence=2, offset=2)  # Preserve indentation style
+        frontmatter = yaml.load(yaml_str) or {}
         return frontmatter, remaining
-    except yaml.YAMLError as e:
+    except Exception as e:
         print(f"Error parsing YAML frontmatter: {e}")
         return {}, content
 
@@ -159,22 +163,49 @@ def update_frontmatter(file_path: Path, updates: dict) -> bool:
         return False
 
     try:
-        # Parse existing frontmatter
-        frontmatter, content = parse_frontmatter(file_path)
+        # Read the file content
+        content_str: str = file_path.read_text(encoding="utf-8")
+
+        # Check for frontmatter
+        if not content_str.startswith("---"):
+            print(f"No frontmatter found in {file_path}")
+            return False
+
+        # Split on second --- delimiter
+        parts: list[str] = content_str.split("---", 2)
+        if len(parts) < 3:
+            print(f"Invalid frontmatter format in {file_path}")
+            return False
+
+        yaml_str: str = parts[1]
+        remaining: str = parts[2]
+
+        # Load and update frontmatter using ruamel.yaml (preserves formatting)
+        yaml = YAML()
+        yaml.preserve_quotes = True
+        yaml.default_flow_style = False
+        yaml.width = 4096  # Prevent line wrapping
+        yaml.indent(mapping=2, sequence=2, offset=2)  # Preserve indentation style
+
+        frontmatter = yaml.load(yaml_str)
+        if frontmatter is None:
+            frontmatter = {}
 
         # Update fields
         for key, value in updates.items():
             frontmatter[key] = value
 
-        # Reconstruct file
-        yaml_str: str = yaml.dump(
-            frontmatter, default_flow_style=False, allow_unicode=True, sort_keys=False
-        )
+        # Dump back to string with preserved formatting
+        from io import StringIO
 
-        # Remove trailing newline from yaml.dump() output to avoid double newlines
+        stream = StringIO()
+        yaml.dump(frontmatter, stream)
+        yaml_str = stream.getvalue()
+
+        # Remove trailing newline to avoid double newlines
         yaml_str = yaml_str.rstrip("\n")
 
-        new_content: str = f"---\n{yaml_str}\n---{content}"
+        new_content: str = f"---\n{yaml_str}\n---{remaining}"
 
         # Write back to file
         file_path.write_text(new_content, encoding="utf-8")

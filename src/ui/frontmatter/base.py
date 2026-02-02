@@ -36,13 +36,7 @@ from src.core.frontmatter_handler import (
 from src.ui.popup_window import PopupIcon, PopupWindow
 
 # ----- Utils Modules-----
-from src.utils import (
-    COLOR_GREEN,
-    COLOR_RED,
-    THEME_TEXT_PRIMARY,
-    THEME_TEXT_SECONDARY,
-    HoverIconButtonSVG,
-)
+from src.utils import COLOR_GREEN, COLOR_RED, THEME_TEXT_PRIMARY, HoverIconButtonSVG
 
 
 class BaseFrontmatterDialog(QDialog):
@@ -341,7 +335,9 @@ class BaseFrontmatterDialog(QDialog):
             elif isinstance(widget, QSpinBox):
                 updates[field_name] = widget.value()
             elif isinstance(widget, QDoubleSpinBox):
-                updates[field_name] = widget.value()
+                value = widget.value()
+                # Save zero as integer "0" instead of "0.00"
+                updates[field_name] = 0 if value == 0 else value
 
         # Update frontmatter
         success: bool = update_frontmatter(self.current_file_path, updates)
@@ -352,6 +348,7 @@ class BaseFrontmatterDialog(QDialog):
                 title="Success",
                 icon=PopupIcon.SUCCESS,
                 parent=self,
+                auto_close_ms=1000,
             )
             popup.exec()
             self.accept()
@@ -381,7 +378,6 @@ class BaseFrontmatterDialog(QDialog):
             self.move(window_geometry.topLeft())
 
     # === Abstract Methods (to be implemented by subclasses) ===
-
     @abstractmethod
     def _build_date_picker_section(self, sections_container: QWidget) -> None:
         """
