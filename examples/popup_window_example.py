@@ -11,14 +11,13 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from PySide6.QtWidgets import QApplication, QPushButton, QVBoxLayout, QWidget
 
-from src.ui.popup_window import PopupIcon, PopupWindow
-from src.ui.styles import get_main_stylesheet
+from src.ui import PopupIcon, PopupWindow, build_stylesheet
 
 
 class PopupDemo(QWidget):
     """Demo window showing various popup configurations."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle("Popup Window Examples")
         self.setMinimumSize(400, 300)
@@ -60,10 +59,15 @@ class PopupDemo(QWidget):
         no_icon_btn.clicked.connect(self.show_no_icon_popup)
         layout.addWidget(no_icon_btn)
 
+        # Auto-close timer popup
+        timer_btn = QPushButton("Show Auto-Close Timer (3s)")
+        timer_btn.clicked.connect(self.show_timer_popup)
+        layout.addWidget(timer_btn)
+
         layout.addStretch()
         self.setLayout(layout)
 
-    def show_info_popup(self):
+    def show_info_popup(self) -> None:
         """Show an info popup."""
         popup = PopupWindow(
             message="This is an informational message.\nIt uses the info icon and only has an OK button.",
@@ -74,7 +78,7 @@ class PopupDemo(QWidget):
         )
         popup.exec()
 
-    def show_warning_popup(self):
+    def show_warning_popup(self) -> None:
         """Show a warning popup."""
         popup = PopupWindow(
             message="This is a warning message.\nSomething requires your attention!",
@@ -85,7 +89,7 @@ class PopupDemo(QWidget):
         )
         popup.exec()
 
-    def show_error_popup(self):
+    def show_error_popup(self) -> None:
         """Show an error popup."""
         popup = PopupWindow(
             message="An error has occurred!\nPlease check the logs for more details.",
@@ -96,7 +100,7 @@ class PopupDemo(QWidget):
         )
         popup.exec()
 
-    def show_success_popup(self):
+    def show_success_popup(self) -> None:
         """Show a success popup."""
         popup = PopupWindow(
             message="Operation completed successfully!\nAll changes have been saved.",
@@ -107,7 +111,7 @@ class PopupDemo(QWidget):
         )
         popup.exec()
 
-    def show_confirmation_popup(self):
+    def show_confirmation_popup(self) -> None:
         """Show a confirmation popup with OK and Cancel buttons."""
         popup = PopupWindow(
             message="Are you sure you want to proceed?\nThis action cannot be undone.",
@@ -123,7 +127,7 @@ class PopupDemo(QWidget):
 
         popup.exec()
 
-    def show_custom_buttons_popup(self):
+    def show_custom_buttons_popup(self) -> None:
         """Show a popup with custom buttons."""
         popup = PopupWindow(
             message="Choose your preferred option from the buttons below.",
@@ -138,7 +142,7 @@ class PopupDemo(QWidget):
 
         popup.exec()
 
-    def show_no_icon_popup(self):
+    def show_no_icon_popup(self) -> None:
         """Show a popup without an icon."""
         popup = PopupWindow(
             message="This popup has no icon, just a simple message.",
@@ -149,12 +153,24 @@ class PopupDemo(QWidget):
         )
         popup.exec()
 
+    def show_timer_popup(self) -> None:
+        """Show a popup that automatically closes after 3 seconds."""
+        popup = PopupWindow(
+            message="This popup will automatically close in 3 seconds.\nNo need to click OK!",
+            title="Auto-Close Timer",
+            icon=PopupIcon.INFO,
+            info_popup=True,
+            parent=self,
+            auto_close_ms=3000,  # Close after 3 seconds
+        )
+        popup.exec()
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     # Apply Tokyo Night theme
-    app.setStyleSheet(get_main_stylesheet())
+    app.setStyleSheet(build_stylesheet())
 
     demo = PopupDemo()
     demo.show()
