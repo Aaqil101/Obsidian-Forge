@@ -7,7 +7,7 @@ Flow Launcher-style searchable list of all available scripts (daily + weekly).
 from dataclasses import dataclass
 
 # ----- PySide6 Modules -----
-from PySide6.QtCore import QSize, Qt, Signal
+from PySide6.QtCore import QEasingCurve, QPropertyAnimation, QSize, Qt, Signal
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
     QApplication,
@@ -139,17 +139,44 @@ class ScriptSearchDialog(QDialog):
         self.all_scripts: list[ScriptSearchItem] = []
 
         # Window configuration - frameless, transparent, always on top
+        # Using Popup instead of Tool for better focus behavior
         self.setWindowFlags(
-            Qt.WindowType.Tool
+            Qt.WindowType.Popup
             | Qt.WindowType.FramelessWindowHint
-            | Qt.WindowType.WindowStaysOnTopHint
+            | Qt.WindowType.NoDropShadowWindowHint
         )
         self.setWindowTitle("Obsidian Forge")
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setFixedWidth(650)
 
+        # Setup fade animations
+        self._setup_animations()
+
         self._setup_ui()
         self._load_scripts()
+
+    def _setup_animations(self) -> None:
+        """Setup fade in/out animations for the dialog."""
+        # Fade in animation
+        self.fade_in = QPropertyAnimation(self, b"windowOpacity")
+        self.fade_in.setDuration(150)  # 150ms fade in
+        self.fade_in.setStartValue(0.0)
+        self.fade_in.setEndValue(1.0)
+        self.fade_in.setEasingCurve(QEasingCurve.Type.OutCubic)
+
+        # Fade out animation
+        self.fade_out = QPropertyAnimation(self, b"windowOpacity")
+        self.fade_out.setDuration(100)  # 100ms fade out
+        self.fade_out.setStartValue(1.0)
+        self.fade_out.setEndValue(0.0)
+        self.fade_out.setEasingCurve(QEasingCurve.Type.InCubic)
+        # Hide the dialog when fade out completes
+        self.fade_out.finished.connect(lambda: super(ScriptSearchDialog, self).hide())
+
+    def hide_animated(self) -> None:
+        """Hide the dialog with fade out animation."""
+        if self.isVisible():
+            self.fade_out.start()
 
     def _setup_ui(self) -> None:
         """Setup the dialog UI - Flow Launcher style."""
@@ -415,7 +442,7 @@ class ScriptSearchDialog(QDialog):
             # Retrieve script data stored in the item
             script = current.data(Qt.ItemDataRole.UserRole)
             if script and isinstance(script, ScriptSearchItem):
-                self.hide()
+                self.hide_animated()
                 # Check if it's a system action
                 if script.is_system_action:
                     if script.name == "Edit Daily Frontmatter":
@@ -438,7 +465,7 @@ class ScriptSearchDialog(QDialog):
             event: The key press event
         """
         if event.key() == Qt.Key.Key_Escape:
-            self.hide()
+            self.hide_animated()
             event.accept()
         elif event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
             self._execute_selected()
@@ -452,6 +479,7 @@ class ScriptSearchDialog(QDialog):
             event.accept()
         else:
             super().keyPressEvent(event)
+
 
     def _resize_keeping_position(self) -> None:
         """Resize the dialog while keeping its top position fixed."""
@@ -537,7 +565,16 @@ class ScriptSearchDialog(QDialog):
         # Process pending events to ensure geometry is updated
         QApplication.processEvents()
 
-        self.search_input.setFocus()
-
         # Center on screen
         self._center_window()
+
+        # Activate and raise the window to ensure it gets focus
+        self.activateWindow()
+        self.raise_()
+
+        # Set focus after window is positioned and activated
+        self.search_input.setFocus()
+
+        # Start fade in animation
+        self.setWindowOpacity(0.0)
+        self.fade_in.start()
