@@ -6,6 +6,7 @@ Styled with Tokyo Night theme following GitUI's design patterns.
 # ----- Built-In Modules-----
 import os
 import sys
+import webbrowser
 from pathlib import Path
 
 # ----- Keyboard Modules-----
@@ -44,6 +45,7 @@ from src.core import (
 
 # ----- Core Modules-----
 from src.core.config import APP_NAME, FONT_FAMILY, Config
+from src.core.flask_server import FlaskServerThread
 
 # ----- UI Modules-----
 from src.ui import components
@@ -209,6 +211,7 @@ class MainWindow(QMainWindow):
         self.config = Config()
         self.executor = ScriptExecutor(self.config)
         self.script_thread = None
+        self.flask_server_thread = None
         self.keyboard_hotkey_registered = False
 
         # Connect the signal to the method for thread-safe access
@@ -222,6 +225,9 @@ class MainWindow(QMainWindow):
 
         # Script search dialog (lazy initialization)
         self.script_search_dialog = None
+
+        # Connect to app quit signal for cleanup
+        QApplication.instance().aboutToQuit.connect(self.cleanup_on_exit)
 
         # Track window visibility state
         self._is_window_visible = True
@@ -407,6 +413,13 @@ class MainWindow(QMainWindow):
             except Exception:
                 pass  # Ignore cleanup errors
 
+    def cleanup_on_exit(self) -> None:
+        """Clean up resources when application is about to quit."""
+        # Stop Flask server if running
+        if self.flask_server_thread and self.flask_server_thread.isRunning():
+            self.flask_server_thread.stop()
+            self.flask_server_thread.wait(2000)  # Wait up to 2 seconds
+
     def setup_ui(self) -> None:
         """Setup the user interface with Blender-Launcher-inspired design."""
         central_widget = QWidget()
@@ -493,6 +506,9 @@ class MainWindow(QMainWindow):
         # Weekly Notes Section
         self.create_collapsible_section("Weekly Notes", "weekly")
 
+        # Libraries Section
+        self.create_libraries_section()
+
         # Add stretch at the end
         self.sections_layout.addStretch()
 
@@ -548,6 +564,56 @@ class MainWindow(QMainWindow):
             )
             # Store script info for execution
             self.script_row_map[script_row] = script
+
+        # Set the content widget
+        section_group.setWidget(cards_widget)
+
+        # Add to main layout
+        self.sections_layout.addWidget(section_group)
+
+    def create_libraries_section(self) -> None:
+        """Create a collapsible section with media library cards."""
+        # Create collapsible settings group
+        section_group = SettingsGroup("Libraries", parent=self.sections_container)
+
+        # Create container for library cards with grid layout
+        cards_widget = QWidget()
+        cards_widget.setProperty("CardsContainer", True)
+        cards_layout = QGridLayout(cards_widget)
+        cards_layout.setContentsMargins(6, 6, 6, 6)
+        cards_layout.setSpacing(8)
+
+        # Define media library items
+        libraries = [
+            {"name": "Books", "icon": "web/books.svg", "type": "books"},
+            {"name": "Movies", "icon": "web/movies.svg", "type": "movies"},
+            {"name": "TV Shows", "icon": "web/tv_shows.svg", "type": "tv_shows"},
+            {"name": "YouTube Videos", "icon": "web/youtube.svg", "type": "youtube"},
+            {
+                "name": "Documentaries",
+                "icon": "web/documentaries.svg",
+                "type": "documentaries",
+            },
+        ]
+
+        # Create cards in grid (5 columns)
+        columns = 5
+        for index, library in enumerate(libraries):
+            row: int = index // columns
+            col: int = index % columns
+
+            library_row = ScriptRow(
+                name=library["name"],
+                icon_name=library["icon"],
+                description=f"Open {library['name']} library",
+                script_type="library",
+                parent=cards_widget,
+            )
+            # Connect to launch media library
+            library_row.execute_clicked.connect(
+                lambda t=library["type"]: self.launch_media_library(t)
+            )
+            cards_layout.addWidget(library_row, row, col)
 
         # Set the content widget
         section_group.setWidget(cards_widget)
@@ -844,6 +910,61 @@ class MainWindow(QMainWindow):
         dialog = AboutDialog(self)
         dialog.exec()
 
+    def launch_media_library(self, media_type: str = "") -> None:
+        """Launch the media library in browser, filtered to media type."""
+        if not self.config.is_configured():
+            popup = PopupWindow(
+                message="Please configure vault path in settings first.",
+                title="Configuration Required",
+                icon=PopupIcon.WARNING,
+                parent=self,
+            )
+            popup.exec()
+            return
+
+        # Start server if not running
+        if self.flask_server_thread is None or not self.flask_server_thread.isRunning():
+            self._start_flask_server(media_type)
+        else:
+            # Server already running, just open browser
+            port = self.flask_server_thread.port
+            url = f"http://127.0.0.1:{port}"
+            if media_type:
+                url += f"?type={media_type}"
+            webbrowser.open(url)
+
+    def _start_flask_server(self, media_type: str = "") -> None:
+        """Start Flask server in background thread."""
+        self.flask_server_thread = FlaskServerThread(self.config, self)
+        self.flask_server_thread.server_started.connect(
+            lambda port: self._on_flask_server_started(port, media_type)
+        )
+        self.flask_server_thread.server_error.connect(self._on_flask_server_error)
+        self.flask_server_thread.start()
+
+    def _on_flask_server_started(self, port: int, media_type: str = "") -> None:
+        """Handle successful server start."""
+        url = f"http://127.0.0.1:{port}"
+        if media_type:
+            url += f"?type={media_type}"
+        webbrowser.open(url)
+
+        self.tray_manager.show_notification(
+            "Media Library",
+            f"Server started on port {port}",
+            QSystemTrayIcon.MessageIcon.Information,
+        )
+
+    def _on_flask_server_error(self, error: str) -> None:
+        """Handle server error."""
+        popup = PopupWindow(
+            message=f"Failed to start media library server:\n\n{error}",
+            title="Server Error",
+            icon=PopupIcon.ERROR,
+            parent=self,
+        )
+        popup.exec()
+
     def show_frontmatter_editor(self, note_type: str = "daily") -> None:
         """
         Show the frontmatter editing dialog.
@@ -874,6 +995,12 @@ class MainWindow(QMainWindow):
         if modifiers & Qt.KeyboardModifier.ShiftModifier:
             # Shift+Click = fully close the application
             self.cleanup_global_hotkeys()
+
+            # Stop Flask server if running
+            if self.flask_server_thread and self.flask_server_thread.isRunning():
+                self.flask_server_thread.stop()
+                self.flask_server_thread.wait(2000)  # Wait up to 2 seconds
+
             event.accept()
             QApplication.quit()
         else:

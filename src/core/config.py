@@ -27,11 +27,11 @@ DAILY_JOURNAL_PATH = "01 - Journal/Daily"
 WEEKLY_SCRIPTS_PATH = "98 - Organize/Scripts/Add to Weekly Note"
 WEEKLY_JOURNAL_PATH = "01 - Journal/Weekly"
 UTILS_SCRIPTS_PATH = "98 - Organize/Scripts/Utils"
-BOOKS = "95 - Notes\Books"
-YOUTUBE = "95 - Notes\YouTube Videos"
-TV_SHOWS = "95 - Notes\TV Shows"
-MOVIES = "95 - Notes\Movies"
-DOCUMENTARIES = "95 - Notes\Documentaries"
+BOOKS = "95 - Notes/Books"
+YOUTUBE = "95 - Notes/YouTube Videos"
+TV_SHOWS = "95 - Notes/TV Shows"
+MOVIES = "95 - Notes/Movies"
+DOCUMENTARIES = "95 - Notes/Documentaries"
 TIME_PATH = "Time.md"
 
 # ══════════════════════════════════════════════════════════════════
@@ -131,6 +131,13 @@ class Config:
             "excluded_directories": [".obsidian", ".space", ".trash"],
             "start_minimized": False,
             "enable_autostart": False,
+            # Media Library settings
+            "media_library_port": 5555,
+            "custom_books_path": "",
+            "custom_youtube_path": "",
+            "custom_movies_path": "",
+            "custom_tv_shows_path": "",
+            "custom_documentaries_path": "",
         }
 
     def _increment_version(self) -> None:
@@ -327,6 +334,110 @@ class Config:
         if self.custom_time_path:
             return Path(self.vault_path) / self.custom_time_path
         return Path(self.vault_path) / TIME_PATH
+
+    # ══════════════════════════════════════════════════════════════════
+    # MEDIA LIBRARY PROPERTIES
+    # ══════════════════════════════════════════════════════════════════
+
+    @property
+    def media_library_port(self) -> int:
+        """Get media library server port."""
+        return self.settings.get("media_library_port", 5555)
+
+    @media_library_port.setter
+    def media_library_port(self, port: int) -> None:
+        """Set media library server port."""
+        self.settings["media_library_port"] = port
+
+    @property
+    def custom_books_path(self) -> str:
+        """Get custom books path."""
+        return self.settings.get("custom_books_path", "")
+
+    @custom_books_path.setter
+    def custom_books_path(self, path: str) -> None:
+        """Set custom books path."""
+        self.settings["custom_books_path"] = path
+
+    @property
+    def custom_youtube_path(self) -> str:
+        """Get custom YouTube path."""
+        return self.settings.get("custom_youtube_path", "")
+
+    @custom_youtube_path.setter
+    def custom_youtube_path(self, path: str) -> None:
+        """Set custom YouTube path."""
+        self.settings["custom_youtube_path"] = path
+
+    @property
+    def custom_movies_path(self) -> str:
+        """Get custom movies path."""
+        return self.settings.get("custom_movies_path", "")
+
+    @custom_movies_path.setter
+    def custom_movies_path(self, path: str) -> None:
+        """Set custom movies path."""
+        self.settings["custom_movies_path"] = path
+
+    @property
+    def custom_tv_shows_path(self) -> str:
+        """Get custom TV shows path."""
+        return self.settings.get("custom_tv_shows_path", "")
+
+    @custom_tv_shows_path.setter
+    def custom_tv_shows_path(self, path: str) -> None:
+        """Set custom TV shows path."""
+        self.settings["custom_tv_shows_path"] = path
+
+    @property
+    def custom_documentaries_path(self) -> str:
+        """Get custom documentaries path."""
+        return self.settings.get("custom_documentaries_path", "")
+
+    @custom_documentaries_path.setter
+    def custom_documentaries_path(self, path: str) -> None:
+        """Set custom documentaries path."""
+        self.settings["custom_documentaries_path"] = path
+
+    def get_books_path(self) -> Optional[Path]:
+        """Get full path to books directory."""
+        if not self.vault_path:
+            return None
+        if self.custom_books_path:
+            return Path(self.vault_path) / self.custom_books_path
+        return Path(self.vault_path) / BOOKS
+
+    def get_youtube_path(self) -> Optional[Path]:
+        """Get full path to YouTube directory."""
+        if not self.vault_path:
+            return None
+        if self.custom_youtube_path:
+            return Path(self.vault_path) / self.custom_youtube_path
+        return Path(self.vault_path) / YOUTUBE
+
+    def get_movies_path(self) -> Optional[Path]:
+        """Get full path to movies directory."""
+        if not self.vault_path:
+            return None
+        if self.custom_movies_path:
+            return Path(self.vault_path) / self.custom_movies_path
+        return Path(self.vault_path) / MOVIES
+
+    def get_tv_shows_path(self) -> Optional[Path]:
+        """Get full path to TV shows directory."""
+        if not self.vault_path:
+            return None
+        if self.custom_tv_shows_path:
+            return Path(self.vault_path) / self.custom_tv_shows_path
+        return Path(self.vault_path) / TV_SHOWS
+
+    def get_documentaries_path(self) -> Optional[Path]:
+        """Get full path to documentaries directory."""
+        if not self.vault_path:
+            return None
+        if self.custom_documentaries_path:
+            return Path(self.vault_path) / self.custom_documentaries_path
+        return Path(self.vault_path) / DOCUMENTARIES
 
     def scan_vault_folders(self, vault_path: str = None) -> list[str]:
         """Scan vault for all folders, excluding configured directories.

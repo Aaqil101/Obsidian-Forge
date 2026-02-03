@@ -421,6 +421,79 @@ class SettingsDialog(QDialog):
         tray_section.setWidget(tray_content)
         sections_layout.addWidget(tray_section)
 
+        # ═══════════════════════════════════════════════════════════════
+        # Media Library Section
+        # ═══════════════════════════════════════════════════════════════
+        media_section = SettingsGroup("Media Library", parent=sections_container)
+
+        media_content = QWidget()
+        media_content_layout = QVBoxLayout(media_content)
+        media_content_layout.setContentsMargins(8, 8, 8, 8)
+        media_content_layout.setSpacing(12)
+
+        # Port configuration
+        port_row = QWidget()
+        port_layout = QHBoxLayout(port_row)
+        port_layout.setContentsMargins(0, 0, 0, 0)
+        port_layout.setSpacing(8)
+
+        port_label = QLabel("Server Port:")
+        port_label.setFont(QFont(FONT_FAMILY, 10))
+        port_label.setStyleSheet("color: rgba(192, 202, 245, 0.8);")
+        port_label.setMinimumWidth(100)
+        port_layout.addWidget(port_label)
+
+        self.port_spinbox = QSpinBox()
+        self.port_spinbox.setProperty("MainSpinBox", True)
+        self.port_spinbox.setRange(5000, 9999)
+        self.port_spinbox.setValue(5555)
+        self.port_spinbox.setFont(QFont(FONT_FAMILY, 10))
+        port_layout.addWidget(self.port_spinbox)
+        port_layout.addStretch()
+
+        media_content_layout.addWidget(port_row)
+
+        # Separator
+        separator = QFrame()
+        separator.setFrameShape(QFrame.Shape.HLine)
+        separator.setFrameShadow(QFrame.Shadow.Sunken)
+        separator.setStyleSheet(
+            "background-color: rgba(65, 72, 104, 0.5); max-height: 1px;"
+        )
+        media_content_layout.addWidget(separator)
+
+        # Media Paths label
+        paths_label = QLabel("Media Folder Paths")
+        paths_label.setFont(QFont(FONT_FAMILY, 10, QFont.Weight.Bold))
+        paths_label.setStyleSheet("color: rgba(192, 202, 245, 0.9);")
+        media_content_layout.addWidget(paths_label)
+
+        # Path comboboxes for each media type
+        books_row = self._create_media_path_row("Books:", "books")
+        youtube_row = self._create_media_path_row("YouTube:", "youtube")
+        movies_row = self._create_media_path_row("Movies:", "movies")
+        tv_shows_row = self._create_media_path_row("TV Shows:", "tv_shows")
+        documentaries_row = self._create_media_path_row("Docs:", "documentaries")
+
+        media_content_layout.addWidget(books_row)
+        media_content_layout.addWidget(youtube_row)
+        media_content_layout.addWidget(movies_row)
+        media_content_layout.addWidget(tv_shows_row)
+        media_content_layout.addWidget(documentaries_row)
+
+        # Info label
+        media_info = QLabel(
+            "Configure paths to media markdown files in your vault\n"
+            "Leave as (Default) to use the standard paths"
+        )
+        media_info.setWordWrap(True)
+        media_info.setFont(QFont(FONT_FAMILY, 9))
+        media_info.setStyleSheet("color: rgba(192, 202, 245, 0.6); padding-left: 28px;")
+        media_content_layout.addWidget(media_info)
+
+        media_section.setWidget(media_content)
+        sections_layout.addWidget(media_section)
+
         sections_layout.addStretch()
 
         scroll_area.setWidget(sections_container)
@@ -546,6 +619,59 @@ class SettingsDialog(QDialog):
 
         return row
 
+    def _create_media_path_row(self, label_text: str, media_type: str) -> QWidget:
+        """Create a compact row with label and combobox for media path selection.
+
+        Args:
+            label_text: The label text to display
+            media_type: The type of media (books, youtube, movies, tv_shows, documentaries)
+
+        Returns:
+            QWidget containing the row layout
+        """
+        row = QWidget()
+        layout = QHBoxLayout(row)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(8)
+
+        # Indent spacer
+        indent = QLabel()
+        indent.setFixedWidth(20)
+        layout.addWidget(indent)
+
+        # Label (compact)
+        label = QLabel(label_text)
+        label.setFont(QFont(FONT_FAMILY, 9))
+        label.setStyleSheet("color: rgba(192, 202, 245, 0.7);")
+        label.setMinimumWidth(70)
+        label.setMaximumWidth(70)
+        layout.addWidget(label)
+
+        # ComboBox (compact)
+        combo = QComboBox()
+        combo.setProperty("MainComboBox", True)
+        combo.setFont(QFont(FONT_FAMILY, 9))
+        combo.setMinimumHeight(26)
+        combo.setMaximumHeight(26)
+        combo.addItem("(Default)")
+        combo.setEnabled(False)
+
+        layout.addWidget(combo, 1)
+
+        # Store reference to combobox
+        if media_type == "books":
+            self.books_combo = combo
+        elif media_type == "youtube":
+            self.youtube_combo = combo
+        elif media_type == "movies":
+            self.movies_combo = combo
+        elif media_type == "tv_shows":
+            self.tv_shows_combo = combo
+        elif media_type == "documentaries":
+            self.documentaries_combo = combo
+
+        return row
+
     def load_settings(self) -> None:
         """Load current settings into the form."""
         self.vault_path_input.setText(self.config.vault_path)
@@ -578,6 +704,24 @@ class SettingsDialog(QDialog):
             )
         if self.config.custom_time_path:
             self._set_combobox_value(self.time_path_combo, self.config.custom_time_path)
+
+        # Load media library settings
+        self.port_spinbox.setValue(self.config.media_library_port)
+
+        if self.config.custom_books_path:
+            self._set_combobox_value(self.books_combo, self.config.custom_books_path)
+        if self.config.custom_youtube_path:
+            self._set_combobox_value(self.youtube_combo, self.config.custom_youtube_path)
+        if self.config.custom_movies_path:
+            self._set_combobox_value(self.movies_combo, self.config.custom_movies_path)
+        if self.config.custom_tv_shows_path:
+            self._set_combobox_value(
+                self.tv_shows_combo, self.config.custom_tv_shows_path
+            )
+        if self.config.custom_documentaries_path:
+            self._set_combobox_value(
+                self.documentaries_combo, self.config.custom_documentaries_path
+            )
 
         # Load tray settings
         self.start_minimized_checkbox.setChecked(self.config.start_minimized)
@@ -836,6 +980,34 @@ class SettingsDialog(QDialog):
             ""
             if self.time_path_combo.currentText() == "(Default)"
             else self.time_path_combo.currentText()
+        )
+
+        # Save media library settings
+        self.config.media_library_port = self.port_spinbox.value()
+        self.config.custom_books_path = (
+            ""
+            if self.books_combo.currentText() == "(Default)"
+            else self.books_combo.currentText()
+        )
+        self.config.custom_youtube_path = (
+            ""
+            if self.youtube_combo.currentText() == "(Default)"
+            else self.youtube_combo.currentText()
+        )
+        self.config.custom_movies_path = (
+            ""
+            if self.movies_combo.currentText() == "(Default)"
+            else self.movies_combo.currentText()
+        )
+        self.config.custom_tv_shows_path = (
+            ""
+            if self.tv_shows_combo.currentText() == "(Default)"
+            else self.tv_shows_combo.currentText()
+        )
+        self.config.custom_documentaries_path = (
+            ""
+            if self.documentaries_combo.currentText() == "(Default)"
+            else self.documentaries_combo.currentText()
         )
 
         # Save tray settings
