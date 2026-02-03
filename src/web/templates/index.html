@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Library - Obsidian Forge</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/media-library.css') }}">
+</head>
+<body>
+    <div class="header">
+        <h1>📚 Media Library</h1>
+        <div class="tabs">
+            <button class="tab active" data-type="all">All</button>
+            <button class="tab" data-type="books">
+                <img src="/static/icons/books.svg" alt="">
+                Books
+            </button>
+            <button class="tab" data-type="movies">
+                <img src="/static/icons/movies.svg" alt="">
+                Movies
+            </button>
+            <button class="tab" data-type="tv_shows">
+                <img src="/static/icons/tv_shows.svg" alt="">
+                TV Shows
+            </button>
+            <button class="tab" data-type="youtube">
+                <img src="/static/icons/youtube.svg" alt="">
+                YouTube
+            </button>
+            <button class="tab" data-type="documentaries">
+                <img src="/static/icons/documentaries.svg" alt="">
+                Documentaries
+            </button>
+        </div>
+        <div class="filters">
+            <input type="search" id="searchInput" placeholder="Search media...">
+            <select id="sortBy">
+                <option value="title">Title</option>
+                <option value="rating">Rating</option>
+                <option value="year">Year</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat-item">
+            <span class="stat-label">Showing:</span>
+            <span id="showingCount" class="stat-value">0</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Total in Library:</span>
+            <span id="totalCount" class="stat-value">0</span>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div id="loadingState" class="loading-state">
+            <div class="spinner"></div>
+            <p>Loading media library...</p>
+        </div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <p>No media items found</p>
+        </div>
+
+        <div id="mediaGrid" class="media-grid"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/media-library.js') }}"></script>
+</body>
+</html>
