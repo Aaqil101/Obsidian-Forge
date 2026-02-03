@@ -35,6 +35,13 @@
         <file>assets/popup/exclamation.svg</file>
         <file>assets/popup/info.svg</file>
 
+        <!-- Web Icons -->
+        <file>assets/web/books.svg</file>
+        <file>assets/web/documentaries.svg</file>
+        <file>assets/web/movies.svg</file>
+        <file>assets/web/tv_shows.svg</file>
+        <file>assets/web/youtube.svg</file>
+
         <!-- Check Icons -->
         <file>assets/square_check.svg</file>
         <file>assets/square_check_filled.svg</file>
